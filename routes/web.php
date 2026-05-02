@@ -38,6 +38,7 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     Route::get('/', [BerandaAdminController::class, 'index'])->name('beranda');
     Route::get('/data', [BerandaAdminController::class, 'getData'])->name('beranda.data');
     Route::get('/laporan/cetak', [BerandaAdminController::class, 'cetakLaporanKasir'])->name('laporan.cetak');
+    Route::post('/toggle-order-status', [BerandaAdminController::class, 'toggleOrderStatus'])->name('toggle-order-status');
 
     // Kelola Menu
     Route::get('/menu', [KelolaMenuController::class, 'index'])->name('menu.index');
@@ -95,21 +96,26 @@ Route::prefix('kasir')->middleware(['auth', 'role:kasir'])->name('kasir.')->grou
 |--------------------------------------------------------------------------
 */
 
-// Tracking pesanan & kuitansi
+// Info halaman order ditutup
+Route::get('/order-tutup', fn () => view('konsumen.order-tutup'))->name('konsumen.order-tutup');
+
+// Tracking pesanan & kuitansi (tidak diblokir saat tutup)
 Route::get('/pesanan/{noPesanan}', [PesananController::class, 'index'])->name('konsumen.pesanan');
 
-// Keranjang
-Route::get('/keranjang', [KeranjangKonsumenController::class, 'index'])->name('konsumen.keranjang');
-Route::post('/keranjang/tambah', [KeranjangKonsumenController::class, 'storeTambahKeranjang'])->name('konsumen.keranjang.tambah');
-Route::put('/keranjang/notes', [KeranjangKonsumenController::class, 'updateNotesPesanan'])->name('konsumen.keranjang.notes');
-Route::put('/keranjang/update', [KeranjangKonsumenController::class, 'updatePesanan'])->name('konsumen.keranjang.update');
-Route::post('/keranjang/pesan', [KeranjangKonsumenController::class, 'storePesan'])->name('konsumen.keranjang.pesan');
+// Keranjang & pemesanan (diblokir saat order ditutup)
+Route::middleware('order.status')->group(function () {
+    Route::get('/keranjang', [KeranjangKonsumenController::class, 'index'])->name('konsumen.keranjang');
+    Route::post('/keranjang/tambah', [KeranjangKonsumenController::class, 'storeTambahKeranjang'])->name('konsumen.keranjang.tambah');
+    Route::put('/keranjang/notes', [KeranjangKonsumenController::class, 'updateNotesPesanan'])->name('konsumen.keranjang.notes');
+    Route::put('/keranjang/update', [KeranjangKonsumenController::class, 'updatePesanan'])->name('konsumen.keranjang.update');
+    Route::post('/keranjang/pesan', [KeranjangKonsumenController::class, 'storePesan'])->name('konsumen.keranjang.pesan');
 
-// Pembayaran
-Route::post('/bayar', [BayarController::class, 'bayar'])->name('konsumen.bayar');
-Route::post('/bayar/callback', [BayarController::class, 'callback'])->name('konsumen.bayar.callback');
+    // Pembayaran
+    Route::post('/bayar', [BayarController::class, 'bayar'])->name('konsumen.bayar');
+    Route::post('/bayar/callback', [BayarController::class, 'callback'])->name('konsumen.bayar.callback');
 
-// Beranda & Katalog Menu (scan QR → /{noMeja})
-Route::get('/menu/data', [BerandaKonsumenController::class, 'getData'])->name('konsumen.menu.data');
-Route::get('/menu/{id}/detail', [BerandaKonsumenController::class, 'detail'])->name('konsumen.menu.detail');
-Route::get('/{noMeja}', [BerandaKonsumenController::class, 'index'])->name('konsumen.beranda');
+    // Beranda & Katalog Menu (scan QR → /{noMeja})
+    Route::get('/menu/data', [BerandaKonsumenController::class, 'getData'])->name('konsumen.menu.data');
+    Route::get('/menu/{id}/detail', [BerandaKonsumenController::class, 'detail'])->name('konsumen.menu.detail');
+    Route::get('/{noMeja}', [BerandaKonsumenController::class, 'index'])->name('konsumen.beranda');
+});

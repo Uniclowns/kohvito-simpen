@@ -6,6 +6,7 @@ use App\Models\Pesanan;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class BerandaAdminController extends Controller
@@ -46,6 +47,20 @@ class BerandaAdminController extends Controller
             ->get();
 
         return response()->json($data);
+    }
+
+    /**
+     * Toggle status sistem pemesanan (buka/tutup).
+     */
+    public function toggleOrderStatus()
+    {
+        $current = Cache::get('order_status', 'buka');
+        $new = $current === 'buka' ? 'tutup' : 'buka';
+        Cache::forever('order_status', $new);
+
+        $message = $new === 'tutup' ? 'Pemesanan berhasil ditutup.' : 'Pemesanan berhasil dibuka.';
+
+        return redirect()->route('admin.beranda')->with('success', $message);
     }
 
     /**
