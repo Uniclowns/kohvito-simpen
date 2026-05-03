@@ -17,6 +17,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'role'         => CheckRole::class,
             'order.status' => CheckOrderStatus::class,
         ]);
+        $middleware->validateCsrfTokens(except: [
+            'bayar/callback',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->respond(function ($response, Throwable $e, $request) {
