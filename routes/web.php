@@ -101,6 +101,8 @@ Route::get('/order-tutup', fn () => view('konsumen.order-tutup'))->name('konsume
 
 // Tracking pesanan & kuitansi (tidak diblokir saat tutup)
 Route::get('/pesanan/{noPesanan}', [PesananController::class, 'index'])->name('konsumen.pesanan');
+Route::get('/pesanan/{noPesanan}/status', [PesananController::class, 'status'])->name('konsumen.pesanan.status');
+Route::get('/pesanan/{noPesanan}/kuitansi', [PesananController::class, 'kuitansi'])->name('konsumen.pesanan.kuitansi');
 
 // Keranjang & pemesanan (diblokir saat order ditutup)
 Route::middleware('order.status')->group(function () {
