@@ -5,10 +5,55 @@
 @source '../**/*.blade.php';
 @source '../**/*.js';
 
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+@font-face {
+    font-family: 'Aileron';
+    src: url('/fonts/aileron/Aileron-Regular.otf') format('opentype');
+    font-weight: 400;
+    font-style: normal;
+}
 
-    --color-primary: #1a56db;
-    --color-secondary: #7e3af2;
+@font-face {
+    font-family: 'Aileron';
+    src: url('/fonts/aileron/Aileron-Bold.otf') format('opentype');
+    font-weight: 700;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Aileron';
+    src: url('/fonts/aileron/Aileron-Light.otf') format('opentype');
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Georgia';
+    src: url('/fonts/georgia/georgia.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+}
+
+@theme {
+    --font-sans: 'Aileron', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-serif: 'Georgia', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+
+    /* Primary Colors */
+    --color-brand-red: #681F1F;
+    --color-brand-dark: #460001;
+    --color-brand-light: #FFF5F5;
+
+    /* Grayscale */
+    --color-brand-black: #1A1A1A;
+    --color-brand-gray-dark: #4D4D4D;
+    --color-brand-gray: #808080;
+    --color-brand-gray-light: #CCCCCC;
+    --color-brand-gray-extralight: #E6E6E6;
+    --color-brand-white: #FFFFFF;
+
+    /* Custom text sizes (extends Tailwind's scale) */
+    --text-xxs: 0.625rem;             /* 10px — H7 / t8 */
+    --text-xxs--line-height: 0.75rem; /* 12px */
+    --text-xxxs: 0.5rem;              /* 8px  — t9 */
+    --text-xxxs--line-height: 0.75rem;/* 12px */
 }
