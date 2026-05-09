@@ -15,14 +15,22 @@
 
         <header class="bg-white border-b border-brand-gray-extralight px-8 py-4 flex items-center justify-between">
             <h1 class="text-lg font-bold text-brand-black">@yield('page-title')</h1>
-            <span class="text-sm text-brand-gray">{{ now()->translatedFormat('l, d F Y') }}</span>
+            @hasSection('header-end')
+                @yield('header-end')
+            @else
+                <span class="text-sm text-brand-gray">{{ now()->translatedFormat('l, d F Y') }}</span>
+            @endif
         </header>
 
         <main class="flex-1 px-8 py-6">
             @yield('content')
         </main>
 
-        <x-footer />
+        @hasSection('footer-override')
+            @yield('footer-override')
+        @else
+            <x-footer />
+        @endif
 
     </div>
 
