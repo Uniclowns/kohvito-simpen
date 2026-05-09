@@ -12,14 +12,14 @@
     <title>{{ $title ?: $pageTitle }} — {{ config('app.name') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-brand-light min-h-screen flex">
+<body class="bg-[#F6F6F6] min-h-screen flex">
 
     <x-sidebar />
 
     <div class="flex-1 flex flex-col min-h-screen overflow-hidden">
 
-        <header class="bg-white border-b border-brand-gray-extralight px-8 py-4 flex items-center justify-between">
-            <h1 class="text-lg font-bold text-brand-black">{{ $pageTitle }}</h1>
+        <header class="px-8 pt-8 pb-4 flex items-center justify-between">
+            <h1 class="text-3xl font-bold text-brand-black">{{ $pageTitle }}</h1>
             @if (isset($headerEnd))
                 {{ $headerEnd }}
             @else
@@ -27,7 +27,7 @@
             @endif
         </header>
 
-        <main class="flex-1 px-8 py-6">
+        <main class="flex-1 px-8 py-2">
             {{ $slot }}
         </main>
 
