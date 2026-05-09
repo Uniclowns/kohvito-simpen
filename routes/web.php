@@ -8,7 +8,6 @@ use App\Http\Controllers\BerandaKonsumenController;
 use App\Http\Controllers\HistoriPesananController;
 use App\Http\Controllers\KelolaKategoriMenuController;
 use App\Http\Controllers\KelolaMenuController;
-use App\Http\Controllers\KelolaMejaController;
 use App\Http\Controllers\KelolaPenggunaKasirController;
 use App\Http\Controllers\LaporanKeuanganController;
 use App\Http\Controllers\KelolaPesananController;
@@ -55,12 +54,6 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     Route::get('/pengguna-kasir', [KelolaPenggunaKasirController::class, 'index'])->name('pengguna-kasir.index');
     Route::post('/pengguna-kasir', [KelolaPenggunaKasirController::class, 'storePenggunaKasir'])->name('pengguna-kasir.store');
     Route::delete('/pengguna-kasir/{id}', [KelolaPenggunaKasirController::class, 'destroyPenggunaKasir'])->name('pengguna-kasir.destroy');
-
-    // Kelola Meja
-    Route::get('/meja', [KelolaMejaController::class, 'index'])->name('meja.index');
-    Route::post('/meja', [KelolaMejaController::class, 'storeMeja'])->name('meja.store');
-    Route::put('/meja/{id}', [KelolaMejaController::class, 'updateMeja'])->name('meja.update');
-    Route::delete('/meja/{id}', [KelolaMejaController::class, 'destroyMeja'])->name('meja.destroy');
 
     // Laporan Keuangan
     Route::get('/laporan-keuangan', [LaporanKeuanganController::class, 'index'])->name('laporan-keuangan.index');
