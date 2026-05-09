@@ -235,60 +235,59 @@
 
     {{-- ── Footer ── --}}
     <x-slot:pageFooter>
-        <footer class="bg-white border-t border-brand-gray-extralight">
+        <footer class="bg-brand-dark">
             <div class="px-8 py-10 grid grid-cols-3 gap-10">
 
                 {{-- Brand --}}
                 <div>
                     <div class="flex items-center gap-2 mb-3">
-                        <img src="{{ asset('images/logo/KOHVITO LOGO ONLY RED.png') }}" alt="Kohvito" class="h-7 w-auto">
-                        <span class="font-bold text-brand-black text-base">Kohvito. Cafe</span>
+                        <img src="{{ asset('images/logo/KOHVITO LOGO ONLY WHITE.png') }}" alt="Kohvito" class="h-7 w-auto">
                     </div>
-                    <p class="text-xs text-brand-gray leading-relaxed mb-4">
+                    <p class="text-xs text-white/60 leading-relaxed mb-4">
                         A Coffee, Dining &amp; Lifestyle Space Crafted for People Who Love Good Coffee, Good Atmosphere, and Meaningful Daily Experiences.
                     </p>
                     <div class="flex items-start gap-2 mb-1.5">
-                        <img src="{{ asset('images/icons/location-marker.svg') }}" alt="" class="w-4 h-4 flex-shrink-0 mt-0.5 brightness-0">
-                        <p class="text-xs text-brand-gray-dark">Jl. Jalan No. 17, Pontianak</p>
+                        <img src="{{ asset('images/icons/location-marker.svg') }}" alt="" class="w-4 h-4 flex-shrink-0 mt-0.5">
+                        <p class="text-xs text-white/70">Jl. Jalan No. 17, Pontianak</p>
                     </div>
                     <div class="flex items-center gap-2">
-                        <img src="{{ asset('images/icons/mail.svg') }}" alt="" class="w-4 h-4 flex-shrink-0 brightness-0">
-                        <p class="text-xs text-brand-gray">kohvito.cafe@gmail.com</p>
+                        <img src="{{ asset('images/icons/mail.svg') }}" alt="" class="w-4 h-4 flex-shrink-0">
+                        <p class="text-xs text-white/60">kohvito.cafe@gmail.com</p>
                     </div>
                 </div>
 
                 {{-- Navigation --}}
                 <div>
-                    <p class="text-sm font-semibold text-brand-black mb-4">Navigation</p>
+                    <p class="text-sm font-semibold text-white mb-4">Navigation</p>
                     <ul class="space-y-2">
-                        <li><a href="{{ route('admin.beranda') }}" class="text-sm text-brand-gray hover:text-brand-red transition-colors">Beranda</a></li>
-                        <li><a href="{{ route('admin.pengguna-kasir.index') }}" class="text-sm text-brand-gray hover:text-brand-red transition-colors">Kelola User Kasir</a></li>
-                        <li><a href="{{ route('admin.menu.index') }}" class="text-sm text-brand-gray hover:text-brand-red transition-colors">Kelola Menu</a></li>
-                        <li><a href="{{ route('admin.laporan-keuangan.index') }}" class="text-sm text-brand-gray hover:text-brand-red transition-colors">Laporan Keuangan</a></li>
+                        <li><a href="{{ route('admin.beranda') }}" class="text-sm text-white/60 hover:text-white transition-colors">Beranda</a></li>
+                        <li><a href="{{ route('admin.pengguna-kasir.index') }}" class="text-sm text-white/60 hover:text-white transition-colors">Kelola User Kasir</a></li>
+                        <li><a href="{{ route('admin.menu.index') }}" class="text-sm text-white/60 hover:text-white transition-colors">Kelola Menu</a></li>
+                        <li><a href="{{ route('admin.laporan-keuangan.index') }}" class="text-sm text-white/60 hover:text-white transition-colors">Laporan Keuangan</a></li>
                     </ul>
                 </div>
 
                 {{-- Visit Us + Reservation --}}
                 <div>
-                    <p class="text-sm font-semibold text-brand-black mb-4">Visit Us</p>
+                    <p class="text-sm font-semibold text-white mb-4">Visit Us</p>
                     <ul class="space-y-2.5 mb-6">
                         <li class="flex items-center gap-2.5">
-                            <img src="{{ asset('images/icons/Instagram.svg') }}" alt="Instagram" class="w-5 h-5 flex-shrink-0 brightness-0">
-                            <span class="text-sm text-brand-gray">kohvito.cafe</span>
+                            <img src="{{ asset('images/icons/Instagram.svg') }}" alt="Instagram" class="w-5 h-5 flex-shrink-0">
+                            <span class="text-sm text-white/60">kohvito.cafe</span>
                         </li>
                         <li class="flex items-center gap-2.5">
-                            <img src="{{ asset('images/icons/tiktok.svg') }}" alt="TikTok" class="w-5 h-5 flex-shrink-0 brightness-0">
-                            <span class="text-sm text-brand-gray">kohvito</span>
+                            <img src="{{ asset('images/icons/tiktok.svg') }}" alt="TikTok" class="w-5 h-5 flex-shrink-0">
+                            <span class="text-sm text-white/60">kohvito</span>
                         </li>
                         <li class="flex items-center gap-2.5">
-                            <img src="{{ asset('images/icons/Threads instagram.svg') }}" alt="Threads" class="w-5 h-5 flex-shrink-0 brightness-0">
-                            <span class="text-sm text-brand-gray">kohvito.cafe</span>
+                            <img src="{{ asset('images/icons/Threads instagram.svg') }}" alt="Threads" class="w-5 h-5 flex-shrink-0">
+                            <span class="text-sm text-white/60">kohvito.cafe</span>
                         </li>
                     </ul>
 
-                    <p class="text-sm font-semibold text-brand-black mb-3">Reservation</p>
+                    <p class="text-sm font-semibold text-white mb-3">Reservation</p>
                     <a href="https://wa.me/6281348922766"
-                       class="inline-flex items-center gap-2 bg-brand-red text-white text-xs font-semibold px-4 py-2 rounded-lg hover:bg-brand-dark transition-colors">
+                       class="inline-flex items-center gap-2 bg-brand-red text-white text-xs font-semibold px-4 py-2 rounded-lg hover:bg-brand-red/80 transition-colors">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                   d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
@@ -298,8 +297,8 @@
                 </div>
             </div>
 
-            <div class="border-t border-brand-gray-extralight px-8 py-4 text-center">
-                <p class="text-xs text-brand-gray">&copy;{{ date('Y') }} All Rights Reserved. Developed By Pet &amp; John</p>
+            <div class="border-t border-white/10 px-8 py-4 text-center">
+                <p class="text-xs text-white/40">&copy;{{ date('Y') }} All Rights Reserved. Developed By Pet &amp; Jenn</p>
             </div>
         </footer>
     </x-slot:pageFooter>
