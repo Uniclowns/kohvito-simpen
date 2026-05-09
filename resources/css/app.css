@@ -42,6 +42,12 @@
     --color-brand-red: #681F1F;
     --color-brand-dark: #460001;
     --color-brand-light: #FFF5F5;
+    --color-brand-red-muted: #D9C7C7;
+
+    /* State Colors */
+    --color-state-red: #E52E2D;
+    --color-state-green: #58E52D;
+    --color-state-yellow: #EFD935;
 
     /* Grayscale */
     --color-brand-black: #1A1A1A;

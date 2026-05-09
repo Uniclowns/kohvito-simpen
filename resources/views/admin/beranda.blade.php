@@ -2,29 +2,28 @@
 
     {{-- ── Header: filter + Tutup/Buka Order ── --}}
     <x-slot:headerEnd>
-        <div class="flex items-center gap-3">
-            <button type="button"
-                    class="w-9 h-9 flex items-center justify-center rounded-lg border border-brand-gray-extralight hover:bg-brand-light transition-colors">
-                <svg class="w-4 h-4 text-brand-gray" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        <div class="flex items-center gap-5">
+            <button type="button" class="flex items-center justify-center transition-colors">
+                <svg class="w-6 h-6 text-brand-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                           d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/>
                 </svg>
             </button>
             <form action="{{ route('admin.toggle-order-status') }}" method="POST">
                 @csrf
                 <button type="submit"
-                        class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors
+                        class="flex items-center justify-center px-6 py-2 rounded-xl text-sm font-bold transition-colors shadow-sm
                             {{ $orderStatus === 'buka'
-                                ? 'bg-brand-red text-white hover:bg-brand-dark'
-                                : 'bg-green-600 text-white hover:bg-green-700' }}">
+                                ? 'bg-state-red text-white hover:opacity-90'
+                                : 'bg-state-green text-white hover:opacity-90' }}">
                     @if ($orderStatus === 'buka')
                         Tutup Toko
                     @else
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                   d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
-                        Buka Order
+                        Buka Toko
                     @endif
                 </button>
             </form>
@@ -42,124 +41,129 @@
     @endif
 
     {{-- ── Summary Cards ── --}}
-    <div class="grid grid-cols-4 gap-4 mb-5">
+    <div class="grid grid-cols-4 gap-4 mb-6 mt-2">
 
         {{-- Total Menu --}}
-        <div class="bg-white rounded-xl border border-brand-gray-extralight shadow-sm px-5 py-4">
-            <p class="text-xs text-brand-gray font-medium mb-3">Total Menu</p>
-            <div class="flex items-end justify-between">
-                <p class="text-2xl font-bold text-brand-black">{{ $totalMenu }}</p>
-                <span class="w-9 h-9 rounded-lg bg-brand-light flex items-center justify-center">
-                    <img src="{{ asset('images/icons/coffee.svg') }}" alt=""
-                         class="w-5 h-5 [filter:brightness(0)_saturate(1)_invert(15%)_sepia(80%)_saturate(600%)_hue-rotate(320deg)_brightness(70%)]">
-                </span>
+        <div class="bg-[#681F1F]/12 rounded-xl px-5 py-4">
+            <div class="flex items-center gap-2 mb-2">
+                <img src="{{ asset('images/icons/coffee.svg') }}" alt=""
+                     class="w-4 h-4 [filter:brightness(0)_saturate(1)_invert(15%)_sepia(80%)_saturate(600%)_hue-rotate(320deg)_brightness(70%)] opacity-70">
+                <h6 class="text-[12px] text-brand-black font-bold uppercase">Total Menu</h6>
             </div>
-            <p class="text-xs text-brand-gray mt-1">Menu</p>
+            <div class="flex items-baseline gap-1.5 mt-2">
+                <p class="text-4xl font-bold text-brand-black leading-none">{{ $totalMenu }}</p>
+                <p class="text-sm font-bold text-brand-black">Menu</p>
+            </div>
+            <p class="text-[10px] text-brand-gray mt-2 font-medium">30 Minuman &nbsp; 20 Makanan</p>
         </div>
 
         {{-- Total Pengguna Kasir --}}
-        <div class="bg-white rounded-xl border border-brand-gray-extralight shadow-sm px-5 py-4">
-            <p class="text-xs text-brand-gray font-medium mb-3">Total Pengguna Kasir</p>
-            <div class="flex items-end justify-between">
-                <p class="text-2xl font-bold text-brand-black">{{ $totalKasir }}</p>
-                <span class="w-9 h-9 rounded-lg bg-brand-light flex items-center justify-center">
-                    <img src="{{ asset('images/icons/user-group.svg') }}" alt="" class="w-4 h-4">
-                </span>
+        <div class="bg-[#681F1F]/12 rounded-xl px-5 py-4">
+            <div class="flex items-center gap-2 mb-2">
+                <img src="{{ asset('images/icons/user-group.svg') }}" alt="" class="w-4 h-4 [filter:brightness(0)_saturate(1)_invert(15%)_sepia(80%)_saturate(600%)_hue-rotate(320deg)_brightness(70%)] opacity-70">
+                <p class="text-[11px] text-brand-black font-bold uppercase">Total Pengguna Kasir</p>
             </div>
-            <p class="text-xs text-brand-gray mt-1">Kasir</p>
+            <div class="flex items-baseline gap-1.5 mt-2">
+                <p class="text-4xl font-bold text-brand-black leading-none">{{ $totalKasir }}</p>
+                <p class="text-sm font-bold text-brand-black">Kasir</p>
+            </div>
+            <p class="text-[10px] text-brand-gray mt-2 font-medium">&nbsp;</p>
         </div>
 
         {{-- Total Transaksi --}}
-        <div class="bg-white rounded-xl border border-brand-gray-extralight shadow-sm px-5 py-4">
-            <p class="text-xs text-brand-gray font-medium mb-3">Total Transaksi</p>
-            <div class="flex items-end justify-between">
-                <p class="text-2xl font-bold text-brand-black">{{ $totalTransaksi }}</p>
-                <span class="w-9 h-9 rounded-lg bg-brand-light flex items-center justify-center">
-                    <img src="{{ asset('images/icons/shopping-cart.svg') }}" alt="" class="w-4 h-4">
-                </span>
+        <div class="bg-[#681F1F]/12 rounded-xl px-5 py-4">
+            <div class="flex items-center gap-2 mb-2">
+                <img src="{{ asset('images/icons/shopping-cart.svg') }}" alt="" class="w-4 h-4 [filter:brightness(0)_saturate(1)_invert(15%)_sepia(80%)_saturate(600%)_hue-rotate(320deg)_brightness(70%)] opacity-70">
+                <p class="text-[11px] text-brand-black font-bold uppercase">Total Transaksi</p>
             </div>
-            <p class="text-xs text-brand-gray mt-1">Transaksi</p>
+            <div class="flex items-baseline gap-1.5 mt-2">
+                <p class="text-4xl font-bold text-brand-black leading-none">{{ $totalTransaksi }}</p>
+                <p class="text-sm font-bold text-brand-black">Transaksi</p>
+            </div>
+            <p class="text-[10px] text-brand-gray mt-2 font-medium">&nbsp;</p>
         </div>
 
-        {{-- Total Pendapatan Bulan Ini --}}
-        <div class="bg-white rounded-xl border border-brand-gray-extralight shadow-sm px-5 py-4">
-            <p class="text-xs text-brand-gray font-medium mb-3">Total Pendapatan Bulan ini</p>
-            <div class="flex items-end justify-between">
-                <div>
-                    <p class="text-xs text-brand-gray">Rp</p>
-                    <p class="text-2xl font-bold text-brand-black leading-tight">{{ number_format($omzetBulanIni, 0, ',', '.') }}</p>
-                </div>
-                <span class="w-9 h-9 rounded-lg bg-brand-light flex items-center justify-center">
-                    <img src="{{ asset('images/icons/currency-dollar.svg') }}" alt="" class="w-4 h-4">
-                </span>
+        {{-- Total Pendapatan Kotor --}}
+        <div class="bg-[#681F1F]/12 rounded-xl px-5 py-4">
+            <div class="flex items-center gap-2 mb-2">
+                <img src="{{ asset('images/icons/currency-dollar.svg') }}" alt="" class="w-4 h-4 [filter:brightness(0)_saturate(1)_invert(15%)_sepia(80%)_saturate(600%)_hue-rotate(320deg)_brightness(70%)] opacity-70">
+                <p class="text-[11px] text-brand-black font-bold uppercase">Total Pendapatan Kotor</p>
             </div>
+            <div class="flex items-baseline gap-1 mt-2">
+                <p class="text-lg font-bold text-brand-black">Rp</p>
+                <p class="text-3xl font-bold text-brand-black leading-none">{{ number_format($omzetBulanIni, 0, ',', '.') }}</p>
+            </div>
+            <p class="text-[10px] text-brand-gray mt-2 font-medium">Rp {{ number_format($omzetBulanIni / 30, 0, ',', '.') }} Rata-Rata Pembelian</p>
         </div>
     </div>
 
     {{-- ── Terlaris Cards ── --}}
-    <div class="grid grid-cols-2 gap-4 mb-5">
+    <div class="grid grid-cols-2 gap-4 mb-6">
 
         {{-- Makanan Terlaris --}}
-        <div class="bg-white rounded-xl border border-brand-gray-extralight shadow-sm px-5 py-4 flex items-center justify-between gap-4">
-            <div>
-                <div class="flex items-center gap-2 mb-2">
-                    <span class="w-8 h-8 rounded-md bg-brand-red flex items-center justify-center flex-shrink-0">
-                        <img src="{{ asset('images/icons/Food.svg') }}" alt="" class="w-5 h-5">
-                    </span>
-                    <p class="text-xs text-brand-gray font-medium">Makanan Terlaris</p>
-                </div>
-                <p class="text-base font-bold text-brand-black">{{ $makananTerlaris?->nama_menu ?? '—' }}</p>
-                @if ($makananTerlaris)
-                    <p class="text-xs text-brand-gray mt-0.5">{{ $makananTerlaris->total_terjual }} porsi terjual</p>
-                @endif
+        <div class="bg-white rounded-xl shadow-sm border border-brand-gray-extralight flex overflow-hidden h-24">
+            <div class="w-20 bg-brand-dark flex items-center justify-center flex-shrink-0">
+                <img src="{{ asset('images/icons/Food.svg') }}" alt="" class="w-8 h-8 brightness-0 invert">
             </div>
-            @if ($makananTerlaris?->gambar_menu)
-                <img src="{{ asset('storage/' . $makananTerlaris->gambar_menu) }}"
-                     alt="{{ $makananTerlaris->nama_menu }}"
-                     class="w-20 h-20 object-cover rounded-lg flex-shrink-0">
-            @else
-                <div class="w-20 h-20 rounded-lg bg-brand-red flex items-center justify-center flex-shrink-0">
-                    <img src="{{ asset('images/icons/Food.svg') }}" alt="" class="w-10 h-10">
+            <div class="flex-1 py-3 px-4 flex items-center gap-4">
+                @if ($makananTerlaris?->gambar_menu)
+                    <img src="{{ asset('storage/' . $makananTerlaris->gambar_menu) }}"
+                         alt="{{ $makananTerlaris->nama_menu }}"
+                         class="w-16 h-16 object-cover rounded-full flex-shrink-0 border border-brand-gray-extralight">
+                @else
+                    <div class="w-16 h-16 rounded-full bg-brand-light flex items-center justify-center flex-shrink-0">
+                        <img src="{{ asset('images/icons/Food.svg') }}" alt="" class="w-8 h-8 opacity-20">
+                    </div>
+                @endif
+                <div>
+                    <p class="text-[10px] text-brand-red font-bold uppercase tracking-wider mb-1">Makanan Terlaris</p>
+                    <p class="text-lg font-bold text-brand-black leading-tight mb-1">{{ $makananTerlaris?->nama_menu ?? '—' }}</p>
+                    @if ($makananTerlaris)
+                        <p class="text-[10px] text-brand-gray font-medium">{{ $makananTerlaris->total_terjual }} Terjual Hari Ini</p>
+                    @else
+                        <p class="text-[10px] text-brand-gray font-medium">Belum ada data</p>
+                    @endif
                 </div>
-            @endif
+            </div>
         </div>
 
         {{-- Minuman Terlaris --}}
-        <div class="bg-white rounded-xl border border-brand-gray-extralight shadow-sm px-5 py-4 flex items-center justify-between gap-4">
-            <div>
-                <div class="flex items-center gap-2 mb-2">
-                    <span class="w-8 h-8 rounded-md bg-brand-red flex items-center justify-center flex-shrink-0">
-                        <img src="{{ asset('images/icons/Drink.svg') }}" alt="" class="w-5 h-5">
-                    </span>
-                    <p class="text-xs text-brand-gray font-medium">Minuman Terlaris</p>
-                </div>
-                <p class="text-base font-bold text-brand-black">{{ $minumanTerlaris?->nama_menu ?? '—' }}</p>
-                @if ($minumanTerlaris)
-                    <p class="text-xs text-brand-gray mt-0.5">{{ $minumanTerlaris->total_terjual }} gelas terjual</p>
-                @endif
+        <div class="bg-white rounded-xl shadow-sm border border-brand-gray-extralight flex overflow-hidden h-24">
+            <div class="w-20 bg-brand-dark flex items-center justify-center flex-shrink-0">
+                <img src="{{ asset('images/icons/Drink.svg') }}" alt="" class="w-8 h-8 brightness-0 invert">
             </div>
-            @if ($minumanTerlaris?->gambar_menu)
-                <img src="{{ asset('storage/' . $minumanTerlaris->gambar_menu) }}"
-                     alt="{{ $minumanTerlaris->nama_menu }}"
-                     class="w-20 h-20 object-cover rounded-lg flex-shrink-0">
-            @else
-                <div class="w-20 h-20 rounded-lg bg-brand-red flex items-center justify-center flex-shrink-0">
-                    <img src="{{ asset('images/icons/Drink.svg') }}" alt="" class="w-10 h-10">
+            <div class="flex-1 py-3 px-4 flex items-center gap-4">
+                @if ($minumanTerlaris?->gambar_menu)
+                    <img src="{{ asset('storage/' . $minumanTerlaris->gambar_menu) }}"
+                         alt="{{ $minumanTerlaris->nama_menu }}"
+                         class="w-16 h-16 object-cover rounded-full flex-shrink-0 border border-brand-gray-extralight">
+                @else
+                    <div class="w-16 h-16 rounded-full bg-brand-light flex items-center justify-center flex-shrink-0">
+                        <img src="{{ asset('images/icons/Drink.svg') }}" alt="" class="w-8 h-8 opacity-20">
+                    </div>
+                @endif
+                <div>
+                    <p class="text-[10px] text-brand-red font-bold uppercase tracking-wider mb-1">Minuman Terlaris</p>
+                    <p class="text-lg font-bold text-brand-black leading-tight mb-1">{{ $minumanTerlaris?->nama_menu ?? '—' }}</p>
+                    @if ($minumanTerlaris)
+                        <p class="text-[10px] text-brand-gray font-medium">{{ $minumanTerlaris->total_terjual }} Terjual Hari Ini</p>
+                    @else
+                        <p class="text-[10px] text-brand-gray font-medium">Belum ada data</p>
+                    @endif
                 </div>
-            @endif
+            </div>
         </div>
     </div>
 
     {{-- ── Data Pesanan Hari Ini ── --}}
-    <div class="bg-white rounded-xl border border-brand-gray-extralight shadow-sm mb-5">
+    <div class="bg-white rounded-xl border border-brand-gray-extralight shadow-sm mb-6">
         <div class="flex items-center justify-between px-6 py-4 border-b border-brand-gray-extralight">
-            <p class="font-semibold text-brand-black">Data Pesanan Hari Ini</p>
+            <div class="flex items-center gap-2">
+                <p class="font-bold text-brand-black">Data Pesanan Hari Ini</p>
+            </div>
             <a href="{{ route('admin.laporan.cetak') }}"
-               class="flex items-center gap-2 bg-brand-red text-white text-xs font-semibold px-4 py-2 rounded-lg hover:bg-brand-dark transition-colors">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
-                </svg>
+               class="flex items-center justify-center gap-2 bg-brand-dark text-white text-xs font-bold px-4 py-2 rounded-xl hover:bg-opacity-90 transition-colors shadow-sm">
+                <img src="{{ asset('images/icons/template.svg') }}" alt="" class="w-4 h-4 brightness-0 invert">
                 Cetak Laporan Kasir
             </a>
         </div>
@@ -167,14 +171,14 @@
         <div class="overflow-x-auto">
             <table class="w-full text-sm">
                 <thead>
-                    <tr class="text-left text-xs text-brand-gray font-medium border-b border-brand-gray-extralight">
-                        <th class="px-6 py-3">ID Pesanan</th>
-                        <th class="px-4 py-3">Waktu</th>
-                        <th class="px-4 py-3">Meja</th>
-                        <th class="px-4 py-3">Item</th>
-                        <th class="px-4 py-3">Kasir</th>
-                        <th class="px-4 py-3">Total</th>
-                        <th class="px-4 py-3">Status</th>
+                    <tr class="text-left text-[11px] text-brand-dark font-bold border-b border-brand-gray-extralight">
+                        <th class="px-6 py-4">ID Pesanan</th>
+                        <th class="px-4 py-4">Waktu</th>
+                        <th class="px-4 py-4">Meja</th>
+                        <th class="px-4 py-4">Item</th>
+                        <th class="px-4 py-4">Kasir</th>
+                        <th class="px-4 py-4">Total</th>
+                        <th class="px-4 py-4">Status</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-brand-gray-extralight">
@@ -182,10 +186,10 @@
                     @php
                         $items = $p->detailPesanan->map(fn($d) => $d->jumlah . 'x ' . ($d->menu?->nama_menu ?? '?'))->join(', ');
                         [$statusIcon, $statusBg, $statusLabel] = match($p->status_pesanan) {
-                            'selesai'             => ['Icon.svg',   'bg-green-50 text-green-700',  'Selesai'],
-                            'diproses'            => ['Wait.svg',   'bg-amber-50 text-amber-700',  'Diproses'],
-                            'menunggu konfirmasi' => ['Wait.svg',   'bg-orange-50 text-orange-700','Menunggu'],
-                            default               => ['Cancel.svg', 'bg-red-50 text-red-700',      ucfirst($p->status_pesanan)],
+                            'selesai'             => ['Icon.svg',   'bg-state-green/15 text-state-green',  'Selesai'],
+                            'diproses'            => ['Wait.svg',   'bg-state-yellow/20 text-state-yellow',  'Diproses'],
+                            'menunggu konfirmasi' => ['Wait.svg',   'bg-state-yellow/20 text-state-yellow','Menunggu'],
+                            default               => ['Cancel.svg', 'bg-state-red/15 text-state-red',      ucfirst($p->status_pesanan)],
                         };
                     @endphp
                     <tr class="hover:bg-brand-light/40 transition-colors">
@@ -215,18 +219,18 @@
     </div>
 
     {{-- ── Charts ── --}}
-    <div class="grid grid-cols-1 gap-5 mb-6">
+    <div class="grid grid-cols-1 gap-6 mb-6">
 
         <div class="bg-white rounded-xl border border-brand-gray-extralight shadow-sm p-6">
-            <p class="font-semibold text-brand-black mb-4">Pesanan Hari Ini</p>
-            <div class="relative h-48">
+            <p class="font-bold text-brand-dark text-sm mb-4 tracking-wide">Pesanan Hari Ini</p>
+            <div class="relative h-64">
                 <canvas id="chartPesanan"></canvas>
             </div>
         </div>
 
         <div class="bg-white rounded-xl border border-brand-gray-extralight shadow-sm p-6">
-            <p class="font-semibold text-brand-black mb-4">Pendapatan Minggu Ini</p>
-            <div class="relative h-48">
+            <p class="font-bold text-brand-dark text-sm mb-4 tracking-wide">Pendapatan Minggu Ini</p>
+            <div class="relative h-64">
                 <canvas id="chartPendapatan"></canvas>
             </div>
         </div>
@@ -235,70 +239,70 @@
 
     {{-- ── Footer ── --}}
     <x-slot:pageFooter>
-        <footer class="bg-brand-dark">
-            <div class="px-8 py-10 grid grid-cols-3 gap-10">
+        <footer class="bg-brand-dark px-10 py-12 mt-auto">
+            <div class="grid grid-cols-12 gap-8 border-b border-white/10 pb-8">
 
-                {{-- Brand --}}
-                <div>
-                    <div class="flex items-center gap-2 mb-3">
-                        <img src="{{ asset('images/logo/KOHVITO LOGO ONLY WHITE.png') }}" alt="Kohvito" class="h-7 w-auto">
-                    </div>
-                    <p class="text-xs text-white/60 leading-relaxed mb-4">
-                        A Coffee, Dining &amp; Lifestyle Space Crafted for People Who Love Good Coffee, Good Atmosphere, and Meaningful Daily Experiences.
+                {{-- Brand & Info --}}
+                <div class="col-span-6 pr-8">
+                    <img src="{{ asset('images/logo/KOHVITO LOGO WHITE.png') }}" alt="Kohvito" class="h-12 w-auto mb-6">
+                    <p class="text-[13px] text-white/90 leading-relaxed mb-6">
+                        A Coffee, Dining &amp; Lifestyle Space Crafted for People Who Love Good Coffee, Cozy Atmosphere, and Meaningful Daily Experiences.
                     </p>
-                    <div class="flex items-start gap-2 mb-1.5">
-                        <img src="{{ asset('images/icons/location-marker.svg') }}" alt="" class="w-4 h-4 flex-shrink-0 mt-0.5">
-                        <p class="text-xs text-white/70">Jl. Jalan No. 17, Pontianak</p>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <img src="{{ asset('images/icons/mail.svg') }}" alt="" class="w-4 h-4 flex-shrink-0">
-                        <p class="text-xs text-white/60">kohvito.cafe@gmail.com</p>
+                    <div class="flex items-center gap-6">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            <p class="text-[13px] text-white/90">Jl Johar No. 72 Pontianak</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                            <p class="text-[13px] text-white/90">kohvitocafe@gmail.com</p>
+                        </div>
                     </div>
                 </div>
 
                 {{-- Navigation --}}
-                <div>
-                    <p class="text-sm font-semibold text-white mb-4">Navigation</p>
-                    <ul class="space-y-2">
-                        <li><a href="{{ route('admin.beranda') }}" class="text-sm text-white/60 hover:text-white transition-colors">Beranda</a></li>
-                        <li><a href="{{ route('admin.pengguna-kasir.index') }}" class="text-sm text-white/60 hover:text-white transition-colors">Kelola User Kasir</a></li>
-                        <li><a href="{{ route('admin.menu.index') }}" class="text-sm text-white/60 hover:text-white transition-colors">Kelola Menu</a></li>
-                        <li><a href="{{ route('admin.laporan-keuangan.index') }}" class="text-sm text-white/60 hover:text-white transition-colors">Laporan Keuangan</a></li>
+                <div class="col-span-2">
+                    <p class="text-base font-bold text-white mb-5 tracking-wide">Navigation</p>
+                    <ul class="space-y-4">
+                        <li><a href="#" class="text-[13px] text-white/80 hover:text-white transition-colors">Beranda Admin</a></li>
+                        <li><a href="#" class="text-[13px] text-white/80 hover:text-white transition-colors">Kelola Pengguna Kasir</a></li>
+                        <li><a href="#" class="text-[13px] text-white/80 hover:text-white transition-colors">Kelola Menu</a></li>
+                        <li><a href="#" class="text-[13px] text-white/80 hover:text-white transition-colors">Kelola Kategori Menu</a></li>
                     </ul>
                 </div>
 
-                {{-- Visit Us + Reservation --}}
-                <div>
-                    <p class="text-sm font-semibold text-white mb-4">Visit Us</p>
-                    <ul class="space-y-2.5 mb-6">
-                        <li class="flex items-center gap-2.5">
-                            <img src="{{ asset('images/icons/Instagram.svg') }}" alt="Instagram" class="w-5 h-5 flex-shrink-0">
-                            <span class="text-sm text-white/60">kohvito.cafe</span>
-                        </li>
-                        <li class="flex items-center gap-2.5">
-                            <img src="{{ asset('images/icons/tiktok.svg') }}" alt="TikTok" class="w-5 h-5 flex-shrink-0">
-                            <span class="text-sm text-white/60">kohvito</span>
-                        </li>
-                        <li class="flex items-center gap-2.5">
-                            <img src="{{ asset('images/icons/Threads instagram.svg') }}" alt="Threads" class="w-5 h-5 flex-shrink-0">
-                            <span class="text-sm text-white/60">kohvito.cafe</span>
-                        </li>
-                    </ul>
+                {{-- Visit Us & Reservation --}}
+                <div class="col-span-4">
+                    <p class="text-base font-bold text-white mb-5 tracking-wide">Visit Us!</p>
+                    <div class="flex items-center gap-5 mb-8 flex-wrap">
+                        <div class="flex items-center gap-1.5">
+                            <img src="{{ asset('images/icons/Instagram.svg') }}" alt="" class="w-4 h-4 brightness-0 invert">
+                            <span class="text-[13px] text-white/90">kohvito</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"/></svg>
+                            <span class="text-[13px] text-white/90">kohvito_cafe</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <img src="{{ asset('images/icons/Threads instagram.svg') }}" alt="" class="w-4 h-4 brightness-0 invert">
+                            <span class="text-[13px] text-white/90">kohvito</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <img src="{{ asset('images/icons/tiktok.svg') }}" alt="" class="w-4 h-4 brightness-0 invert">
+                            <span class="text-[13px] text-white/90">kohvito cafe</span>
+                        </div>
+                    </div>
 
-                    <p class="text-sm font-semibold text-white mb-3">Reservation</p>
-                    <a href="https://wa.me/6281348922766"
-                       class="inline-flex items-center gap-2 bg-brand-red text-white text-xs font-semibold px-4 py-2 rounded-lg hover:bg-brand-red/80 transition-colors">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-                        </svg>
-                        Contact us : +62 813 4892 2766
+                    <p class="text-base font-bold text-white mb-4 tracking-wide">Reservation?</p>
+                    <a href="https://wa.me/6281348922789" class="inline-flex items-center bg-white rounded-xl px-5 py-2.5 hover:bg-gray-100 transition-colors shadow-sm">
+                        <span class="text-[13px] text-brand-dark">Contact Us! <span class="font-bold ml-1">+62 813-4892-2789</span></span>
                     </a>
                 </div>
+
             </div>
 
-            <div class="border-t border-white/10 px-8 py-4 text-center">
-                <p class="text-xs text-white/40">&copy;{{ date('Y') }} All Rights Reserved. Developed By Pet &amp; Jenn</p>
+            <div class="pt-6 text-center">
+                <p class="text-[11px] text-white/70">@2026 Right Reserved. Developed By Pet &amp; Jenn</p>
             </div>
         </footer>
     </x-slot:pageFooter>
