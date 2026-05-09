@@ -30,7 +30,11 @@ class BerandaAdminController extends Controller
         $totalPesananHariIni = Pesanan::whereDate('tgl_pembayaran', $today)
             ->count();
 
-        return view('admin.beranda', compact('omzetHariIni', 'omzetBulanIni', 'totalPesananHariIni'));
+        $pesananDiproses = Pesanan::whereIn('status_pesanan', ['menunggu konfirmasi', 'diproses'])->count();
+
+        $orderStatus = Cache::get('order_status', 'buka');
+
+        return view('admin.beranda', compact('omzetHariIni', 'omzetBulanIni', 'totalPesananHariIni', 'pesananDiproses', 'orderStatus'));
     }
 
     /**
