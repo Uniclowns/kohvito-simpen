@@ -22,7 +22,7 @@ class BerandaKonsumenController extends Controller
 
         session(['id_meja' => $meja->id_meja]);
 
-        $kategoris = KategoriMenu::with(['menu' => function ($query) {
+        $kategoris = KategoriMenu::with(['menus' => function ($query) {
             $query->where('status_ketersediaan', 'tersedia');
         }])->get();
 
@@ -37,10 +37,11 @@ class BerandaKonsumenController extends Controller
         $request->validate(['id_kategori' => 'sometimes|integer|exists:kategori_menu,id_kategori']);
 
         $query = Menu::where('status_ketersediaan', 'tersedia')
-            ->select('id_menu', 'nama_menu', 'deskripsi', 'harga', 'gambar_menu');
+            ->select('id_menu', 'nama_menu', 'deskripsi', 'harga', 'gambar_menu', 'jenis_menu');
 
         if ($request->filled('id_kategori')) {
-            $query->where('id_kategori', $request->input('id_kategori'));
+            $kategoriId = $request->input('id_kategori');
+            $query->whereHas('kategoris', fn($q) => $q->where('kategori_menu.id_kategori', $kategoriId));
         }
 
         $menus = $query->get();
@@ -53,7 +54,7 @@ class BerandaKonsumenController extends Controller
      */
     public function detail(string $id)
     {
-        $menu = Menu::select('id_menu', 'nama_menu', 'deskripsi', 'harga', 'gambar_menu')->find($id);
+        $menu = Menu::select('id_menu', 'nama_menu', 'deskripsi', 'harga', 'gambar_menu', 'jenis_menu')->find($id);
 
         if (! $menu) {
             abort(404);

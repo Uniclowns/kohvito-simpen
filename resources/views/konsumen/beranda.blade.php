@@ -43,18 +43,25 @@
         {{-- Menu Sections by Category --}}
         <div id="semua" class="space-y-8">
             @forelse ($kategoris as $kategori)
-                @if ($kategori->menu->isNotEmpty())
+                @if ($kategori->menus->isNotEmpty())
                     <section id="kategori-{{ $kategori->id_kategori }}">
                         <h2 class="text-base font-semibold text-gray-800 mb-3 pb-2 border-b border-gray-100">
                             {{ $kategori->nama_kategori }}
                         </h2>
                         <div class="grid grid-cols-2 gap-3">
-                            @foreach ($kategori->menu as $menu)
+                            @foreach ($kategori->menus as $menu)
                                 <div class="bg-white rounded-xl border border-gray-200 overflow-hidden flex flex-col">
                                     {{-- Gambar Menu --}}
                                     @if ($menu->gambar_menu)
-                                        <img src="{{ asset('storage/' . $menu->gambar_menu) }}"
+                                        @php
+                                            $imgType = $menu->jenis_menu === 'Makanan' ? 'food' : 'drink';
+                                            $imgSrc = str_starts_with($menu->gambar_menu, 'http')
+                                                ? $menu->gambar_menu
+                                                : asset("images/{$imgType}/{$menu->gambar_menu}");
+                                        @endphp
+                                        <img src="{{ $imgSrc }}"
                                              alt="{{ $menu->nama_menu }}"
+                                             loading="lazy" decoding="async"
                                              class="w-full h-32 object-cover">
                                     @else
                                         <div class="w-full h-32 bg-gray-100 flex items-center justify-center">

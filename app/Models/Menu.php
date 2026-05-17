@@ -5,7 +5,7 @@ namespace App\Models;
 use Database\Factories\MenuFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Menu extends Model
@@ -32,17 +32,18 @@ class Menu extends Model
      * Field yang boleh diisi secara mass-assignment.
      */
     protected $fillable = [
-        'id_kategori',
         'nama_menu',
         'deskripsi',
         'harga',
+        'stock',
+        'komposisi',
         'gambar_menu',
         'status_ketersediaan',
+        'jenis_menu',
+        'kategori_makanan',
+        'tipe_minuman',
     ];
 
-    /**
-     * Casting atribut.
-     */
     protected function casts(): array
     {
         return [
@@ -51,11 +52,16 @@ class Menu extends Model
     }
 
     /**
-     * Relasi: Menu terikat ke satu kategori.
+     * Relasi: Menu bisa punya banyak kategori (pivot).
      */
-    public function kategori(): BelongsTo
+    public function kategoris(): BelongsToMany
     {
-        return $this->belongsTo(KategoriMenu::class, 'id_kategori', 'id_kategori');
+        return $this->belongsToMany(
+            KategoriMenu::class,
+            'menu_kategori',
+            'id_menu',
+            'id_kategori'
+        );
     }
 
     /**
