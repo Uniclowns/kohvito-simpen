@@ -1,18 +1,10 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Detail Pesanan — {{ config('app.name') }}</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body class="bg-gray-50 min-h-screen">
-    <nav class="bg-white border-b border-gray-200 px-6 py-4 flex items-center gap-4">
-        <a href="{{ route('kasir.pesanan.index') }}" class="text-sm text-gray-500 hover:text-gray-700">← Kelola Pesanan</a>
-        <h1 class="text-lg font-semibold text-gray-900">Detail Pesanan</h1>
-    </nav>
+<x-layouts.kasir title="Detail Pesanan" page-title="Detail Pesanan">
 
-    <div class="max-w-2xl mx-auto px-6 py-8">
+    <div class="max-w-2xl mx-auto">
+        <a href="{{ route('kasir.pesanan.index') }}" class="inline-block text-sm text-gray-500 hover:text-gray-700 mb-4">
+            ← Kelola Pesanan
+        </a>
+
         <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
             <div class="p-6 border-b border-gray-100">
                 <div class="flex items-center justify-between mb-2">
@@ -82,5 +74,5 @@
             </div>
         </div>
     </div>
-</body>
-</html>
+
+</x-layouts.kasir>

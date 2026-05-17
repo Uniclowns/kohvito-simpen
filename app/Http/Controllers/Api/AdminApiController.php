@@ -91,7 +91,7 @@ class AdminApiController extends Controller
      */
     public function indexMenu(): JsonResponse
     {
-        $menus = Menu::with('kategori')->paginate(10);
+        $menus = Menu::with('kategoris')->paginate(10);
 
         return response()->json([
             'status' => 'success',
@@ -111,7 +111,8 @@ class AdminApiController extends Controller
     {
         $request->validate([
             'nama_menu'           => ['required', 'string', 'max:255'],
-            'id_kategori'         => ['required', 'exists:kategori_menu,id_kategori'],
+            'id_kategori'         => ['nullable', 'array'],
+            'id_kategori.*'       => ['exists:kategori_menu,id_kategori'],
             'deskripsi'           => ['nullable', 'string'],
             'harga'               => ['required', 'integer', 'min:0'],
             'status_ketersediaan' => ['required', 'in:tersedia,habis'],
@@ -126,17 +127,21 @@ class AdminApiController extends Controller
 
         $menu = Menu::create([
             'nama_menu'           => $request->nama_menu,
-            'id_kategori'         => $request->id_kategori,
             'deskripsi'           => $request->deskripsi,
             'harga'               => $request->harga,
             'gambar_menu'         => $gambarFilename,
             'status_ketersediaan' => $request->status_ketersediaan,
         ]);
 
+        $kategoriIds = $request->input('id_kategori', []);
+        if (!empty($kategoriIds)) {
+            $menu->kategoris()->sync($kategoriIds);
+        }
+
         return response()->json([
             'status'  => 'success',
             'message' => 'Menu berhasil ditambahkan',
-            'data'    => $menu,
+            'data'    => $menu->load('kategoris'),
         ], 201);
     }
 
@@ -149,7 +154,8 @@ class AdminApiController extends Controller
 
         $request->validate([
             'nama_menu'           => ['sometimes', 'required', 'string', 'max:255'],
-            'id_kategori'         => ['sometimes', 'required', 'exists:kategori_menu,id_kategori'],
+            'id_kategori'         => ['sometimes', 'array'],
+            'id_kategori.*'       => ['exists:kategori_menu,id_kategori'],
             'deskripsi'           => ['nullable', 'string'],
             'harga'               => ['sometimes', 'required', 'integer', 'min:0'],
             'status_ketersediaan' => ['sometimes', 'required', 'in:tersedia,habis'],
@@ -165,14 +171,18 @@ class AdminApiController extends Controller
         }
 
         $menu->fill($request->only([
-            'nama_menu', 'id_kategori', 'deskripsi', 'harga', 'status_ketersediaan',
+            'nama_menu', 'deskripsi', 'harga', 'status_ketersediaan',
         ]));
         $menu->save();
+
+        if ($request->has('id_kategori')) {
+            $menu->kategoris()->sync($request->input('id_kategori', []));
+        }
 
         return response()->json([
             'status'  => 'success',
             'message' => 'Menu berhasil diupdate',
-            'data'    => $menu,
+            'data'    => $menu->load('kategoris'),
         ]);
     }
 
@@ -205,7 +215,7 @@ class AdminApiController extends Controller
      */
     public function indexKategori(): JsonResponse
     {
-        $kategoris = KategoriMenu::withCount('menu')->get();
+        $kategoris = KategoriMenu::withCount('menus')->get();
 
         return response()->json([
             'status' => 'success',
@@ -240,7 +250,7 @@ class AdminApiController extends Controller
     {
         $kategori = KategoriMenu::findOrFail($id);
 
-        if ($kategori->menu()->count() > 0) {
+        if ($kategori->menus()->count() > 0) {
             return response()->json([
                 'status'  => 'error',
                 'message' => 'Kategori masih memiliki menu aktif',

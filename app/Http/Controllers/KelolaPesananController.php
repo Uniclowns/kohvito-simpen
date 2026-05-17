@@ -10,7 +10,7 @@ class KelolaPesananController extends Controller
 {
     public function index()
     {
-        $pesanans = Pesanan::with(['meja'])
+        $pesanans = Pesanan::with(['meja', 'detailPesanan.menu'])
             ->whereIn('status_pesanan', ['menunggu konfirmasi', 'diproses'])
             ->orderBy('tgl_pembayaran', 'asc')
             ->get();

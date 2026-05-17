@@ -35,7 +35,7 @@ class KonsumenApiController extends Controller
 
         session(['id_meja' => $meja->id_meja]);
 
-        $kategoris = KategoriMenu::with(['menu' => function ($query) {
+        $kategoris = KategoriMenu::with(['menus' => function ($query) {
             $query->where('status_ketersediaan', 'tersedia');
         }])->get();
 
@@ -58,10 +58,11 @@ class KonsumenApiController extends Controller
         ]);
 
         $query = Menu::where('status_ketersediaan', 'tersedia')
-            ->select('id_menu', 'nama_menu', 'deskripsi', 'harga', 'gambar_menu', 'id_kategori');
+            ->select('id_menu', 'nama_menu', 'deskripsi', 'harga', 'gambar_menu', 'jenis_menu');
 
         if ($request->filled('id_kategori')) {
-            $query->where('id_kategori', $request->id_kategori);
+            $kategoriId = $request->id_kategori;
+            $query->whereHas('kategoris', fn($q) => $q->where('kategori_menu.id_kategori', $kategoriId));
         }
 
         $menus = $query->get();
@@ -77,7 +78,7 @@ class KonsumenApiController extends Controller
      */
     public function detailMenu(string $id): JsonResponse
     {
-        $menu = Menu::select('id_menu', 'nama_menu', 'deskripsi', 'harga', 'gambar_menu', 'id_kategori')
+        $menu = Menu::select('id_menu', 'nama_menu', 'deskripsi', 'harga', 'gambar_menu', 'jenis_menu')
             ->find($id);
 
         if (! $menu) {

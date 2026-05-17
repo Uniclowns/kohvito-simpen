@@ -16,13 +16,17 @@ class MenuFactory extends Factory
      */
     public function definition(): array
     {
+        $jenis = fake()->randomElement(['Makanan', 'Minuman']);
+
         return [
-            'id_kategori'          => fake()->numberBetween(1, 5),
-            'nama_menu'            => fake()->words(3, true),
-            'deskripsi'            => fake()->sentence(),
-            'harga'                => fake()->randomElement([15000, 18000, 20000, 25000, 28000, 30000, 35000, 40000, 45000]),
-            'gambar_menu'          => 'menu/default.png',
-            'status_ketersediaan'  => fake()->randomElement(['Tersedia', 'Tidak Tersedia']),
+            'nama_menu'           => fake()->words(3, true),
+            'deskripsi'           => fake()->sentence(),
+            'harga'               => fake()->randomElement([15000, 18000, 20000, 25000, 28000, 30000, 35000, 40000, 45000]),
+            'gambar_menu'         => 'menu/default.png',
+            'status_ketersediaan' => fake()->randomElement(['Tersedia', 'Tidak Tersedia']),
+            'jenis_menu'          => $jenis,
+            'kategori_makanan'    => $jenis === 'Makanan' ? fake()->randomElement(['Pedas', 'Tidak Pedas']) : null,
+            'tipe_minuman'        => $jenis === 'Minuman' ? fake()->randomElement(['Panas', 'Dingin', 'Keduanya']) : null,
         ];
     }
 }

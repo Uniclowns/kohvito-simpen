@@ -6,6 +6,7 @@ use App\Http\Controllers\BerandaAdminController;
 use App\Http\Controllers\BerandaKasirController;
 use App\Http\Controllers\BerandaKonsumenController;
 use App\Http\Controllers\HistoriPesananController;
+use App\Http\Controllers\ImageCompressController;
 use App\Http\Controllers\KelolaKategoriMenuController;
 use App\Http\Controllers\KelolaMenuController;
 use App\Http\Controllers\KelolaPenggunaKasirController;
@@ -29,6 +30,16 @@ Route::post('/logout', [AuthController::class, 'authenticated'])->middleware('au
 
 /*
 |--------------------------------------------------------------------------
+| Image Compression — Serves compressed/resized menu images on-the-fly.
+| GET /img/{food|drink}/{filename}?w=600&q=78
+|--------------------------------------------------------------------------
+*/
+Route::get('/img/{type}/{file}', ImageCompressController::class)
+    ->where(['type' => 'food|drink', 'file' => '[A-Za-z0-9_\-]+\.(png|jpe?g|webp)'])
+    ->name('img.serve');
+
+/*
+|--------------------------------------------------------------------------
 | Admin Routes — Middleware: auth + role:admin
 |--------------------------------------------------------------------------
 */
@@ -48,11 +59,13 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     // Kelola Kategori Menu
     Route::get('/kategori', [KelolaKategoriMenuController::class, 'index'])->name('kategori.index');
     Route::post('/kategori', [KelolaKategoriMenuController::class, 'storeKategoriMenu'])->name('kategori.store');
+    Route::put('/kategori/{id}', [KelolaKategoriMenuController::class, 'updateKategoriMenu'])->name('kategori.update');
     Route::delete('/kategori/{id}', [KelolaKategoriMenuController::class, 'destroyKategoriMenu'])->name('kategori.destroy');
 
     // Kelola Pengguna Kasir
     Route::get('/pengguna-kasir', [KelolaPenggunaKasirController::class, 'index'])->name('pengguna-kasir.index');
     Route::post('/pengguna-kasir', [KelolaPenggunaKasirController::class, 'storePenggunaKasir'])->name('pengguna-kasir.store');
+    Route::put('/pengguna-kasir/{id}', [KelolaPenggunaKasirController::class, 'updatePenggunaKasir'])->name('pengguna-kasir.update');
     Route::delete('/pengguna-kasir/{id}', [KelolaPenggunaKasirController::class, 'destroyPenggunaKasir'])->name('pengguna-kasir.destroy');
 
     // Laporan Keuangan
