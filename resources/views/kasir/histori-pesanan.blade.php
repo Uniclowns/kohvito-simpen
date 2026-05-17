@@ -1,24 +1,6 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Histori Pesanan — {{ config('app.name') }}</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body class="bg-gray-50 min-h-screen">
-    <nav class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-        <div class="flex items-center gap-4">
-            <a href="{{ route('kasir.beranda') }}" class="text-sm text-gray-500 hover:text-gray-700">← Dashboard</a>
-            <h1 class="text-lg font-semibold text-gray-900">Histori Pesanan</h1>
-        </div>
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button type="submit" class="text-sm text-red-600 hover:text-red-800">Keluar</button>
-        </form>
-    </nav>
+<x-layouts.kasir title="Histori Pesanan" page-title="Histori Pesanan">
 
-    <div class="max-w-4xl mx-auto px-6 py-8">
+    <div class="max-w-4xl mx-auto">
         <div class="flex items-center gap-3 mb-6">
             <form method="GET" action="{{ route('kasir.histori.index') }}" class="flex-1 flex gap-2">
                 <input type="text" name="search" value="{{ $search }}"
@@ -79,5 +61,5 @@
             </div>
         @endif
     </div>
-</body>
-</html>
+
+</x-layouts.kasir>

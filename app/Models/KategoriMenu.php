@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class KategoriMenu extends Model
 {
@@ -30,10 +30,10 @@ class KategoriMenu extends Model
     ];
 
     /**
-     * Relasi: Satu kategori memiliki banyak menu.
+     * Relasi: Satu kategori bisa punya banyak menu (pivot).
      */
-    public function menu(): HasMany
+    public function menus(): BelongsToMany
     {
-        return $this->hasMany(Menu::class, 'id_kategori', 'id_kategori');
+        return $this->belongsToMany(Menu::class, 'menu_kategori', 'id_kategori', 'id_menu');
     }
 }

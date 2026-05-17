@@ -1,166 +1,143 @@
-@extends('admin.layouts.app')
-
-@section('title', 'Kelola Pengguna Kasir')
-@section('page-title', 'Kelola Pengguna Kasir')
-
-@section('content')
-
-{{-- Flash message --}}
-@if (session('success'))
-    <div class="mb-5 flex items-center gap-3 bg-green-50 border border-green-200 text-green-800 text-sm rounded-lg px-4 py-3">
-        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-        </svg>
-        {{ session('success') }}
-    </div>
-@endif
-
-@if ($errors->any())
-    <div class="mb-5 flex items-start gap-3 bg-red-50 border border-red-200 text-red-800 text-sm rounded-lg px-4 py-3">
-        <svg class="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-        <ul class="space-y-0.5">
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
-
-{{-- Card --}}
-<div class="bg-white rounded-xl border border-brand-gray-extralight shadow-sm">
-
-    {{-- Card header --}}
-    <div class="flex items-center justify-between px-6 py-4 border-b border-brand-gray-extralight">
-        <div>
-            <p class="font-semibold text-brand-black">Daftar Kasir</p>
-            <p class="text-xs text-brand-gray mt-0.5">{{ $kasirs->count() }} akun terdaftar</p>
-        </div>
-        <button onclick="document.getElementById('modal-tambah').classList.remove('hidden')"
-                class="flex items-center gap-2 bg-brand-red hover:bg-brand-dark text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-            </svg>
-            Tambah Kasir
+<x-layouts.admin title="Kelola Pengguna Kasir" page-title="Kelola Pengguna Kasir">
+    <x-slot:headerEnd>
+        <button onclick="openConfirmModal('form-add-pengguna')"
+            class="bg-brand-red hover:bg-brand-dark text-white px-4 py-2 rounded-md text-[14px] transition-colors flex items-center gap-2 font-medium shadow-sm">
+            <img src="{{ asset('images/icons/plus.svg') }}" class="w-3 h-3 invert" style="filter: brightness(0) invert(1)"
+                alt="Tambah">
+            Tambah Pengguna
         </button>
-    </div>
+    </x-slot:headerEnd>
 
-    {{-- Table --}}
-    <div class="overflow-x-auto">
-        <table class="w-full text-sm">
+    {{-- Flash messages --}}
+    @if (session('success'))
+        <div
+            class="mb-5 flex items-center gap-3 bg-green-50 border border-green-200 text-green-800 text-sm rounded-lg px-4 py-3">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            {{ session('success') }}
+        </div>
+    @endif
+
+    {{-- Card Container --}}
+    <div class="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.06)] p-6 mt-2">
+        <h2 class="text-lg font-bold text-brand-dark mb-5">List Pengguna Kasir</h2>
+
+        {{-- Search Bar --}}
+        <div class="mb-6 relative max-w-full">
+            <form id="search-form" method="GET" action="{{ route('admin.pengguna-kasir.index') }}">
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <svg class="h-5 w-5 text-brand-gray" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </span>
+                    <input type="text" name="search" id="search-input" value="{{ $search ?? '' }}"
+                        placeholder="Cari Pengguna Kasir"
+                        class="block w-full bg-[#EBE4E0]/40 border-none rounded-xl py-3 pl-12 pr-4 text-sm focus:ring-2 focus:ring-[#380000] transition-all">
+                </div>
+            </form>
+        </div>
+
+        <table class="w-full">
             <thead>
-                <tr class="bg-brand-light border-b border-brand-gray-extralight">
-                    <th class="text-left text-brand-gray-dark font-semibold px-6 py-3 w-12">No</th>
-                    <th class="text-left text-brand-gray-dark font-semibold px-6 py-3">Nama Lengkap</th>
-                    <th class="text-left text-brand-gray-dark font-semibold px-6 py-3">Username</th>
-                    <th class="text-left text-brand-gray-dark font-semibold px-6 py-3 w-24">Aksi</th>
+                <tr class="text-left text-xs font-bold text-brand-dark uppercase tracking-wide">
+                    <th class="pb-4 pr-4 w-[180px]">ID Pengguna</th>
+                    <th class="pb-4 pr-4">Nama Lengkap</th>
+                    <th class="pb-4 pr-4">Username</th>
+                    <th class="pb-4 text-right">Tindakan</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-brand-gray-extralight">
-                @forelse ($kasirs as $index => $kasir)
-                    <tr class="hover:bg-brand-light/50 transition-colors">
-                        <td class="px-6 py-4 text-brand-gray">{{ $index + 1 }}</td>
-                        <td class="px-6 py-4 text-brand-black font-medium">{{ $kasir->nama_lengkap }}</td>
-                        <td class="px-6 py-4 text-brand-gray-dark font-mono">{{ $kasir->username }}</td>
-                        <td class="px-6 py-4">
-                            <form method="POST"
-                                  action="{{ route('admin.pengguna-kasir.destroy', $kasir->id_users) }}"
-                                  onsubmit="return confirm('Hapus akun kasir {{ $kasir->nama_lengkap }}?')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit"
-                                        class="text-red-600 hover:text-red-800 font-medium transition-colors">
+            <tbody>
+                @forelse ($kasirs as $user)
+                    <tr class="border-t border-gray-100">
+                        <td class="py-4 pr-4 text-sm font-bold text-brand-dark">
+                            #{{ str_pad($user->id_users, 6, '0', STR_PAD_LEFT) }}
+                        </td>
+                        <td class="py-4 pr-4 text-sm text-brand-dark">
+                            {{ $user->nama_lengkap }}
+                        </td>
+                        <td class="py-4 pr-4 text-sm text-brand-dark font-mono">
+                            {{ $user->username }}
+                        </td>
+                        <td class="py-4 text-right">
+                            <div class="inline-flex gap-2">
+                                <button type="button" onclick="openConfirmModal('form-edit-pengguna-{{ $user->id_users }}')"
+                                    class="bg-[#380000] hover:bg-[#2A0000] text-white px-4 py-1.5 rounded-md text-xs font-bold transition-colors flex items-center gap-1.5">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                    Edit
+                                </button>
+                                <button type="button"
+                                    onclick="confirmDeletePengguna('{{ route('admin.pengguna-kasir.destroy', $user->id_users) }}')"
+                                    class="bg-[#E03131] hover:bg-[#C92A2A] text-white px-4 py-1.5 rounded-md text-xs font-bold transition-colors flex items-center gap-1.5">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3" />
+                                    </svg>
                                     Hapus
                                 </button>
-                            </form>
+                            </div>
                         </td>
                     </tr>
+
+                    {{-- Modal Edit Pengguna (per row) --}}
+                    <x-pengguna-form-modal id="form-edit-pengguna-{{ $user->id_users }}" mode="edit" :user="$user"
+                        :submitUrl="route('admin.pengguna-kasir.update', $user->id_users)" submitMethod="PUT" />
                 @empty
-                    <tr>
-                        <td colspan="4" class="px-6 py-12 text-center text-brand-gray">
-                            Belum ada akun kasir yang terdaftar.
+                    <tr class="border-t border-gray-100">
+                        <td colspan="4" class="py-12 text-center text-sm text-brand-gray">
+                            Belum ada akun kasir. Klik "Tambah Pengguna" untuk membuat.
                         </td>
                     </tr>
                 @endforelse
             </tbody>
         </table>
     </div>
-</div>
 
-{{-- Modal Tambah Kasir --}}
-<div id="modal-tambah"
-     class="{{ $errors->any() ? '' : 'hidden' }} fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-    <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4">
+    {{-- Modal Tambah Pengguna --}}
+    <x-pengguna-form-modal id="form-add-pengguna" mode="add" :submitUrl="route('admin.pengguna-kasir.store')" submitMethod="POST" />
 
-        <div class="flex items-center justify-between px-6 py-4 border-b border-brand-gray-extralight">
-            <h2 class="font-semibold text-brand-black">Tambah Akun Kasir</h2>
-            <button onclick="document.getElementById('modal-tambah').classList.add('hidden')"
-                    class="text-brand-gray hover:text-brand-black transition-colors">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-            </button>
-        </div>
+    {{-- Modal Konfirmasi Hapus --}}
+    <x-confirm-modal id="confirm-hapus-pengguna" title="Apakah anda yakin ingin menghapus pengguna Ini?"
+        subtitle="Data pengguna yang dihapus tidak dapat dikembalikan" confirmLabel="Ya, Hapus" cancelLabel="Batal"
+        variant="danger" action="#" method="DELETE" />
 
-        <form method="POST" action="{{ route('admin.pengguna-kasir.store') }}" class="px-6 py-5 space-y-4">
-            @csrf
+    <script>
+        // Delete confirmation handler
+        function confirmDeletePengguna(actionUrl) {
+            const modal = document.getElementById('confirm-hapus-pengguna');
+            const form = modal.querySelector('form');
+            form.action = actionUrl;
+            openConfirmModal('confirm-hapus-pengguna');
+        }
 
-            <div>
-                <label class="block text-sm font-medium text-brand-black mb-1.5">Nama Lengkap</label>
-                <input type="text" name="nama_lengkap" value="{{ old('nama_lengkap') }}"
-                       placeholder="contoh: Budi Santoso"
-                       class="w-full border border-brand-gray-light rounded-lg px-3 py-2.5 text-sm text-brand-black placeholder-brand-gray
-                              focus:outline-none focus:border-brand-red focus:ring-2 focus:ring-brand-red/20 transition">
-                @error('nama_lengkap')
-                    <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
-                @enderror
-            </div>
+        // Live Search with Debounce
+        const searchInput = document.getElementById('search-input');
+        const searchForm = document.getElementById('search-form');
+        let debounceTimer;
 
-            <div>
-                <label class="block text-sm font-medium text-brand-black mb-1.5">Username</label>
-                <input type="text" name="username" value="{{ old('username') }}"
-                       placeholder="contoh: kasir01"
-                       class="w-full border border-brand-gray-light rounded-lg px-3 py-2.5 text-sm text-brand-black placeholder-brand-gray
-                              focus:outline-none focus:border-brand-red focus:ring-2 focus:ring-brand-red/20 transition">
-                @error('username')
-                    <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
-                @enderror
-            </div>
+        searchInput.addEventListener('input', function() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                searchForm.submit();
+            }, 350);
+        });
 
-            <div>
-                <label class="block text-sm font-medium text-brand-black mb-1.5">Password</label>
-                <input type="password" name="password"
-                       placeholder="Minimal 6 karakter"
-                       class="w-full border border-brand-gray-light rounded-lg px-3 py-2.5 text-sm text-brand-black placeholder-brand-gray
-                              focus:outline-none focus:border-brand-red focus:ring-2 focus:ring-brand-red/20 transition">
-                @error('password')
-                    <p class="text-red-600 text-xs mt-1">{{ $message }}</p>
-                @enderror
-            </div>
+        // Focus cursor to end of text in search input
+        if (searchInput.value) {
+            const val = searchInput.value;
+            searchInput.value = '';
+            searchInput.value = val;
+            searchInput.focus();
+        }
+    </script>
 
-            <div>
-                <label class="block text-sm font-medium text-brand-black mb-1.5">Konfirmasi Password</label>
-                <input type="password" name="password_confirmation"
-                       placeholder="Ulangi password"
-                       class="w-full border border-brand-gray-light rounded-lg px-3 py-2.5 text-sm text-brand-black placeholder-brand-gray
-                              focus:outline-none focus:border-brand-red focus:ring-2 focus:ring-brand-red/20 transition">
-            </div>
-
-            <div class="flex gap-3 pt-1">
-                <button type="submit"
-                        class="flex-1 bg-brand-red hover:bg-brand-dark text-white text-sm font-medium py-2.5 rounded-lg transition-colors">
-                    Simpan
-                </button>
-                <button type="button"
-                        onclick="document.getElementById('modal-tambah').classList.add('hidden')"
-                        class="flex-1 border border-brand-gray-light text-brand-gray-dark hover:bg-brand-light text-sm font-medium py-2.5 rounded-lg transition-colors">
-                    Batal
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
-@endsection
+    {{-- Footer --}}
+    <x-slot:pageFooter>
+        <x-admin-footer />
+    </x-slot:pageFooter>
+</x-layouts.admin>

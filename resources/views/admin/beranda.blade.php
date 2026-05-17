@@ -1,37 +1,158 @@
 <x-layouts.admin title="Beranda Admin" page-title="Beranda Admin">
 
-    {{-- ── Header: filter + Tutup/Buka Order ── --}}
+    {{-- ── Header: filter + Toko Buka/Tutup ── --}}
     <x-slot:headerEnd>
-        <div class="flex items-center gap-5">
-            <button type="button" class="flex items-center justify-center transition-colors">
+        <div class="flex items-center gap-4">
+            {{-- Filter button --}}
+            <button type="button" onclick="openFilterModal()"
+                    class="flex items-center justify-center transition-colors hover:opacity-80"
+                    aria-label="Buka filter tanggal">
                 <svg class="w-6 h-6 text-brand-red" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                           d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/>
                 </svg>
             </button>
-            <form action="{{ route('admin.toggle-order-status') }}" method="POST">
-                @csrf
-                <button type="submit"
-                        class="flex items-center justify-center px-6 py-2 rounded-xl text-sm font-bold transition-colors shadow-sm
-                            {{ $orderStatus === 'buka'
-                                ? 'bg-state-red text-white hover:opacity-90'
-                                : 'bg-state-green text-white hover:opacity-90' }}">
-                    @if ($orderStatus === 'buka')
-                        Tutup Toko
-                    @else
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        Buka Toko
-                    @endif
+
+            {{-- Toko Buka / Toko Tutup toggle button (pakai icon SVG dari user) --}}
+            @if ($orderStatus === 'buka')
+                {{-- State: OPEN — white bg, icon di kiri, click to close store --}}
+                <button type="button"
+                        id="btn-toggle-store"
+                        data-store-state="buka"
+                        onclick="openConfirmModal('confirm-close-store')"
+                        class="toggle-store-btn {{ session('success') ? 'toggle-store-btn--success' : '' }} flex items-center gap-2 bg-white border border-black text-brand-black pl-1.5 pr-5 py-1 rounded-full text-sm font-medium shadow-sm hover:bg-gray-50">
+                    <img src="{{ asset('images/icons/Toko Buka.svg') }}"
+                         class="w-9 h-9 flex-shrink-0" alt="">
+                    Toko Buka
                 </button>
-            </form>
+            @else
+                {{-- State: CLOSED — dark maroon bg, icon di kanan, click to open store --}}
+                <button type="button"
+                        id="btn-toggle-store"
+                        data-store-state="tutup"
+                        onclick="openConfirmModal('confirm-open-store')"
+                        class="toggle-store-btn {{ session('success') ? 'toggle-store-btn--success' : '' }} flex items-center gap-2 bg-[#380000] text-white pl-5 pr-1.5 py-1 rounded-full text-sm font-medium shadow-sm hover:bg-[#2A0000]">
+                    Toko Tutup
+                    <img src="{{ asset('images/icons/Toko Tutup.svg') }}"
+                         class="w-9 h-9 flex-shrink-0" alt="">
+                </button>
+            @endif
         </div>
     </x-slot:headerEnd>
 
-    {{-- ── Flash ── --}}
-    @if (session('success'))
+    {{-- Confirmation Modals --}}
+    <x-confirm-modal
+        id="confirm-close-store"
+        title="Apakah anda yakin ingin menutup toko?"
+        subtitle="Sistem akan dimatikan dan pelanggan tidak dapat mengakses website pemesanan"
+        confirmLabel="Ya, Tutup Toko"
+        variant="danger"
+        :action="route('admin.toggle-order-status')"
+        method="POST"
+    />
+
+    <x-confirm-modal
+        id="confirm-open-store"
+        title="Apakah anda yakin ingin membuka toko?"
+        subtitle="Sistem akan diaktifkan dan pelanggan dapat mengakses website pemesanan"
+        confirmLabel="Ya, Buka Toko"
+        variant="success"
+        :action="route('admin.toggle-order-status')"
+        method="POST"
+    />
+
+    {{-- ─── Filter Modal (date range) ─── --}}
+    <div id="filter-modal"
+        data-confirm-modal
+        class="hidden fixed inset-0 z-[60] bg-black/40 backdrop-blur-[2px] flex items-center justify-center p-4 transition-all"
+        onclick="if(event.target === this) closeConfirmModal('filter-modal')">
+        <div class="bg-white rounded-2xl shadow-[0_8px_24px_rgba(0,0,0,0.15)] w-full max-w-[400px] p-6 relative">
+            {{-- Header --}}
+            <div class="flex items-start justify-between mb-5">
+                <h2 class="text-xl font-bold text-[#380000]">Filter</h2>
+                <button type="button"
+                    class="text-[#380000] hover:text-[#681F1F] transition-colors"
+                    onclick="closeConfirmModal('filter-modal')"
+                    aria-label="Tutup filter">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <form id="filter-form" method="GET" action="{{ route('admin.beranda') }}">
+                {{-- Date inputs --}}
+                <div class="flex items-end gap-3 mb-6">
+                    <div class="flex-1">
+                        <label for="filter-dari" class="block text-xs text-brand-gray mb-1.5">Dari Tanggal</label>
+                        <input type="date"
+                            id="filter-dari"
+                            name="tanggal_mulai"
+                            value="{{ request('tanggal_mulai') }}"
+                            class="w-full border border-[#380000] rounded-lg px-3 py-2 text-sm text-[#380000] focus:outline-none focus:ring-2 focus:ring-[#380000] uppercase">
+                    </div>
+                    <span class="pb-3 text-brand-gray">—</span>
+                    <div class="flex-1">
+                        <label for="filter-sampai" class="block text-xs text-brand-gray mb-1.5">Sampai Tanggal</label>
+                        <input type="date"
+                            id="filter-sampai"
+                            name="tanggal_selesai"
+                            value="{{ request('tanggal_selesai') }}"
+                            class="w-full border border-[#380000] rounded-lg px-3 py-2 text-sm text-[#380000] focus:outline-none focus:ring-2 focus:ring-[#380000] uppercase">
+                    </div>
+                </div>
+
+                {{-- Footer buttons --}}
+                <div class="flex justify-end items-center gap-2">
+                    <button type="button"
+                        onclick="closeConfirmModal('filter-modal')"
+                        class="bg-[#D0D0D0] text-[#681F1F] px-4 py-2 rounded-lg text-sm font-medium shadow-[0_3px_6px_rgba(0,0,0,0.18)] hover:bg-[#C4C4C4] transition-colors">
+                        Batal
+                    </button>
+                    <button type="button"
+                        onclick="openConfirmModal('confirm-hapus-filter')"
+                        class="bg-[#E52E2D] text-white px-4 py-2 rounded-lg text-sm font-bold shadow-[0_3px_6px_rgba(0,0,0,0.18)] hover:bg-[#C92A2A] transition-colors">
+                        Hapus Filter
+                    </button>
+                    <button type="submit"
+                        class="bg-[#380000] text-white px-4 py-2 rounded-lg text-sm font-bold shadow-[0_3px_6px_rgba(0,0,0,0.18)] hover:bg-[#2A0000] transition-colors">
+                        Simpan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{-- ─── Confirm Hapus Filter ─── --}}
+    <x-confirm-modal
+        id="confirm-hapus-filter"
+        title="Apakah anda yakin ingin menghapus filter?"
+        subtitle="Filter akan dihapus dan tanggal kembali ke hari ini."
+        confirmLabel="Ya, Hapus Filter"
+        cancelLabel="Batal"
+        variant="danger"
+        onConfirm="hapusFilterTanggal()" />
+
+    <script>
+        function openFilterModal() {
+            // Reset form values to current request params (in case user cancelled before)
+            const dari = '{{ request('tanggal_mulai') }}';
+            const sampai = '{{ request('tanggal_selesai') }}';
+            document.getElementById('filter-dari').value = dari;
+            document.getElementById('filter-sampai').value = sampai;
+            openConfirmModal('filter-modal');
+        }
+
+        function hapusFilterTanggal() {
+            closeConfirmModal('confirm-hapus-filter');
+            closeConfirmModal('filter-modal');
+            // Redirect to base /admin without query params (today default)
+            window.location.href = '{{ route('admin.beranda') }}';
+        }
+    </script>
+
+    {{-- ── Flash (suppressed when store-status popup will be shown) ── --}}
+    @if (session('success') && !session('store_status_changed_to'))
     <div class="mb-5 flex items-center gap-3 bg-green-50 border border-green-200 text-green-800 text-sm rounded-lg px-4 py-3">
         <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
@@ -39,6 +160,38 @@
         {{ session('success') }}
     </div>
     @endif
+
+    {{-- ── Popup: store status changed (BUKA / TUTUP) ── --}}
+    @if (session('store_status_changed_to'))
+        <x-popup-store-status :status="session('store_status_changed_to')" />
+    @endif
+
+    {{-- ── Confirm: Cetak Laporan Kasir (sebelum download) ── --}}
+    <x-confirm-modal
+        id="confirm-print-laporan"
+        title="Cetak Laporan Kasir"
+        subtitle="Laporan Kasir akan dicetak dalam bentuk PDF"
+        confirmLabel="Ya, Cetak"
+        onConfirm="triggerPrintLaporan()" />
+
+    {{-- ── Popup: Berhasil Mencetak Laporan Kasir (after Ya, Cetak) ── --}}
+    <x-popup-success id="popup-print-success" heading="Berhasil Mencetak Laporan Kasir" />
+
+    {{-- ── Loading overlay (shown during toggle store form submit) ── --}}
+    <x-loading-overlay />
+
+    <script>
+        function triggerPrintLaporan() {
+            closeConfirmModal('confirm-print-laporan');
+            const a = document.createElement('a');
+            a.href = "{{ route('admin.laporan.cetak') }}";
+            a.rel = 'noopener';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => openConfirmModal('popup-print-success'), 700);
+        }
+    </script>
 
     {{-- ── Summary Cards ── --}}
     <div class="grid grid-cols-4 gap-4 mb-6 mt-2">
@@ -107,8 +260,14 @@
             </div>
             <div class="flex-1 py-3 px-4 flex items-center gap-4">
                 @if ($makananTerlaris?->gambar_menu)
-                    <img src="{{ asset('storage/' . $makananTerlaris->gambar_menu) }}"
+                    @php
+                        $imgSrc = str_starts_with($makananTerlaris->gambar_menu, 'http')
+                            ? $makananTerlaris->gambar_menu
+                            : asset("images/food/{$makananTerlaris->gambar_menu}");
+                    @endphp
+                    <img src="{{ $imgSrc }}"
                          alt="{{ $makananTerlaris->nama_menu }}"
+                         loading="lazy" decoding="async"
                          class="w-16 h-16 object-cover rounded-full flex-shrink-0 border border-brand-gray-extralight">
                 @else
                     <div class="w-16 h-16 rounded-full bg-brand-light flex items-center justify-center flex-shrink-0">
@@ -134,8 +293,14 @@
             </div>
             <div class="flex-1 py-3 px-4 flex items-center gap-4">
                 @if ($minumanTerlaris?->gambar_menu)
-                    <img src="{{ asset('storage/' . $minumanTerlaris->gambar_menu) }}"
+                    @php
+                        $imgSrc = str_starts_with($minumanTerlaris->gambar_menu, 'http')
+                            ? $minumanTerlaris->gambar_menu
+                            : asset("images/drink/{$minumanTerlaris->gambar_menu}");
+                    @endphp
+                    <img src="{{ $imgSrc }}"
                          alt="{{ $minumanTerlaris->nama_menu }}"
+                         loading="lazy" decoding="async"
                          class="w-16 h-16 object-cover rounded-full flex-shrink-0 border border-brand-gray-extralight">
                 @else
                     <div class="w-16 h-16 rounded-full bg-brand-light flex items-center justify-center flex-shrink-0">
@@ -161,11 +326,12 @@
             <div class="flex items-center gap-2">
                 <p class="font-bold text-brand-black">Data Pesanan Hari Ini</p>
             </div>
-            <a href="{{ route('admin.laporan.cetak') }}"
-               class="flex items-center justify-center gap-2 bg-brand-dark text-white text-xs font-bold px-4 py-2 rounded-xl hover:bg-opacity-90 transition-colors shadow-sm">
+            <button type="button"
+                onclick="openConfirmModal('confirm-print-laporan')"
+                class="flex items-center justify-center gap-2 bg-brand-dark text-white text-xs font-bold px-4 py-2 rounded-xl hover:bg-opacity-90 transition-colors shadow-sm">
                 <img src="{{ asset('images/icons/template.svg') }}" alt="" class="w-4 h-4 brightness-0 invert">
                 Cetak Laporan Kasir
-            </a>
+            </button>
         </div>
 
         <div class="overflow-x-auto">
@@ -239,72 +405,7 @@
 
     {{-- ── Footer ── --}}
     <x-slot:pageFooter>
-        <footer class="bg-brand-dark px-10 py-12 mt-auto">
-            <div class="grid grid-cols-12 gap-8 border-b border-white/10 pb-8">
-
-                {{-- Brand & Info --}}
-                <div class="col-span-6 pr-8">
-                    <img src="{{ asset('images/logo/KOHVITO LOGO WHITE.png') }}" alt="Kohvito" class="h-12 w-auto mb-6">
-                    <p class="text-[13px] text-white/90 leading-relaxed mb-6">
-                        A Coffee, Dining &amp; Lifestyle Space Crafted for People Who Love Good Coffee, Cozy Atmosphere, and Meaningful Daily Experiences.
-                    </p>
-                    <div class="flex items-center gap-6">
-                        <div class="flex items-center gap-2">
-                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                            <p class="text-[13px] text-white/90">Jl Johar No. 72 Pontianak</p>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                            <p class="text-[13px] text-white/90">kohvitocafe@gmail.com</p>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Navigation --}}
-                <div class="col-span-2">
-                    <p class="text-base font-bold text-white mb-5 tracking-wide">Navigation</p>
-                    <ul class="space-y-4">
-                        <li><a href="#" class="text-[13px] text-white/80 hover:text-white transition-colors">Beranda Admin</a></li>
-                        <li><a href="#" class="text-[13px] text-white/80 hover:text-white transition-colors">Kelola Pengguna Kasir</a></li>
-                        <li><a href="#" class="text-[13px] text-white/80 hover:text-white transition-colors">Kelola Menu</a></li>
-                        <li><a href="#" class="text-[13px] text-white/80 hover:text-white transition-colors">Kelola Kategori Menu</a></li>
-                    </ul>
-                </div>
-
-                {{-- Visit Us & Reservation --}}
-                <div class="col-span-4">
-                    <p class="text-base font-bold text-white mb-5 tracking-wide">Visit Us!</p>
-                    <div class="flex items-center gap-5 mb-8 flex-wrap">
-                        <div class="flex items-center gap-1.5">
-                            <img src="{{ asset('images/icons/Instagram.svg') }}" alt="" class="w-4 h-4 brightness-0 invert">
-                            <span class="text-[13px] text-white/90">kohvito</span>
-                        </div>
-                        <div class="flex items-center gap-1.5">
-                            <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"/></svg>
-                            <span class="text-[13px] text-white/90">kohvito_cafe</span>
-                        </div>
-                        <div class="flex items-center gap-1.5">
-                            <img src="{{ asset('images/icons/Threads instagram.svg') }}" alt="" class="w-4 h-4 brightness-0 invert">
-                            <span class="text-[13px] text-white/90">kohvito</span>
-                        </div>
-                        <div class="flex items-center gap-1.5">
-                            <img src="{{ asset('images/icons/tiktok.svg') }}" alt="" class="w-4 h-4 brightness-0 invert">
-                            <span class="text-[13px] text-white/90">kohvito cafe</span>
-                        </div>
-                    </div>
-
-                    <p class="text-base font-bold text-white mb-4 tracking-wide">Reservation?</p>
-                    <a href="https://wa.me/6281348922789" class="inline-flex items-center bg-white rounded-xl px-5 py-2.5 hover:bg-gray-100 transition-colors shadow-sm">
-                        <span class="text-[13px] text-brand-dark">Contact Us! <span class="font-bold ml-1">+62 813-4892-2789</span></span>
-                    </a>
-                </div>
-
-            </div>
-
-            <div class="pt-6 text-center">
-                <p class="text-[11px] text-white/70">@2026 Right Reserved. Developed By Pet &amp; Jenn</p>
-            </div>
-        </footer>
+        <x-admin-footer />
     </x-slot:pageFooter>
 
     {{-- ── Scripts ── --}}
@@ -367,6 +468,37 @@
                                       callback: v => 'Rp ' + (v/1000).toLocaleString('id-ID') + 'k' } }
                     }
                 }
+            });
+        })();
+        </script>
+
+        @if (session('store_status_changed_to'))
+        <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => window.openConfirmModal && window.openConfirmModal('popup-store-status'), 120);
+        });
+        </script>
+        @endif
+
+        <script>
+        (function () {
+            document.querySelectorAll('#confirm-close-store form, #confirm-open-store form').forEach(form => {
+                form.addEventListener('submit', function (e) {
+                    const btn = document.getElementById('btn-toggle-store');
+                    if (!btn || btn.classList.contains('toggle-store-btn--pressing')) return;
+
+                    e.preventDefault();
+                    btn.classList.add('toggle-store-btn--pressing');
+
+                    // Close confirm modals & show loading overlay while form submits + page reloads
+                    if (window.closeConfirmModal) {
+                        window.closeConfirmModal('confirm-close-store');
+                        window.closeConfirmModal('confirm-open-store');
+                    }
+                    if (window.showLoadingOverlay) window.showLoadingOverlay();
+
+                    setTimeout(() => form.submit(), 380);
+                }, { once: true });
             });
         })();
         </script>

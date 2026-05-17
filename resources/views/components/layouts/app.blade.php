@@ -17,7 +17,9 @@
         <x-navbar :page-title="$pageTitle" />
         <x-alert />
         <main class="flex-1 px-8 py-6">
-            {{ $slot }}
+            <div class="w-full max-w-[1400px] mx-auto">
+                {{ $slot }}
+            </div>
         </main>
         <x-footer />
     </div>

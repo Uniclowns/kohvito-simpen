@@ -13,12 +13,21 @@ use Illuminate\Support\Facades\DB;
 
 class BerandaAdminController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $today = Carbon::today();
 
+        // Date-range filter dari Filter modal (default: hari ini)
+        $filterMulai = $request->filled('tanggal_mulai')
+            ? Carbon::parse($request->query('tanggal_mulai'))->startOfDay()
+            : $today->copy()->startOfDay();
+
+        $filterSelesai = $request->filled('tanggal_selesai')
+            ? Carbon::parse($request->query('tanggal_selesai'))->endOfDay()
+            : $today->copy()->endOfDay();
+
         $omzetHariIni = Pesanan::where('status_pembayaran', 'lunas')
-            ->whereDate('tgl_pembayaran', $today)
+            ->whereBetween('tgl_pembayaran', [$filterMulai, $filterSelesai])
             ->sum('total_harga');
 
         $omzetBulanIni = Pesanan::where('status_pembayaran', 'lunas')
@@ -34,24 +43,22 @@ class BerandaAdminController extends Controller
 
         $makananTerlaris = DB::table('detail_pesanan')
             ->join('menu', 'detail_pesanan.id_menu', '=', 'menu.id_menu')
-            ->join('kategori_menu', 'menu.id_kategori', '=', 'kategori_menu.id_kategori')
             ->select('menu.nama_menu', 'menu.gambar_menu', DB::raw('SUM(detail_pesanan.jumlah) as total_terjual'))
-            ->where('kategori_menu.nama_kategori', 'not like', '%minum%')
+            ->where('menu.jenis_menu', 'Makanan')
             ->groupBy('menu.id_menu', 'menu.nama_menu', 'menu.gambar_menu')
             ->orderByDesc('total_terjual')
             ->first();
 
         $minumanTerlaris = DB::table('detail_pesanan')
             ->join('menu', 'detail_pesanan.id_menu', '=', 'menu.id_menu')
-            ->join('kategori_menu', 'menu.id_kategori', '=', 'kategori_menu.id_kategori')
             ->select('menu.nama_menu', 'menu.gambar_menu', DB::raw('SUM(detail_pesanan.jumlah) as total_terjual'))
-            ->where('kategori_menu.nama_kategori', 'like', '%minum%')
+            ->where('menu.jenis_menu', 'Minuman')
             ->groupBy('menu.id_menu', 'menu.nama_menu', 'menu.gambar_menu')
             ->orderByDesc('total_terjual')
             ->first();
 
         $pesananHariIni = Pesanan::with(['meja', 'user', 'detailPesanan.menu'])
-            ->whereDate('tgl_pembayaran', $today)
+            ->whereBetween('tgl_pembayaran', [$filterMulai, $filterSelesai])
             ->orderByDesc('tgl_pembayaran')
             ->get();
 
@@ -118,7 +125,9 @@ class BerandaAdminController extends Controller
 
         $message = $new === 'tutup' ? 'Pemesanan berhasil ditutup.' : 'Pemesanan berhasil dibuka.';
 
-        return redirect()->route('admin.beranda')->with('success', $message);
+        return redirect()->route('admin.beranda')
+            ->with('success', $message)
+            ->with('store_status_changed_to', $new);
     }
 
     public function cetakLaporanKasir(Request $request)
