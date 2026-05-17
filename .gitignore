@@ -27,3 +27,8 @@ Homestead.yaml
 Thumbs.db
 /prd/
 example-prd.md
+PRD-Issues#*.md
+Kohvito-API-Testing.postman_collection.json
+PANDUAN-TESTING-POSTMAN.md
+revisi.md
+ruvector.db

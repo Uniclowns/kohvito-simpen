@@ -2,31 +2,71 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['name', 'email', 'password'])]
-#[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
-    /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, HasApiTokens;
 
     /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
+     * Tabel yang digunakan oleh model.
+     */
+    protected $table = 'users';
+
+    /**
+     * Primary key tabel.
+     */
+    protected $primaryKey = 'id_users';
+
+    /**
+     * Nonaktifkan timestamps (tabel tidak memiliki created_at/updated_at).
+     */
+    public $timestamps = false;
+
+    /**
+     * Field yang boleh diisi secara mass-assignment.
+     */
+    protected $fillable = [
+        'id_role',
+        'nama_lengkap',
+        'username',
+        'password',
+    ];
+
+    /**
+     * Field yang disembunyikan dari serialisasi.
+     */
+    protected $hidden = [
+        'password',
+    ];
+
+    /**
+     * Casting atribut.
      */
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Relasi: User terikat ke satu role.
+     */
+    public function role(): BelongsTo
+    {
+        return $this->belongsTo(Role::class, 'id_role', 'id_role');
+    }
+
+    /**
+     * Relasi: User memproses banyak pesanan.
+     */
+    public function pesanan(): HasMany
+    {
+        return $this->hasMany(Pesanan::class, 'id_user', 'id_users');
     }
 }
