@@ -19,7 +19,7 @@
                     Meja {{ $pesanan->meja?->no_meja ?? '-' }} &middot; {{ $pesanan->nama_konsumen }}
                 </p>
                 <p class="text-sm text-gray-400">
-                    {{ $pesanan->tgl_pembayaran?->format('d M Y, H:i') ?? '-' }}
+                    {{ $pesanan->tgl_pembayaran?->translatedFormat('d F Y, H:i') ?? '-' }}
                 </p>
             </div>
 
@@ -41,6 +41,13 @@
                     @endforeach
                 </div>
             </div>
+
+            @if ($pesanan->catatan_pesanan)
+                <div class="p-6 border-b border-gray-100">
+                    <h3 class="text-sm font-semibold text-gray-700 mb-2">Notes Pemesanan</h3>
+                    <p class="text-sm text-gray-500">{{ $pesanan->catatan_pesanan }}</p>
+                </div>
+            @endif
 
             <div class="p-6 border-b border-gray-100 flex justify-between items-center">
                 <span class="font-semibold text-gray-800">Total</span>
@@ -74,5 +81,9 @@
             </div>
         </div>
     </div>
+
+    <x-slot:pageFooter>
+        <x-kasir-footer />
+    </x-slot:pageFooter>
 
 </x-layouts.kasir>

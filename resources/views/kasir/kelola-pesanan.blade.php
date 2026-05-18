@@ -48,7 +48,7 @@
                                     Table {{ $pesanan->meja?->no_meja ?? '—' }}
                                 </p>
                                 <p class="text-[#460001] text-[10px] leading-[12px] tracking-[0.5px]">
-                                    (indoor)
+                                    (indoor Lt 1)
                                 </p>
                             </div>
                         </div>
@@ -59,7 +59,7 @@
                             <div class="flex items-center justify-between text-white/50 text-[10px] tracking-[0.5px]">
                                 <p class="truncate w-[70px]">Order #{{ Str::limit($pesanan->no_pesanan, 8, '') }}</p>
                                 <p class="text-right whitespace-nowrap">
-                                    {{ $pesanan->tgl_pembayaran?->translatedFormat('D, d M Y H:i') ?? '—' }}
+                                    {{ $pesanan->tgl_pembayaran?->translatedFormat('l, d F Y H:i') ?? '—' }}
                                 </p>
                             </div>
                         </div>
@@ -73,9 +73,17 @@
                         {{-- Items list --}}
                         <div class="flex flex-col gap-1">
                             @forelse ($visibleItems as $detail)
+                                @php
+                                    $menu = $detail->menu;
+                                    $isDrink = $menu?->jenis_menu === 'Minuman';
+                                    $suhu = $isDrink ? $menu?->tipe_minuman : null;
+                                @endphp
                                 <div>
                                     <p class="capitalize text-black text-[12px] font-bold leading-[16px] tracking-[0.6px]">
-                                        {{ $detail->jumlah }} {{ $detail->menu?->nama_menu ?? 'Menu' }}
+                                        {{ $detail->jumlah }} {{ $menu?->nama_menu ?? 'Menu' }}
+                                        @if ($suhu)
+                                            <span class="italic text-[#460001]">({{ $suhu }})</span>
+                                        @endif
                                     </p>
                                     @if ($detail->catatan)
                                         <p class="text-[#808080] text-[10px] leading-[12px] tracking-[0.5px]">
@@ -92,6 +100,17 @@
                                 </p>
                             @endif
                         </div>
+
+                        @if ($pesanan->catatan_pesanan)
+                            <div class="bg-[#F6F6F6] rounded-[9px] px-3 py-2.5 flex flex-col gap-1.5">
+                                <p class="text-[12px] font-bold text-[#460001] text-center tracking-[0.6px]">
+                                    Notes Pemesanan
+                                </p>
+                                <p class="text-[10px] text-[#1A1A1A] leading-[12px] tracking-[0.5px]">
+                                    {{ $pesanan->catatan_pesanan }}
+                                </p>
+                            </div>
+                        @endif
 
                         {{-- Food images strip --}}
                         @if ($visibleImages->isNotEmpty())
@@ -137,18 +156,18 @@
                                     Detail
                                 </a>
                             @else
-                                <form method="POST" action="{{ route('kasir.pesanan.update-status', $pesanan->no_pesanan) }}" class="flex-1">
-                                    @csrf
-                                    @method('PUT')
-                                    <button type="submit"
-                                            class="w-full bg-[#E52E2D] text-white text-[14px] tracking-[0.7px] px-3 py-1.5 rounded-[9px] shadow-[2px_4px_2px_rgba(0,0,0,0.25)] hover:brightness-95 transition-all">
-                                        Selesai
-                                    </button>
-                                </form>
                                 <a href="{{ route('kasir.pesanan.detail', $pesanan->no_pesanan) }}"
                                    class="flex-1 text-center bg-[#CCCCCC] text-[#681F1F] text-[14px] tracking-[0.7px] px-3 py-1.5 rounded-[9px] shadow-[2px_4px_2px_rgba(0,0,0,0.25)] hover:bg-gray-300 transition-all">
                                     Detail
                                 </a>
+                                <form method="POST" action="{{ route('kasir.pesanan.update-status', $pesanan->no_pesanan) }}" class="flex-1">
+                                    @csrf
+                                    @method('PUT')
+                                    <button type="submit"
+                                            class="w-full bg-[#58E52D] text-white text-[14px] tracking-[0.7px] px-3 py-1.5 rounded-[9px] shadow-[2px_4px_2px_rgba(0,0,0,0.25)] hover:brightness-95 transition-all">
+                                        Selesai
+                                    </button>
+                                </form>
                                 <a href="{{ route('kasir.pesanan.cetak', $pesanan->no_pesanan) }}" target="_blank"
                                    class="flex-1 text-center bg-[#681F1F] text-white text-[14px] tracking-[0.7px] px-3 py-1.5 rounded-[9px] shadow-[2px_4px_2px_rgba(0,0,0,0.25)] hover:brightness-110 transition-all">
                                     Cetak Struk
@@ -160,5 +179,9 @@
             @endforeach
         </div>
     @endif
+
+    <x-slot:pageFooter>
+        <x-kasir-footer />
+    </x-slot:pageFooter>
 
 </x-layouts.kasir>

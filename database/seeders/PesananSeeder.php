@@ -77,11 +77,22 @@ class PesananSeeder extends Seeder
             'Take away',
         ];
 
-        $usedNoPesanan = [];
+        $catatanPool = [
+            'Packaging dipisah untuk masing-masing menu, makanannya di takeaway ya kak, minta plastik dan sendok tambahan.',
+            'Tolong makanannya jangan terlalu pedas, ada anak kecil.',
+            'Bayar pakai QRIS ya.',
+            'Mohon segera diantar, terima kasih.',
+            'Tambah es batu di semua minuman.',
+        ];
 
-        foreach ($distributions as $entry) {
+        $usedNoPesanan = [];
+        $activeLargeOrders = 0;
+        $activeNotes = 0;
+
+        foreach ($distributions as $index => $entry) {
             $date = $entry['date'];
             $status = $entry['status'];
+            $isActive = in_array($status['status_pesanan'], ['menunggu konfirmasi', 'diproses'], true);
 
             do {
                 $noPesanan = 'PS-'.$date->format('YmdHis').'-'.strtoupper(Str::random(4));
@@ -89,7 +100,20 @@ class PesananSeeder extends Seeder
 
             $usedNoPesanan[] = $noPesanan;
 
-            $selectedMenus = $menus->random(min(rand(1, 4), $menus->count()));
+            if ($isActive && $activeLargeOrders < 3) {
+                $itemCount = rand(5, 7);
+                $activeLargeOrders++;
+            } else {
+                $itemCount = $index % 5 === 0 ? rand(5, 7) : rand(1, 4);
+            }
+
+            $catatanPesanan = null;
+            if (($isActive && $activeNotes < 2) || $index % 4 === 0) {
+                $catatanPesanan = $catatanPool[array_rand($catatanPool)];
+                $activeNotes += $isActive ? 1 : 0;
+            }
+
+            $selectedMenus = $menus->random(min($itemCount, $menus->count()));
             $totalHarga = 0;
             $detailItems = [];
 
@@ -113,6 +137,7 @@ class PesananSeeder extends Seeder
                 'total_harga' => $totalHarga,
                 'status_pembayaran' => $status['status_pembayaran'],
                 'status_pesanan' => $status['status_pesanan'],
+                'catatan_pesanan' => $catatanPesanan,
                 'tgl_pembayaran' => $date,
             ]);
 
@@ -122,7 +147,7 @@ class PesananSeeder extends Seeder
         }
 
         $totalCreated = count($distributions);
-        $this->command->info("✓ {$totalCreated} pesanan dummy dibuat (8 hari ini, 22 minggu ini, 70 retro).");
+        $this->command->info("OK {$totalCreated} pesanan dummy dibuat (8 hari ini, 22 minggu ini, 70 retro).");
     }
 
     private function statusQueue(array $weights): array

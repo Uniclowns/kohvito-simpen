@@ -44,7 +44,7 @@
                                 Meja {{ $pesanan->meja?->no_meja ?? '-' }} &middot; {{ $pesanan->nama_konsumen }}
                             </p>
                             <p class="text-sm text-gray-400 mt-0.5">
-                                {{ $pesanan->tgl_pembayaran?->format('H:i') ?? '-' }}
+                                {{ $pesanan->tgl_pembayaran?->translatedFormat('H:i') ?? '-' }}
                             </p>
                         </div>
                         <div class="flex items-center gap-3">
@@ -61,5 +61,9 @@
             </div>
         @endif
     </div>
+
+    <x-slot:pageFooter>
+        <x-kasir-footer />
+    </x-slot:pageFooter>
 
 </x-layouts.kasir>
