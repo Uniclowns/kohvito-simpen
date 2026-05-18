@@ -3,7 +3,7 @@
     <x-slot:headerEnd>
         <div class="flex items-center gap-2">
             <div class="w-10 h-10 rounded-full bg-[#D9C7C7] flex items-center justify-center overflow-hidden">
-                <img src="{{ asset('images/logo/KOHVITO LOGO WHITE.png') }}" alt="" class="w-6 h-auto opacity-90">
+                <img src="{{ asset('images/icons/KVT ICON USER.svg') }}" alt="User Avatar" class="w-6 h-6 object-contain">
             </div>
             <span class="text-[#460001] text-[20px] tracking-[1px]">{{ auth()->user()?->nama_lengkap ?? auth()->user()?->name ?? 'Kasir' }}</span>
         </div>
