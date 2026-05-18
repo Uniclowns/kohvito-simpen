@@ -54,7 +54,7 @@
             <a href="{{ route('kasir.beranda') }}"
                class="relative flex items-center h-12 px-3 rounded-xl transition-colors overflow-hidden
                       {{ request()->routeIs('kasir.beranda') ? 'bg-white text-brand-dark' : 'text-white hover:bg-white/10' }}">
-                <img src="{{ asset('images/icons/KVT ICON USER.svg') }}" alt=""
+                <img src="{{ asset('images/icons/template.svg') }}" alt=""
                      class="w-5 min-w-[1.25rem] h-5 flex-shrink-0"
                      style="{{ request()->routeIs('kasir.beranda') ? 'filter:brightness(0)' : 'filter:brightness(0) invert(1);opacity:.8' }}">
                 <span class="ml-4 font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">Beranda Kasir</span>
@@ -100,4 +100,3 @@
 
 </aside>
 @endauth
-
