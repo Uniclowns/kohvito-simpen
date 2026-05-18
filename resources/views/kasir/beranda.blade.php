@@ -212,4 +212,8 @@
         </script>
     </x-slot:scripts>
 
+    <x-slot:pageFooter>
+        <x-kasir-footer />
+    </x-slot:pageFooter>
+
 </x-layouts.kasir>
