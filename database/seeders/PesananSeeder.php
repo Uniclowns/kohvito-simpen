@@ -9,12 +9,18 @@ use App\Models\Pesanan;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class PesananSeeder extends Seeder
 {
     public function run(): void
     {
+        if (app()->environment('production') && !env('SEED_PESANAN_FORCE')) {
+            $this->command->warn('PesananSeeder di-skip karena environment production. Set SEED_PESANAN_FORCE=true untuk override.');
+            return;
+        }
+
         $faker = \Faker\Factory::create('id_ID');
 
         $kasirIds = User::where('id_role', 2)->pluck('id_users')->toArray();
@@ -26,20 +32,51 @@ class PesananSeeder extends Seeder
             return;
         }
 
-        // 70 selesai, 15 diproses, 15 menunggu konfirmasi — diacak
-        $statuses = array_merge(
-            array_fill(0, 70, ['status_pesanan' => 'selesai',              'status_pembayaran' => 'lunas']),
-            array_fill(0, 15, ['status_pesanan' => 'diproses',             'status_pembayaran' => 'menunggu']),
-            array_fill(0, 15, ['status_pesanan' => 'menunggu konfirmasi',  'status_pembayaran' => 'menunggu']),
-        );
-        shuffle($statuses);
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        DetailPesanan::truncate();
+        Pesanan::truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1');
+
+        $distributions = [];
+
+        for ($i = 0; $i < 8; $i++) {
+            $distributions[] = [
+                'date'   => Carbon::now()->setTime(rand(8, 21), rand(0, 59), rand(0, 59)),
+                'status' => $this->randomStatusBucket(['selesai' => 5, 'diproses' => 2, 'menunggu konfirmasi' => 1]),
+            ];
+        }
+
+        for ($i = 0; $i < 22; $i++) {
+            $daysAgo = rand(1, 6);
+            $distributions[] = [
+                'date'   => Carbon::now()->subDays($daysAgo)->setTime(rand(8, 21), rand(0, 59), rand(0, 59)),
+                'status' => $this->randomStatusBucket(['selesai' => 18, 'diproses' => 2, 'menunggu konfirmasi' => 2]),
+            ];
+        }
+
+        for ($i = 0; $i < 70; $i++) {
+            $daysAgo = rand(7, 29);
+            $distributions[] = [
+                'date'   => Carbon::now()->subDays($daysAgo)->setTime(rand(8, 21), rand(0, 59), rand(0, 59)),
+                'status' => ['status_pesanan' => 'selesai', 'status_pembayaran' => 'lunas'],
+            ];
+        }
+
+        $notes = [
+            null, null, null, null,
+            'Tidak pedas',
+            'Less sugar',
+            'Extra cheese',
+            'No onion',
+            'Tambah es batu',
+            'Take away',
+        ];
 
         $usedNoPesanan = [];
 
-        foreach ($statuses as $status) {
-            $date = Carbon::now()
-                ->subDays(rand(0, 29))
-                ->setTime(rand(8, 21), rand(0, 59), rand(0, 59));
+        foreach ($distributions as $entry) {
+            $date   = $entry['date'];
+            $status = $entry['status'];
 
             do {
                 $noPesanan = 'PS-' . $date->format('YmdHis') . '-' . strtoupper(Str::random(4));
@@ -58,7 +95,7 @@ class PesananSeeder extends Seeder
                 $detailItems[] = [
                     'id_menu'  => $menu->id_menu,
                     'jumlah'   => $jumlah,
-                    'catatan'  => null,
+                    'catatan'  => $notes[array_rand($notes)],
                     'subtotal' => $subtotal,
                 ];
             }
@@ -79,6 +116,25 @@ class PesananSeeder extends Seeder
             }
         }
 
-        $this->command->info('100 data pesanan dummy berhasil dibuat.');
+        $totalCreated = count($distributions);
+        $this->command->info("✓ {$totalCreated} pesanan dummy dibuat (8 hari ini, 22 minggu ini, 70 retro).");
+    }
+
+    private function randomStatusBucket(array $weights): array
+    {
+        $bucket = [];
+        foreach ($weights as $status => $weight) {
+            for ($i = 0; $i < $weight; $i++) {
+                $bucket[] = $status;
+            }
+        }
+
+        $picked = $bucket[array_rand($bucket)];
+
+        return match ($picked) {
+            'selesai'             => ['status_pesanan' => 'selesai',             'status_pembayaran' => 'lunas'],
+            'diproses'            => ['status_pesanan' => 'diproses',            'status_pembayaran' => 'menunggu'],
+            'menunggu konfirmasi' => ['status_pesanan' => 'menunggu konfirmasi', 'status_pembayaran' => 'menunggu'],
+        };
     }
 }

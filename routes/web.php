@@ -10,7 +10,6 @@ use App\Http\Controllers\ImageCompressController;
 use App\Http\Controllers\KelolaKategoriMenuController;
 use App\Http\Controllers\KelolaMenuController;
 use App\Http\Controllers\KelolaPenggunaKasirController;
-use App\Http\Controllers\LaporanKeuanganController;
 use App\Http\Controllers\KelolaPesananController;
 use App\Http\Controllers\KeranjangKonsumenController;
 use App\Http\Controllers\PesananController;
@@ -67,11 +66,6 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     Route::post('/pengguna-kasir', [KelolaPenggunaKasirController::class, 'storePenggunaKasir'])->name('pengguna-kasir.store');
     Route::put('/pengguna-kasir/{id}', [KelolaPenggunaKasirController::class, 'updatePenggunaKasir'])->name('pengguna-kasir.update');
     Route::delete('/pengguna-kasir/{id}', [KelolaPenggunaKasirController::class, 'destroyPenggunaKasir'])->name('pengguna-kasir.destroy');
-
-    // Laporan Keuangan
-    Route::get('/laporan-keuangan', [LaporanKeuanganController::class, 'index'])->name('laporan-keuangan.index');
-    Route::get('/laporan-keuangan/pdf', [LaporanKeuanganController::class, 'exportPdf'])->name('laporan-keuangan.pdf');
-    Route::get('/laporan-keuangan/excel', [LaporanKeuanganController::class, 'exportExcel'])->name('laporan-keuangan.excel');
 });
 
 /*
