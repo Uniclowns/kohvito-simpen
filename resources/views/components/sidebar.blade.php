@@ -49,35 +49,24 @@
                 <span class="ml-4 font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">Pengguna Kasir</span>
             </a>
 
-            <a href="{{ route('admin.laporan-keuangan.index') }}"
-               class="relative flex items-center h-12 px-3 rounded-xl transition-colors overflow-hidden
-                      {{ request()->routeIs('admin.laporan-keuangan.*') ? 'bg-white text-brand-dark' : 'text-white hover:bg-white/10' }}">
-                <svg class="w-5 min-w-[1.25rem] h-5 flex-shrink-0"
-                     fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                     style="{{ request()->routeIs('admin.laporan-keuangan.*') ? '' : 'opacity:.8' }}">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                </svg>
-                <span class="ml-4 font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">Laporan Keuangan</span>
-            </a>
-
         @else
             {{-- Kasir Navigation --}}
             <a href="{{ route('kasir.beranda') }}"
                class="relative flex items-center h-12 px-3 rounded-xl transition-colors overflow-hidden
                       {{ request()->routeIs('kasir.beranda') ? 'bg-white text-brand-dark' : 'text-white hover:bg-white/10' }}">
-                <img src="{{ asset('images/icons/template.svg') }}" alt=""
+                <img src="{{ asset('images/icons/KVT ICON USER.svg') }}" alt=""
                      class="w-5 min-w-[1.25rem] h-5 flex-shrink-0"
                      style="{{ request()->routeIs('kasir.beranda') ? 'filter:brightness(0)' : 'filter:brightness(0) invert(1);opacity:.8' }}">
                 <span class="ml-4 font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">Beranda Kasir</span>
             </a>
 
+            @php $isPesananActive = request()->routeIs('kasir.pesanan.*'); @endphp
             <a href="{{ route('kasir.pesanan.index') }}"
                class="relative flex items-center h-12 px-3 rounded-xl transition-colors overflow-hidden
-                      {{ request()->routeIs('kasir.pesanan.*') ? 'bg-white text-brand-dark' : 'text-white hover:bg-white/10' }}">
-                <img src="{{ asset('images/icons/menu icon.svg') }}" alt=""
-                     class="w-5 min-w-[1.25rem] h-5 flex-shrink-0"
-                     style="{{ request()->routeIs('kasir.pesanan.*') ? 'filter:brightness(0)' : 'filter:brightness(0) invert(1);opacity:.8' }}">
+                      {{ $isPesananActive ? 'bg-white text-brand-dark' : 'text-white hover:bg-white/10' }}">
+                <img src="{{ asset('images/icons/' . ($isPesananActive ? 'pesanan icon red.svg' : 'pesanan icon white.svg')) }}"
+                     alt=""
+                     class="w-5 min-w-[1.25rem] h-5 flex-shrink-0">
                 <span class="ml-4 font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">Kelola Pesanan</span>
             </a>
 
