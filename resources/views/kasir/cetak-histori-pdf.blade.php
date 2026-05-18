@@ -39,7 +39,7 @@
                     <td>{{ $pesanan->no_pesanan }}</td>
                     <td>{{ $pesanan->nama_konsumen }}</td>
                     <td>{{ $pesanan->meja?->no_meja ?? '-' }}</td>
-                    <td>{{ $pesanan->tgl_pembayaran?->format('H:i') ?? '-' }}</td>
+                    <td>{{ $pesanan->tgl_pembayaran?->translatedFormat('H:i') ?? '-' }}</td>
                     <td class="right">Rp {{ number_format($pesanan->total_harga, 0, ',', '.') }}</td>
                 </tr>
             @endforeach
@@ -60,7 +60,7 @@
     </div>
 
     <div style="margin-top:20px; font-size:11px; color:#555;">
-        Dicetak: {{ now()->format('d/m/Y H:i') }}
+        Dicetak: {{ now()->translatedFormat('d F Y H:i') }}
     </div>
 </body>
 </html>

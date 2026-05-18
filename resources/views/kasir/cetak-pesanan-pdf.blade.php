@@ -34,9 +34,17 @@
         </tr>
         <tr>
             <td>Waktu</td>
-            <td class="right">{{ $pesanan->tgl_pembayaran?->format('d/m/Y H:i') ?? '-' }}</td>
+            <td class="right">{{ $pesanan->tgl_pembayaran?->translatedFormat('d F Y H:i') ?? '-' }}</td>
         </tr>
     </table>
+
+    @if ($pesanan->catatan_pesanan)
+        <div class="divider"></div>
+        <div style="font-size:11px; color:#555;">
+            <div class="bold" style="margin-bottom:3px;">Notes Pemesanan</div>
+            <div>{{ $pesanan->catatan_pesanan }}</div>
+        </div>
+    @endif
 
     <div class="divider"></div>
 
