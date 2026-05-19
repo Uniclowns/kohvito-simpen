@@ -1,4 +1,4 @@
-<x-layouts.kasir title="Detail Pesanan" page-title="Detail Pesanan">
+<x-layouts.kasir title="Detail Pesananannn" page-title="Detail Pesanaanana">
 
     <div class="max-w-2xl mx-auto">
         <a href="{{ route('kasir.pesanan.index') }}" class="inline-block text-sm text-gray-500 hover:text-gray-700 mb-4">
@@ -10,9 +10,11 @@
                 <div class="flex items-center justify-between mb-2">
                     <h2 class="text-lg font-semibold text-gray-800">{{ $pesanan->no_pesanan }}</h2>
                     @if ($pesanan->status_pesanan === 'menunggu konfirmasi')
-                        <span class="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-700 rounded-full">Menunggu Konfirmasi</span>
+                        <span class="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-700 rounded-full">Menunggu
+                            Konfirmasi</span>
                     @else
-                        <span class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-700 rounded-full">Sedang Diproses</span>
+                        <span class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-700 rounded-full">Sedang
+                            Diproses</span>
                     @endif
                 </div>
                 <p class="text-sm text-gray-500">
@@ -36,7 +38,8 @@
                                     <p class="text-xs text-gray-400 mt-0.5">Catatan: {{ $detail->catatan }}</p>
                                 @endif
                             </div>
-                            <span class="text-sm text-gray-700">Rp {{ number_format($detail->subtotal, 0, ',', '.') }}</span>
+                            <span class="text-sm text-gray-700">Rp
+                                {{ number_format($detail->subtotal, 0, ',', '.') }}</span>
                         </div>
                     @endforeach
                 </div>
@@ -51,13 +54,13 @@
 
             <div class="p-6 border-b border-gray-100 flex justify-between items-center">
                 <span class="font-semibold text-gray-800">Total</span>
-                <span class="font-bold text-gray-900 text-lg">Rp {{ number_format($pesanan->total_harga, 0, ',', '.') }}</span>
+                <span class="font-bold text-gray-900 text-lg">Rp
+                    {{ number_format($pesanan->total_harga, 0, ',', '.') }}</span>
             </div>
 
             <div class="p-6 flex items-center gap-3">
-                <a href="{{ route('kasir.pesanan.cetak', $pesanan->no_pesanan) }}"
-                   target="_blank"
-                   class="px-4 py-2 text-sm border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                <a href="{{ route('kasir.pesanan.cetak', $pesanan->no_pesanan) }}" target="_blank"
+                    class="px-4 py-2 text-sm border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
                     Cetak Struk
                 </a>
 
@@ -65,7 +68,8 @@
                     <form method="POST" action="{{ route('kasir.pesanan.update-status', $pesanan->no_pesanan) }}">
                         @csrf
                         @method('PUT')
-                        <button type="submit" class="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        <button type="submit"
+                            class="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                             Terima Pesanan
                         </button>
                     </form>
@@ -73,7 +77,8 @@
                     <form method="POST" action="{{ route('kasir.pesanan.update-status', $pesanan->no_pesanan) }}">
                         @csrf
                         @method('PUT')
-                        <button type="submit" class="px-4 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700">
+                        <button type="submit"
+                            class="px-4 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700">
                             Tandai Selesai
                         </button>
                     </form>

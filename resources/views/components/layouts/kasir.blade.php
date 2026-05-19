@@ -18,18 +18,18 @@
 
     <div class="flex-1 flex flex-col min-h-screen overflow-hidden">
 
-        <header class="px-8 pt-8 pb-4 flex items-center justify-between">
+        <header class="px-10 pt-10 pb-5 flex items-center justify-between">
             <div class="w-full max-w-[1400px] mx-auto flex items-center justify-between">
-                <h1 class="text-3xl font-bold text-brand-black">{{ $pageTitle }}</h1>
+                <h1 class="text-4xl font-bold text-brand-black">{{ $pageTitle }}</h1>
                 @if (isset($headerEnd))
                     {{ $headerEnd }}
                 @else
-                    <span class="text-sm text-brand-gray">{{ now()->translatedFormat('l, d F Y') }}</span>
+                    <span class="text-base text-brand-gray">{{ now()->translatedFormat('l, d F Y') }}</span>
                 @endif
             </div>
         </header>
 
-        <main class="flex-1 px-8 py-2">
+        <main class="flex-1 px-10 py-3">
             <div class="w-full max-w-[1400px] mx-auto">
                 {{ $slot }}
             </div>

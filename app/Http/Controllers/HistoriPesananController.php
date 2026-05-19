@@ -11,21 +11,21 @@ class HistoriPesananController extends Controller
 {
     public function index(Request $request)
     {
-        $today  = Carbon::today();
+        $today = Carbon::today();
         $search = $request->input('search');
 
-        $query = Pesanan::with(['meja'])
+        $query = Pesanan::with(['meja', 'detailPesanan.menu'])
             ->where('status_pesanan', 'selesai')
             ->whereDate('tgl_pembayaran', $today);
 
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('no_pesanan', 'like', "%{$search}%")
-                  ->orWhere('nama_konsumen', 'like', "%{$search}%");
+                    ->orWhere('nama_konsumen', 'like', "%{$search}%");
             });
         }
 
-        $pesanans   = $query->orderBy('tgl_pembayaran', 'desc')->get();
+        $pesanans = $query->orderBy('tgl_pembayaran', 'desc')->get();
         $totalOmzet = $pesanans->sum('total_harga');
 
         return view('kasir.histori-pesanan', compact('pesanans', 'search', 'totalOmzet'));

@@ -34,7 +34,7 @@ class KelolaPesananController extends Controller
 
         $transitions = [
             'menunggu konfirmasi' => 'diproses',
-            'diproses'            => 'selesai',
+            'diproses' => 'selesai',
         ];
 
         $nextStatus = $transitions[$pesanan->status_pesanan] ?? null;
@@ -46,11 +46,15 @@ class KelolaPesananController extends Controller
         $pesanan->status_pesanan = $nextStatus;
         $pesanan->save();
 
-        $message = $nextStatus === 'diproses'
+        $isAccepted = $nextStatus === 'diproses';
+        $message = $isAccepted
             ? 'Pesanan diterima dan sedang diproses.'
             : 'Pesanan telah selesai.';
 
-        return redirect()->route('kasir.pesanan.index')->with('success', $message);
+        return redirect()
+            ->route('kasir.pesanan.index')
+            ->with('success', $message)
+            ->with('order_action', $isAccepted ? 'accepted' : 'completed');
     }
 
     public function cetakPesanan(string $noPesanan)
