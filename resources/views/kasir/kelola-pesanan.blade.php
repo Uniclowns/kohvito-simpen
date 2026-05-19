@@ -312,7 +312,7 @@
                                 </div>
                             </div>
 
-                            <div class="border-t border-[#E6E6E6]"></div>
+                            <div class="border-t border-[#D9C7C7]"></div>
 
                             <div
                                 class="flex items-center gap-4 text-[16px] font-bold leading-[20px] tracking-[0.6px] capitalize">
@@ -323,7 +323,7 @@
                         </div>
 
                         @if ($pesanan->detailPesanan->count() > 4)
-                            <div class="absolute left-0 right-0 bottom-0 h-[110px] flex items-end justify-center pb-5 pointer-events-none [background:linear-gradient(0deg,#B0ADAD_12.5%,rgba(255,255,255,0)_100%)] backdrop-blur-[4.8px] transition-opacity duration-150"
+                            <div class="absolute left-0 right-0 bottom-0 h-[110px] flex items-end justify-center pb-5 pointer-events-none [background:linear-gradient(0deg,#EDE4E4_12.5%,rgba(237,228,228,0)_100%)] backdrop-blur-[4.8px] transition-opacity duration-150"
                                 data-scroll-hint>
                                 <div class="flex items-center gap-1">
                                     <p class="text-[#460001] text-[20px] leading-[28px] tracking-[0.9px]">
