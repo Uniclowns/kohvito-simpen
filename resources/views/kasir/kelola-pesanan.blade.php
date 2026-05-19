@@ -176,7 +176,7 @@
             <div id="{{ $modalId }}"
                 class="fixed inset-0 z-[80] hidden items-center justify-center bg-black/35 px-4 py-8" data-modal>
                 <div
-                    class="relative w-full max-w-[540px] max-h-[92vh] bg-[#F8EFEC] rounded-[9px] shadow-[2px_4px_4px_rgba(0,0,0,0.25)] overflow-hidden flex flex-col py-7">
+                    class="relative w-full max-w-[540px] max-h-[92vh] bg-[#EDE4E4] rounded-[9px] shadow-[2px_4px_4px_rgba(0,0,0,0.25)] overflow-hidden flex flex-col py-7">
                     <button type="button" class="absolute right-8 top-7 z-10 text-[#460001] hover:opacity-70"
                         data-modal-close aria-label="Tutup detail pesanan">
                         <svg class="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -242,7 +242,7 @@
                                             ->values();
                                     @endphp
                                     @if ($idx > 0)
-                                        <div class="border-t border-[#E0CFC8]"></div>
+                                        <div class="border-t border-[#D9C7C7]"></div>
                                     @endif
                                     <div class="flex items-start gap-3 px-3 py-3 rounded-[9px]">
                                         <div
@@ -287,7 +287,7 @@
                             </div>
 
                             @if ($pesanan->catatan_pesanan)
-                                <div class="bg-[#E8D6CF] rounded-[9px] px-4 py-3 flex flex-col gap-1.5">
+                                <div class="bg-[#D9C7C7] rounded-[9px] px-4 py-3 flex flex-col gap-1.5">
                                     <p
                                         class="text-[#460001] text-[14px] font-bold leading-[18px] tracking-[0.6px] text-left capitalize">
                                         Notes Pemesanan
