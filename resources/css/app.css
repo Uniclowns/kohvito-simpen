@@ -21,6 +21,20 @@
 
 @font-face {
     font-family: 'Aileron';
+    src: url('/fonts/aileron/Aileron-Italic.otf') format('opentype');
+    font-weight: 400;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Aileron';
+    src: url('/fonts/aileron/Aileron-BoldItalic.otf') format('opentype');
+    font-weight: 700;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Aileron';
     src: url('/fonts/aileron/Aileron-Light.otf') format('opentype');
     font-weight: 300;
     font-style: normal;
@@ -141,4 +155,30 @@ input[type="number"] {
 }
 .loading-dot {
     animation: loading-dot-blink 1.4s ease-in-out infinite both;
+}
+
+.kasir-footer-texture {
+    background-image:
+        linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    background-size: 18px 18px, 18px 18px;
+}
+
+.kasir-order-detail-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(70, 0, 1, 0.75) #cccccc;
+}
+
+.kasir-order-detail-scroll::-webkit-scrollbar {
+    width: 8px;
+}
+
+.kasir-order-detail-scroll::-webkit-scrollbar-track {
+    background: #cccccc;
+    border-radius: 999px;
+}
+
+.kasir-order-detail-scroll::-webkit-scrollbar-thumb {
+    background: rgba(70, 0, 1, 0.75);
+    border-radius: 999px;
 }

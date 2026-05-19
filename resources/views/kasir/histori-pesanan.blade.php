@@ -39,7 +39,7 @@
                             <th class="text-left text-[#7E4A4A] text-[15px] font-bold tracking-[0.6px] py-4 px-3">Nomor Meja</th>
                             <th class="text-left text-[#7E4A4A] text-[15px] font-bold tracking-[0.6px] py-4 px-3">Nama Pesanan</th>
                             <th class="text-left text-[#7E4A4A] text-[15px] font-bold tracking-[0.6px] py-4 px-3">Tanggal/Waktu</th>
-                            <th class="text-left text-[#7E4A4A] text-[15px] font-bold tracking-[0.6px] py-4 px-3">Tindakan</th>
+                            <th class="w-[264px] text-left text-[#7E4A4A] text-[15px] font-bold tracking-[0.6px] py-4 pl-3 pr-0 whitespace-nowrap">Tindakan</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -60,11 +60,11 @@
                                 <td class="py-4 px-3 text-[#7E4A4A] text-[15px] tracking-[0.6px]">
                                     {{ $pesanan->tgl_pembayaran?->translatedFormat('l, d F Y H:i') ?? '-' }}
                                 </td>
-                                <td class="py-4 px-3">
-                                    <div class="flex items-center gap-3">
+                                <td class="w-[264px] py-4 pl-3 pr-0">
+                                    <div class="flex items-center justify-end gap-3 whitespace-nowrap">
                                         <button type="button"
                                                 data-modal-target="{{ $modalId }}"
-                                                class="inline-flex items-center gap-2 bg-[#CCCCCC] text-[#681F1F] text-[15px] tracking-[0.6px] px-4 py-2 rounded-[6px] shadow-[2px_4px_4px_rgba(0,0,0,0.25)] hover:bg-[#BEBEBE] transition-colors">
+                                                class="inline-flex shrink-0 items-center gap-2 bg-[#CCCCCC] text-[#681F1F] text-[15px] tracking-[0.6px] px-4 py-2 rounded-[6px] shadow-[2px_4px_4px_rgba(0,0,0,0.25)] hover:bg-[#BEBEBE] transition-colors">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5h6M9 9h6M9 13h6m-8 8h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                                             </svg>
@@ -73,7 +73,7 @@
                                         <button type="button"
                                                 data-print-url="{{ route('kasir.histori.cetak', $pesanan->no_pesanan) }}"
                                                 data-print-success="single"
-                                                class="inline-flex items-center gap-2 bg-[#681F1F] text-white text-[15px] tracking-[0.6px] px-4 py-2 rounded-[6px] shadow-[2px_4px_4px_rgba(0,0,0,0.25)] hover:brightness-110 transition-all">
+                                                class="inline-flex shrink-0 items-center gap-2 bg-[#681F1F] text-white text-[15px] tracking-[0.6px] px-4 py-2 rounded-[6px] shadow-[2px_4px_4px_rgba(0,0,0,0.25)] hover:brightness-110 transition-all">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z" />
                                             </svg>
