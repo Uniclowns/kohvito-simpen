@@ -8,15 +8,14 @@
     $isPedas = $menu->kategori_makanan === 'Pedas';
 @endphp
 
-<div id="{{ $id }}" 
-    data-confirm-modal
+<div id="{{ $id }}" data-confirm-modal
     class="hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-[2px] flex items-center justify-center p-4 transition-all"
     onclick="if(event.target === this) closeConfirmModal('{{ $id }}')">
 
-    <div class="bg-white rounded-2xl shadow-[0_8px_24px_rgba(0,0,0,0.15)] w-full max-w-[720px] p-8 relative overflow-y-auto max-h-[90vh]">
+    <div
+        class="bg-white rounded-2xl shadow-[0_8px_24px_rgba(0,0,0,0.15)] w-full max-w-[840px] p-8 relative overflow-y-auto max-h-[90vh]">
         {{-- Close Icon (X) --}}
-        <button type="button" 
-            class="absolute top-8 right-8 text-brand-gray hover:text-brand-black transition-colors"
+        <button type="button" class="absolute top-8 right-8 text-brand-gray hover:text-brand-black transition-colors"
             onclick="closeConfirmModal('{{ $id }}')">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
@@ -30,7 +29,8 @@
 
         {{-- Category Badge --}}
         <div class="mb-6">
-            <span class="inline-block border border-[#380000] text-[#380000] px-3 py-1 rounded-md text-xs font-medium uppercase tracking-wider">
+            <span
+                class="inline-block border border-[#380000] text-[#380000] px-3 py-1 rounded-md text-xs font-medium uppercase tracking-wider">
                 {{ $menu->jenis_menu }}
             </span>
         </div>
@@ -59,7 +59,8 @@
 
                     {{-- Deskripsi rasa --}}
                     <div>
-                        <p class="text-[11px] font-bold uppercase tracking-wide text-brand-gray mb-1">Deskripsi Rasa:</p>
+                        <p class="text-[11px] font-bold uppercase tracking-wide text-brand-gray mb-1">Deskripsi Rasa:
+                        </p>
                         <p class="text-sm text-brand-gray leading-relaxed">
                             {{ filled($menu->deskripsi) ? $menu->deskripsi : '-' }}
                         </p>
@@ -69,8 +70,10 @@
                 {{-- Badges Row --}}
                 <div class="flex items-center gap-3 mb-2">
                     @if ($isPedas)
-                        <span class="inline-flex items-center gap-1.5 border border-[#380000] text-[#380000] px-3 py-1 rounded-md text-xs font-bold">
-                            <img src="{{ asset('images/icons/Chili No Fill.svg') }}" class="w-3.5 h-3.5" alt="Pedas">
+                        <span
+                            class="inline-flex items-center gap-1.5 border border-[#380000] text-[#380000] px-3 py-1 rounded-md text-xs font-bold">
+                            <img src="{{ asset('images/icons/Chili No Fill.svg') }}" class="w-3.5 h-3.5"
+                                alt="Pedas">
                             Pedas
                         </span>
                     @endif

@@ -44,6 +44,7 @@ class Pesanan extends Model
         'total_harga',
         'status_pembayaran',
         'status_pesanan',
+        'catatan_pesanan',
         'tgl_pembayaran',
     ];
 
@@ -53,8 +54,8 @@ class Pesanan extends Model
     protected function casts(): array
     {
         return [
-            'total_harga'     => 'integer',
-            'tgl_pembayaran'  => 'datetime',
+            'total_harga' => 'integer',
+            'tgl_pembayaran' => 'datetime',
         ];
     }
 
