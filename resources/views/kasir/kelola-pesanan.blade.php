@@ -37,16 +37,14 @@
                     $statusText = $isWaiting ? 'text-white' : 'text-[#1A1A1A]';
                     $modalId = 'pesanan-detail-' . md5($pesanan->no_pesanan);
                     $items = $pesanan->detailPesanan;
-                    $visibleItems = $items->take(4);
-                    $remaining = max(0, $items->count() - 4);
-                    $visibleImages = $items->take(4);
-                    $imagesRemaining = max(0, $items->count() - 4);
+                    $visibleItems = $items->take(7);
+                    $remaining = max(0, $items->count() - 7);
                 @endphp
 
                 <div
                     class="bg-[#681F1F] rounded-[9px] shadow-[2px_4px_4px_rgba(0,0,0,0.25)] overflow-hidden flex flex-col">
-                    <div class="flex items-center gap-3 p-4">
-                        <div class="bg-[#D9C7C7] flex items-center justify-center px-4 rounded-[9px] self-stretch">
+                    <div class="flex items-center gap-3 px-4 pt-4 pb-5">
+                        <div class="bg-[#D9C7C7] flex items-center justify-center px-4 py-1.5 rounded-[9px] self-stretch">
                             <div class="text-center">
                                 <p
                                     class="text-[#460001] text-[14px] font-bold uppercase leading-[18px] tracking-[0.7px]">
@@ -81,118 +79,83 @@
                         </div>
                     </div>
 
-                    <div class="bg-white rounded-t-[9px] p-4 h-[410px] flex flex-col gap-3">
-                        <div class="flex flex-col justify-between flex-1 min-h-0 w-full">
-                            <div class="flex flex-col gap-2 h-[170px] max-h-[170px] overflow-hidden w-full">
-                                @forelse ($visibleItems as $detail)
-                                    @php
-                                        $menu = $detail->menu;
-                                        $isDrink = $menu?->jenis_menu === 'Minuman';
-                                        $variant = $isDrink ? $menu?->tipe_minuman : $menu?->kategori_makanan;
-                                    @endphp
-                                    <div class="flex flex-col gap-1">
-                                        <p
-                                            class="capitalize text-black text-[14px] font-bold leading-[18px] tracking-[0.6px]">
-                                            {{ $detail->jumlah }} {{ $menu?->nama_menu ?? 'Menu' }}
-                                            @if ($variant)
-                                                <span class="italic text-[#460001]">({{ $variant }})</span>
-                                            @endif
-                                        </p>
-                                        @if ($detail->catatan)
-                                            <p class="text-[#808080] text-[12px] leading-[14px] tracking-[0.5px]">
-                                                {{ $detail->catatan }}
-                                            </p>
-                                        @endif
-                                    </div>
-                                @empty
-                                    <p class="text-[#808080] text-[14px] italic">Tidak ada item.</p>
-                                @endforelse
-                                @if ($remaining > 0)
-                                    <p class="text-black text-[12px] leading-[14px] tracking-[0.5px]">
-                                        + {{ $remaining }} Lainnya
-                                    </p>
-                                @endif
-                            </div>
-
-                            @if ($pesanan->catatan_pesanan)
-                                <div
-                                    class="bg-[#F6F6F6] rounded-[9px] px-4 py-3 flex flex-col gap-1.5 justify-center w-full">
+                    <div class="bg-white rounded-t-[9px] px-5 py-5 flex-1 flex flex-col gap-4">
+                        <div class="flex flex-col gap-2 min-h-0 w-full">
+                            @forelse ($visibleItems as $detail)
+                                @php
+                                    $menu = $detail->menu;
+                                    $isDrink = $menu?->jenis_menu === 'Minuman';
+                                    $variant = $isDrink ? $menu?->tipe_minuman : $menu?->kategori_makanan;
+                                @endphp
+                                <div class="flex items-baseline justify-between gap-3">
                                     <p
-                                        class="text-[14px] font-bold text-[#460001] text-left tracking-[0.6px] leading-[18px] capitalize">
-                                        Notes Pemesanan
+                                        class="capitalize text-black text-[14px] font-bold leading-[18px] tracking-[0.6px] min-w-0 truncate">
+                                        {{ $detail->jumlah }} {{ $menu?->nama_menu ?? 'Menu' }}@if ($variant)<span class="italic text-[#460001]">({{ $variant }})</span>@endif
                                     </p>
-                                    <p class="text-[14px] text-[#1A1A1A] leading-[16px] tracking-[0.5px]">
-                                        {{ $pesanan->catatan_pesanan }}
-                                    </p>
-                                </div>
-                            @endif
-
-                            @if ($visibleImages->isNotEmpty())
-                                <div class="flex items-center gap-2 h-[72px] w-full overflow-hidden">
-                                    @foreach ($visibleImages as $detail)
-                                        @php
-                                            $menu = $detail->menu;
-                                            $imgType = $menu?->jenis_menu === 'Makanan' ? 'food' : 'drink';
-                                            $imgSrc = $menu?->gambar_menu
-                                                ? (str_starts_with($menu->gambar_menu, 'http')
-                                                    ? $menu->gambar_menu
-                                                    : asset("images/{$imgType}/{$menu->gambar_menu}"))
-                                                : null;
-                                        @endphp
-                                        <div
-                                            class="w-[72px] h-[72px] rounded-[9px] overflow-hidden bg-[#F6F6F6] shrink-0">
-                                            @if ($imgSrc)
-                                                <img src="{{ $imgSrc }}" alt="{{ $menu?->nama_menu ?? 'Menu' }}"
-                                                    class="w-full h-full object-cover">
-                                            @endif
-                                        </div>
-                                    @endforeach
-                                    @if ($imagesRemaining > 0)
-                                        <div class="flex-shrink-0 w-[60px] text-center">
-                                            <p class="text-black text-[12px] leading-[14px] tracking-[0.5px]">+
-                                                {{ $imagesRemaining }}</p>
-                                            <p class="text-black text-[12px] leading-[14px] tracking-[0.5px]">Lainnya
-                                            </p>
-                                        </div>
+                                    @if ($detail->catatan)
+                                        <p
+                                            class="text-[#808080] text-[12px] leading-[14px] tracking-[0.5px] truncate text-right shrink-0 max-w-[55%]">
+                                            {{ $detail->catatan }}
+                                        </p>
                                     @endif
                                 </div>
+                            @empty
+                                <p class="text-[#808080] text-[14px] italic">Tidak ada item.</p>
+                            @endforelse
+                            @if ($remaining > 0)
+                                <p class="text-[#460001] text-[12px] font-bold leading-[14px] tracking-[0.5px] mt-1">
+                                    +{{ $remaining }} Lainnya
+                                </p>
                             @endif
+                        </div>
 
-                            <div class="flex gap-3 w-full">
-                                <button type="button" data-modal-target="{{ $modalId }}"
-                                    class="flex-1 text-center bg-[#CCCCCC] text-[#681F1F] text-[16px] leading-[22px] tracking-[0.7px] px-4 py-2.5 rounded-[9px] shadow-[2px_4px_2px_rgba(0,0,0,0.25)] hover:bg-gray-300 transition-all">
-                                    Detail
-                                </button>
-
-                                @if ($isWaiting)
-                                    <form method="POST"
-                                        action="{{ route('kasir.pesanan.update-status', $pesanan->no_pesanan) }}"
-                                        class="flex-1">
-                                        @csrf
-                                        @method('PUT')
-                                        <button type="submit"
-                                            class="w-full bg-[#681F1F] text-white text-[16px] leading-[22px] tracking-[0.7px] px-4 py-2.5 rounded-[9px] shadow-[2px_4px_2px_rgba(0,0,0,0.25)] hover:brightness-110 transition-all">
-                                            Terima Pesanan
-                                        </button>
-                                    </form>
-                                @else
-                                    <form method="POST"
-                                        action="{{ route('kasir.pesanan.update-status', $pesanan->no_pesanan) }}"
-                                        class="flex-1">
-                                        @csrf
-                                        @method('PUT')
-                                        <button type="submit"
-                                            class="w-full bg-[#58E52D] text-white text-[16px] leading-[22px] tracking-[0.7px] px-4 py-2.5 rounded-[9px] shadow-[2px_4px_2px_rgba(0,0,0,0.25)] hover:brightness-95 transition-all">
-                                            Selesai
-                                        </button>
-                                    </form>
-                                    <button type="button"
-                                        data-order-print-url="{{ route('kasir.pesanan.cetak', $pesanan->no_pesanan) }}"
-                                        class="flex-1 text-center bg-[#681F1F] text-white text-[16px] leading-[22px] tracking-[0.7px] px-4 py-2.5 rounded-[9px] shadow-[2px_4px_2px_rgba(0,0,0,0.25)] hover:brightness-110 transition-all">
-                                        Cetak Struk
-                                    </button>
-                                @endif
+                        @if ($pesanan->catatan_pesanan)
+                            <div
+                                class="bg-[#F6F1F1] rounded-[9px] px-4 py-3 flex flex-col gap-1 w-full">
+                                <p
+                                    class="text-[13px] font-bold text-[#460001] text-left tracking-[0.6px] leading-[16px] capitalize">
+                                    Order Notes
+                                </p>
+                                <p class="text-[12px] text-[#1A1A1A] leading-[16px] tracking-[0.4px]">
+                                    {{ $pesanan->catatan_pesanan }}
+                                </p>
                             </div>
+                        @endif
+
+                        <div class="flex gap-3 w-full mt-auto">
+                            <button type="button" data-modal-target="{{ $modalId }}"
+                                class="flex-1 text-center bg-[#CCCCCC] text-[#681F1F] text-[16px] leading-[22px] tracking-[0.7px] px-4 py-2.5 rounded-[9px] shadow-[2px_4px_2px_rgba(0,0,0,0.25)] hover:bg-gray-300 transition-all">
+                                Detail
+                            </button>
+
+                            @if ($isWaiting)
+                                <form method="POST"
+                                    action="{{ route('kasir.pesanan.update-status', $pesanan->no_pesanan) }}"
+                                    class="flex-[2]">
+                                    @csrf
+                                    @method('PUT')
+                                    <button type="submit"
+                                        class="w-full bg-[#681F1F] text-white text-[16px] leading-[22px] tracking-[0.7px] px-4 py-2.5 rounded-[9px] shadow-[2px_4px_2px_rgba(0,0,0,0.25)] hover:brightness-110 transition-all">
+                                        Terima Pesanan
+                                    </button>
+                                </form>
+                            @else
+                                <form method="POST"
+                                    action="{{ route('kasir.pesanan.update-status', $pesanan->no_pesanan) }}"
+                                    class="flex-1">
+                                    @csrf
+                                    @method('PUT')
+                                    <button type="submit"
+                                        class="w-full bg-[#58E52D] text-white text-[16px] leading-[22px] tracking-[0.7px] px-4 py-2.5 rounded-[9px] shadow-[2px_4px_2px_rgba(0,0,0,0.25)] hover:brightness-95 transition-all">
+                                        Selesai
+                                    </button>
+                                </form>
+                                <button type="button"
+                                    data-order-print-url="{{ route('kasir.pesanan.cetak', $pesanan->no_pesanan) }}"
+                                    class="flex-1 text-center bg-[#681F1F] text-white text-[16px] leading-[22px] tracking-[0.7px] px-4 py-2.5 rounded-[9px] shadow-[2px_4px_2px_rgba(0,0,0,0.25)] hover:brightness-110 transition-all">
+                                    Cetak Struk
+                                </button>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -213,7 +176,7 @@
             <div id="{{ $modalId }}"
                 class="fixed inset-0 z-[80] hidden items-center justify-center bg-black/35 px-4 py-8" data-modal>
                 <div
-                    class="relative w-full max-w-[540px] max-h-[92vh] bg-white rounded-[9px] shadow-[2px_4px_4px_rgba(0,0,0,0.25)] overflow-hidden flex flex-col py-7">
+                    class="relative w-full max-w-[540px] max-h-[92vh] bg-[#F8EFEC] rounded-[9px] shadow-[2px_4px_4px_rgba(0,0,0,0.25)] overflow-hidden flex flex-col py-7">
                     <button type="button" class="absolute right-8 top-7 z-10 text-[#460001] hover:opacity-70"
                         data-modal-close aria-label="Tutup detail pesanan">
                         <svg class="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -279,9 +242,9 @@
                                             ->values();
                                     @endphp
                                     @if ($idx > 0)
-                                        <div class="border-t border-[#E6E6E6]"></div>
+                                        <div class="border-t border-[#E0CFC8]"></div>
                                     @endif
-                                    <div class="bg-white flex items-start gap-3 px-3 py-3 rounded-[9px]">
+                                    <div class="flex items-start gap-3 px-3 py-3 rounded-[9px]">
                                         <div
                                             class="w-[62px] h-[62px] rounded-[9px] overflow-hidden shrink-0 bg-[#F6F6F6]">
                                             <img src="{{ $imgSrc }}" alt="{{ $menu?->nama_menu ?? 'Menu' }}"
@@ -324,7 +287,7 @@
                             </div>
 
                             @if ($pesanan->catatan_pesanan)
-                                <div class="bg-[#D9C7C7] rounded-[9px] px-4 py-3 flex flex-col gap-1.5">
+                                <div class="bg-[#E8D6CF] rounded-[9px] px-4 py-3 flex flex-col gap-1.5">
                                     <p
                                         class="text-[#460001] text-[14px] font-bold leading-[18px] tracking-[0.6px] text-left capitalize">
                                         Notes Pemesanan
@@ -379,7 +342,7 @@
                     <div class="px-8 pt-4 flex items-stretch gap-3">
                         <button type="button" data-modal-close
                             class="flex-1 bg-[#CCCCCC] text-[#681F1F] text-[16px] leading-[22px] tracking-[0.7px] rounded-[9px] px-4 py-2.5 shadow-[2px_4px_2px_rgba(0,0,0,0.25)] hover:bg-[#BEBEBE] transition-colors">
-                            Kembali
+                            Tutup
                         </button>
                         @if ($isWaiting)
                             <form method="POST"
