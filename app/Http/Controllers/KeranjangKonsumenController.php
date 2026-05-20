@@ -30,23 +30,28 @@ class KeranjangKonsumenController extends Controller
         $request->validate([
             'id_menu' => ['required', 'integer', 'exists:menu,id_menu'],
             'jumlah'  => ['required', 'integer', 'min:1', 'max:99'],
+            'catatan' => ['nullable', 'string', 'max:255'],
         ]);
 
         $menu      = Menu::findOrFail($request->id_menu);
         $keranjang = session('keranjang', []);
         $idMenu    = (int) $request->id_menu;
         $jumlah    = (int) $request->jumlah;
+        $catatan   = $request->catatan;
 
         if (isset($keranjang[$idMenu])) {
             $keranjang[$idMenu]['jumlah']   += $jumlah;
             $keranjang[$idMenu]['subtotal']  = $keranjang[$idMenu]['harga'] * $keranjang[$idMenu]['jumlah'];
+            if ($catatan) {
+                $keranjang[$idMenu]['catatan'] = $catatan;
+            }
         } else {
             $keranjang[$idMenu] = [
                 'id_menu'   => $idMenu,
                 'nama_menu' => $menu->nama_menu,
                 'harga'     => $menu->harga,
                 'jumlah'    => $jumlah,
-                'catatan'   => null,
+                'catatan'   => $catatan ?? null,
                 'subtotal'  => $menu->harga * $jumlah,
             ];
         }

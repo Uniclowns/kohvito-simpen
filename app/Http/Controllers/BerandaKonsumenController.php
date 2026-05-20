@@ -21,6 +21,7 @@ class BerandaKonsumenController extends Controller
         }
 
         session(['id_meja' => $meja->id_meja]);
+        session(['id_meja_no' => $meja->no_meja]);
 
         $kategoris = KategoriMenu::with(['menus' => function ($query) {
             $query->where('status_ketersediaan', 'tersedia');
