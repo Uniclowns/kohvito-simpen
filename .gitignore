@@ -1,6 +1,9 @@
 *.log
 .DS_Store
 .env
+AGENTS.md
+Penjelasan.md
+DESIGN.md
 .env.backup
 .env.production
 .phpactor.json
@@ -32,3 +35,5 @@ Kohvito-API-Testing.postman_collection.json
 PANDUAN-TESTING-POSTMAN.md
 revisi.md
 ruvector.db
+.superpowers/
+.gstack/

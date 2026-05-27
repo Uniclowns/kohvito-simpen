@@ -100,9 +100,21 @@ Route::prefix('kasir')->middleware(['auth', 'role:kasir'])->name('kasir.')->grou
 Route::get('/order-tutup', fn () => view('konsumen.order-tutup'))->name('konsumen.order-tutup');
 
 // Tracking pesanan & kuitansi (tidak diblokir saat tutup)
-Route::get('/pesanan/{noPesanan}', [PesananController::class, 'index'])->name('konsumen.pesanan');
+Route::get('/pembayaran/{noPesanan}', [BayarController::class, 'qris'])->name('konsumen.pembayaran');
+Route::get('/pembayaran/{noPesanan}/qr', [BayarController::class, 'downloadQr'])->name('konsumen.bayar.qr');
+Route::get('/pembayaran/{noPesanan}/sync', [BayarController::class, 'syncStatus'])->name('konsumen.bayar.sync');
+
+// Daftar Pesanan — semua pesanan dalam sesi konsumen (Figma 1432-23620 / empty 1465-23298)
+Route::get('/pesanan', [PesananController::class, 'index'])->name('konsumen.pesanan');
+
+// Lacak Pesanan — timeline progress per pesanan (Figma 1465-22886 / empty 1465-24095)
+Route::get('/lacak', [PesananController::class, 'lacakLatest'])->name('konsumen.lacak');
+Route::get('/lacak/{noPesanan}', [PesananController::class, 'lacak'])->name('konsumen.lacak.detail');
+
+// Aksi per-pesanan (polling status, kuitansi, pembatalan)
 Route::get('/pesanan/{noPesanan}/status', [PesananController::class, 'status'])->name('konsumen.pesanan.status');
 Route::get('/pesanan/{noPesanan}/kuitansi', [PesananController::class, 'kuitansi'])->name('konsumen.pesanan.kuitansi');
+Route::delete('/pesanan/{noPesanan}/batal', [PesananController::class, 'batal'])->name('konsumen.pesanan.batal');
 
 // Keranjang & pemesanan (diblokir saat order ditutup)
 Route::middleware('order.status')->group(function () {
@@ -115,6 +127,8 @@ Route::middleware('order.status')->group(function () {
     // Pembayaran
     Route::post('/bayar', [BayarController::class, 'bayar'])->name('konsumen.bayar');
     Route::post('/bayar/callback', [BayarController::class, 'callback'])->name('konsumen.bayar.callback');
+    Route::get('/bayar/simulator/{noPesanan}', [BayarController::class, 'simulator'])->name('konsumen.bayar.simulator');
+    Route::post('/bayar/simulator/{noPesanan}/callback', [BayarController::class, 'simulatorCallback'])->name('konsumen.bayar.simulator.callback');
 
     // Beranda & Katalog Menu (scan QR → /{noMeja})
     Route::get('/menu/data', [BerandaKonsumenController::class, 'getData'])->name('konsumen.menu.data');

@@ -1,7 +1,14 @@
+{{-- Kuitansi Digital Konsumen
+    Route: konsumen.pesanan.kuitansi (/pesanan/{noPesanan}/kuitansi)
+    Controller: PesananController@kuitansi
+    Variables: $pesanan
+    Note: Kept as standalone printable receipt markup; it intentionally does not load Vite or motion.
+--}}
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Kuitansi Digital — {{ $pesanan->no_pesanan }}</title>
     <style>
         @page {
@@ -153,12 +160,24 @@
             text-transform: uppercase;
             letter-spacing: 1px;
         }
+        @media (max-width: 380px) {
+            body {
+                padding: 18px 10px;
+            }
+            .meta-label {
+                width: 78px;
+            }
+            .meta-value,
+            .item-name {
+                overflow-wrap: anywhere;
+            }
+        }
     </style>
 </head>
 <body>
 
 <div class="receipt-container">
-    
+
     <!-- Centered Header Brand -->
     <div class="header">
         <h1>KOHVITO CAFÉ</h1>

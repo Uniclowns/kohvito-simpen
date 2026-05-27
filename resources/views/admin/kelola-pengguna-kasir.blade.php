@@ -1,6 +1,6 @@
 <x-layouts.admin title="Kelola Pengguna Kasir" page-title="Kelola Pengguna Kasir">
     <x-slot:headerEnd>
-        <button onclick="openConfirmModal('form-add-pengguna')"
+        <button onclick="openAppModal('form-add-pengguna')"
             class="bg-brand-red hover:bg-brand-dark text-white px-4 py-2 rounded-md text-[14px] transition-colors flex items-center gap-2 font-medium shadow-sm">
             <img src="{{ asset('images/icons/plus.svg') }}" class="w-3 h-3 invert" style="filter: brightness(0) invert(1)"
                 alt="Tambah">
@@ -20,7 +20,7 @@
     @endif
 
     {{-- Card Container --}}
-    <div class="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.06)] p-6 mt-2">
+    <div class="kvt-scroll-region mt-2 overflow-x-auto rounded-2xl bg-white p-4 shadow-[0_4px_24px_rgba(0,0,0,0.06)] sm:p-6" tabindex="0" aria-label="Daftar pengguna kasir">
         <h2 class="text-lg font-bold text-brand-dark mb-5">List Pengguna Kasir</h2>
 
         {{-- Search Bar --}}
@@ -40,7 +40,7 @@
             </form>
         </div>
 
-        <table class="w-full">
+        <table class="w-full min-w-[760px]">
             <thead>
                 <tr class="text-left text-xs font-bold text-brand-dark uppercase tracking-wide">
                     <th class="pb-4 pr-4 w-[180px]">ID Pengguna</th>
@@ -63,7 +63,7 @@
                         </td>
                         <td class="py-4 text-right">
                             <div class="inline-flex gap-2">
-                                <button type="button" onclick="openConfirmModal('form-edit-pengguna-{{ $user->id_users }}')"
+                                <button type="button" onclick="openAppModal('form-edit-pengguna-{{ $user->id_users }}')"
                                     class="bg-[#380000] hover:bg-[#2A0000] text-white px-4 py-1.5 rounded-md text-xs font-bold transition-colors flex items-center gap-1.5">
                                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -112,7 +112,7 @@
             const modal = document.getElementById('confirm-hapus-pengguna');
             const form = modal.querySelector('form');
             form.action = actionUrl;
-            openConfirmModal('confirm-hapus-pengguna');
+            openAppModal('confirm-hapus-pengguna');
         }
 
         // Live Search with Debounce
