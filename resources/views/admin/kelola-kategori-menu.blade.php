@@ -1,6 +1,6 @@
 <x-layouts.admin title="Kelola Kategori Menu" page-title="Kelola Kategori Menu">
     <x-slot:headerEnd>
-        <button onclick="openConfirmModal('form-add-kategori')"
+        <button onclick="openAppModal('form-add-kategori')"
             class="bg-brand-red hover:bg-brand-dark text-white px-4 py-2 rounded-md text-[14px] transition-colors flex items-center gap-2 font-medium shadow-sm">
             <img src="{{ asset('images/icons/plus.svg') }}" class="w-3 h-3 invert"
                 style="filter: brightness(0) invert(1)" alt="Tambah">
@@ -44,10 +44,10 @@
     @endif
 
     {{-- Card Container --}}
-    <div class="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.06)] p-6 mt-2">
+    <div class="kvt-scroll-region mt-2 overflow-x-auto rounded-2xl bg-white p-4 shadow-[0_4px_24px_rgba(0,0,0,0.06)] sm:p-6" tabindex="0" aria-label="Daftar kategori menu">
         <h2 class="text-lg font-bold text-brand-dark mb-5">List Kategori Menu</h2>
 
-        <table class="w-full">
+        <table class="w-full min-w-[680px]">
             <thead>
                 <tr class="text-left text-xs font-bold text-brand-dark uppercase tracking-wide">
                     <th class="pb-4 pr-4 w-[180px]">ID Kategori</th>
@@ -101,11 +101,11 @@
     {{-- ─── Modal: Tambah Kategori ─── --}}
     <div id="form-add-kategori" data-form-modal
         class="hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-[2px] flex items-center justify-center p-4"
-        onclick="if(event.target === this) closeConfirmModal('form-add-kategori')">
-        <div class="bg-white rounded-2xl shadow-[0_8px_24px_rgba(0,0,0,0.15)] w-full max-w-[440px] p-6 relative">
+        onclick="if(event.target === this) closeAppModal('form-add-kategori')">
+        <div class="kvt-modal-panel relative w-full max-w-[440px] overflow-y-auto rounded-2xl bg-white p-5 shadow-[0_8px_24px_rgba(0,0,0,0.15)] sm:p-6">
             <button type="button"
                 class="absolute top-5 right-5 text-brand-gray hover:text-brand-black"
-                onclick="closeConfirmModal('form-add-kategori')">
+                onclick="closeAppModal('form-add-kategori')">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -119,9 +119,9 @@
                         class="w-full bg-[#EBE4E0]/40 border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-[#380000]"
                         required>
                 </div>
-                <div class="flex justify-end gap-3">
+                <div class="kvt-modal-actions flex justify-end gap-3">
                     <button type="button"
-                        onclick="closeConfirmModal('form-add-kategori')"
+                        onclick="closeAppModal('form-add-kategori')"
                         class="bg-[#EBE4E0] text-[#380000] px-5 py-2 rounded-xl text-sm font-bold hover:bg-[#DFD4CF]">
                         Batal
                     </button>
@@ -137,11 +137,11 @@
     {{-- ─── Modal: Edit Kategori ─── --}}
     <div id="form-edit-kategori" data-form-modal
         class="hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-[2px] flex items-center justify-center p-4"
-        onclick="if(event.target === this) closeConfirmModal('form-edit-kategori')">
-        <div class="bg-white rounded-2xl shadow-[0_8px_24px_rgba(0,0,0,0.15)] w-full max-w-[440px] p-6 relative">
+        onclick="if(event.target === this) closeAppModal('form-edit-kategori')">
+        <div class="kvt-modal-panel relative w-full max-w-[440px] overflow-y-auto rounded-2xl bg-white p-5 shadow-[0_8px_24px_rgba(0,0,0,0.15)] sm:p-6">
             <button type="button"
                 class="absolute top-5 right-5 text-brand-gray hover:text-brand-black"
-                onclick="closeConfirmModal('form-edit-kategori')">
+                onclick="closeAppModal('form-edit-kategori')">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -156,9 +156,9 @@
                         class="w-full bg-[#EBE4E0]/40 border-none rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-[#380000]"
                         required>
                 </div>
-                <div class="flex justify-end gap-3">
+                <div class="kvt-modal-actions flex justify-end gap-3">
                     <button type="button"
-                        onclick="closeConfirmModal('form-edit-kategori')"
+                        onclick="closeAppModal('form-edit-kategori')"
                         class="bg-[#EBE4E0] text-[#380000] px-5 py-2 rounded-xl text-sm font-bold hover:bg-[#DFD4CF]">
                         Batal
                     </button>
@@ -188,27 +188,27 @@
             const form = document.getElementById('form-edit-kategori-form');
             form.action = `/admin/kategori/${id}`;
             document.getElementById('edit-nama-kategori').value = nama;
-            openConfirmModal('form-edit-kategori');
+            openAppModal('form-edit-kategori');
         }
 
         function confirmDeleteKategori(actionUrl) {
             const modal = document.getElementById('confirm-delete-kategori');
             const form = modal.querySelector('form');
             form.action = actionUrl;
-            openConfirmModal('confirm-delete-kategori');
+            openAppModal('confirm-delete-kategori');
         }
 
         function confirmSubmitEditKategori(event) {
             event.preventDefault();
             pendingEditKategoriForm = event.target;
-            openConfirmModal('confirm-save-kategori');
+            openAppModal('confirm-save-kategori');
             return false;
         }
 
         function submitEditKategoriAfterConfirm() {
             if (!pendingEditKategoriForm) return;
 
-            closeConfirmModal('confirm-save-kategori');
+            closeAppModal('confirm-save-kategori');
             pendingEditKategoriForm.submit();
             pendingEditKategoriForm = null;
         }

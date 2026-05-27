@@ -1,13 +1,13 @@
 <x-layouts.kasir title="Beranda Kasir" page-title="Beranda Kasir">
 
     <x-slot:headerEnd>
-        <div class="flex items-center gap-3">
-            <div class="w-12 h-12 rounded-full flex items-center justify-center overflow-hidden">
+        <div class="hidden items-center gap-3 sm:flex">
+            <div class="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full">
                 <img src="{{ asset('images/icons/KVT ICON USER.svg') }}" alt="User Avatar"
                     class="w-12 h-12 object-contain">
             </div>
             <span
-                class="text-[#460001] text-[22px] tracking-[1px]">{{ auth()->user()?->nama_lengkap ?? (auth()->user()?->name ?? 'Kasir') }}</span>
+                class="max-w-[220px] truncate text-[22px] tracking-[1px] text-[#460001]">{{ auth()->user()?->nama_lengkap ?? (auth()->user()?->name ?? 'Kasir') }}</span>
         </div>
     </x-slot:headerEnd>
 
@@ -18,8 +18,8 @@
     @endif
 
     {{-- ── 4 Stat Cards ── --}}
-    <div class="grid grid-cols-4 gap-7 mb-10">
-        <div class="bg-[rgba(104,31,31,0.12)] rounded-[9px] px-7 py-6">
+    <div class="mb-10 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4" data-anim="stagger">
+        <div class="bg-[rgba(104,31,31,0.12)] rounded-[9px] px-5 py-5 lg:px-7 lg:py-6" data-anim-item>
             <div class="flex items-center gap-2 mb-2">
                 <svg class="w-5 h-5 text-[#681F1F]" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd"
@@ -28,16 +28,16 @@
                 </svg>
                 <h6 class="text-[14px] text-[#681F1F] font-bold uppercase tracking-[0.6px]">Jumlah Pesanan Selesai</h6>
             </div>
-            <div class="flex items-baseline gap-2 mt-2">
-                <p class="text-[42px] font-bold text-black leading-[46px]">{{ $selesai }}</p>
-                <p class="text-[26px] font-bold text-black leading-[34px]">Pesanan</p>
+            <div class="mt-2 flex flex-wrap items-baseline gap-2">
+                <p class="text-[34px] font-bold leading-[42px] text-black sm:text-[42px] sm:leading-[46px]" data-count-up="{{ $selesai }}">{{ $selesai }}</p>
+                <p class="text-[22px] font-bold leading-[30px] text-black sm:text-[26px] sm:leading-[34px]">Pesanan</p>
             </div>
             <p class="text-[14px] text-[rgba(70,0,1,0.5)] mt-2">
                 {{ $selesaiMinuman }} Minuman &nbsp; {{ $selesaiMakanan }} Makanan &nbsp; Berhasil Terjual
             </p>
         </div>
 
-        <div class="bg-[rgba(104,31,31,0.12)] rounded-[9px] px-7 py-6">
+        <div class="bg-[rgba(104,31,31,0.12)] rounded-[9px] px-5 py-5 lg:px-7 lg:py-6" data-anim-item>
             <div class="flex items-center gap-2 mb-2">
                 <svg class="w-5 h-5 text-[#681F1F]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -45,14 +45,14 @@
                 </svg>
                 <h6 class="text-[14px] text-[#681F1F] font-bold uppercase tracking-[0.6px]">Jumlah Pesanan Aktif</h6>
             </div>
-            <div class="flex items-baseline gap-2 mt-2">
-                <p class="text-[42px] font-bold text-black leading-[46px]">{{ $pesananAktif }}</p>
-                <p class="text-[26px] font-bold text-black leading-[34px]">Pesanan</p>
+            <div class="mt-2 flex flex-wrap items-baseline gap-2">
+                <p class="text-[34px] font-bold leading-[42px] text-black sm:text-[42px] sm:leading-[46px]" data-count-up="{{ $pesananAktif }}">{{ $pesananAktif }}</p>
+                <p class="text-[22px] font-bold leading-[30px] text-black sm:text-[26px] sm:leading-[34px]">Pesanan</p>
             </div>
             <p class="text-[14px] text-[rgba(70,0,1,0.5)] mt-2">&nbsp;</p>
         </div>
 
-        <div class="bg-[rgba(104,31,31,0.12)] rounded-[9px] px-7 py-6">
+        <div class="bg-[rgba(104,31,31,0.12)] rounded-[9px] px-5 py-5 lg:px-7 lg:py-6" data-anim-item>
             <div class="flex items-center gap-2 mb-2">
                 <svg class="w-5 h-5 text-[#681F1F]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -60,14 +60,14 @@
                 </svg>
                 <h6 class="text-[14px] text-[#681F1F] font-bold uppercase tracking-[0.6px]">Total Transaksi</h6>
             </div>
-            <div class="flex items-baseline gap-2 mt-2">
-                <p class="text-[42px] font-bold text-black leading-[46px]">{{ $totalTransaksi }}</p>
-                <p class="text-[26px] font-bold text-black leading-[34px]">Transaksi</p>
+            <div class="mt-2 flex flex-wrap items-baseline gap-2">
+                <p class="text-[34px] font-bold leading-[42px] text-black sm:text-[42px] sm:leading-[46px]" data-count-up="{{ $totalTransaksi }}">{{ $totalTransaksi }}</p>
+                <p class="text-[22px] font-bold leading-[30px] text-black sm:text-[26px] sm:leading-[34px]">Transaksi</p>
             </div>
             <p class="text-[14px] text-[rgba(70,0,1,0.5)] mt-2">&nbsp;</p>
         </div>
 
-        <div class="bg-[rgba(104,31,31,0.12)] rounded-[9px] px-7 py-6">
+        <div class="bg-[rgba(104,31,31,0.12)] rounded-[9px] px-5 py-5 lg:px-7 lg:py-6" data-anim-item>
             <div class="flex items-center gap-2 mb-2">
                 <svg class="w-5 h-5 text-[#681F1F]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -75,9 +75,9 @@
                 </svg>
                 <h6 class="text-[14px] text-[#681F1F] font-bold uppercase tracking-[0.6px]">Total Pendapatan Kotor</h6>
             </div>
-            <div class="flex items-baseline gap-2 mt-2">
-                <p class="text-[26px] font-bold text-black leading-[34px]">Rp</p>
-                <p class="text-[42px] font-bold text-black leading-[46px]">{{ number_format($omzetTotal, 0, ',', '.') }}
+            <div class="mt-2 flex min-w-0 flex-wrap items-baseline gap-2">
+                <p class="text-[22px] font-bold leading-[30px] text-black sm:text-[26px] sm:leading-[34px]">Rp</p>
+                <p class="kvt-break-anywhere text-[32px] font-bold leading-[40px] text-black sm:text-[42px] sm:leading-[46px]" data-count-up="{{ $omzetTotal }}">{{ number_format($omzetTotal, 0, ',', '.') }}
                 </p>
             </div>
             <p class="text-[14px] text-[rgba(70,0,1,0.5)] mt-2">
@@ -87,10 +87,10 @@
     </div>
 
     {{-- ── 2 Terlaris Cards ── --}}
-    <div class="grid grid-cols-2 gap-8 mb-10">
+    <div class="mb-10 grid grid-cols-1 gap-5 xl:grid-cols-2">
         <div
-            class="bg-white rounded-[9px] shadow-[2px_4px_4px_rgba(0,0,0,0.18)] flex items-center overflow-hidden h-[120px]">
-            <div class="bg-[#681F1F] h-full flex items-center justify-center px-6 flex-shrink-0">
+            class="flex flex-col sm:flex-row min-w-0 items-stretch sm:items-center overflow-hidden rounded-[9px] bg-white shadow-[2px_4px_4px_rgba(0,0,0,0.18)]">
+            <div class="bg-[#681F1F] hidden sm:flex items-center justify-center px-6 shrink-0">
                 <img src="{{ asset('images/icons/Food.svg') }}" alt="" class="w-10 h-10 brightness-0 invert">
             </div>
             @if ($makananTerlaris?->gambar_menu)
@@ -99,24 +99,24 @@
                         ? $makananTerlaris->gambar_menu
                         : asset('images/food/' . $makananTerlaris->gambar_menu);
                 @endphp
-                <div class="w-[120px] h-[120px] flex-shrink-0 overflow-hidden">
+                <div class="w-full h-44 sm:w-[120px] sm:h-[120px] shrink-0 overflow-hidden">
                     <img src="{{ $imgSrcMk }}" alt="" class="w-full h-full object-cover">
                 </div>
             @endif
-            <div class="flex-1 px-6 py-3">
-                <p class="text-[14px] text-[#681F1F] font-bold uppercase tracking-[0.6px] mb-2">Makanan Terlaris</p>
-                <p class="text-[24px] font-bold text-black leading-[32px] mb-2">
+            <div class="min-w-0 flex-1 px-4 py-4 sm:py-3 sm:px-6">
+                <p class="text-[14px] text-brand-red font-bold uppercase tracking-[0.6px] mb-2">Makanan Terlaris</p>
+                <p class="truncate text-[24px] font-bold leading-[32px] text-black mb-2">
                     {{ $makananTerlaris?->nama_menu ?? '—' }}
                 </p>
-                <p class="text-[14px] text-[rgba(70,0,1,0.5)] font-bold">
+                <p class="text-[14px] text-brand-gray font-bold">
                     {{ $makananTerlaris->total_terjual ?? 0 }} Terjual Hari ini
                 </p>
             </div>
         </div>
 
         <div
-            class="bg-white rounded-[9px] shadow-[2px_4px_4px_rgba(0,0,0,0.18)] flex items-center overflow-hidden h-[120px]">
-            <div class="bg-[#681F1F] h-full flex items-center justify-center px-6 flex-shrink-0">
+            class="flex flex-col sm:flex-row min-w-0 items-stretch sm:items-center overflow-hidden rounded-[9px] bg-white shadow-[2px_4px_4px_rgba(0,0,0,0.18)]">
+            <div class="bg-[#681F1F] hidden sm:flex items-center justify-center px-6 shrink-0">
                 <img src="{{ asset('images/icons/Drink.svg') }}" alt="" class="w-10 h-10 brightness-0 invert">
             </div>
             @if ($minumanTerlaris?->gambar_menu)
@@ -125,16 +125,16 @@
                         ? $minumanTerlaris->gambar_menu
                         : asset('images/drink/' . $minumanTerlaris->gambar_menu);
                 @endphp
-                <div class="w-[120px] h-[120px] flex-shrink-0 overflow-hidden">
+                <div class="w-full h-44 sm:w-[120px] sm:h-[120px] shrink-0 overflow-hidden">
                     <img src="{{ $imgSrcMn }}" alt="" class="w-full h-full object-cover">
                 </div>
             @endif
-            <div class="flex-1 px-6 py-3">
-                <p class="text-[14px] text-[#681F1F] font-bold uppercase tracking-[0.6px] mb-2">Minuman Terlaris</p>
-                <p class="text-[24px] font-bold text-black leading-[32px] mb-2">
+            <div class="min-w-0 flex-1 px-4 py-4 sm:py-3 sm:px-6">
+                <p class="text-[14px] text-brand-red font-bold uppercase tracking-[0.6px] mb-2">Minuman Terlaris</p>
+                <p class="truncate text-[24px] font-bold leading-[32px] text-black mb-2">
                     {{ $minumanTerlaris?->nama_menu ?? '—' }}
                 </p>
-                <p class="text-[14px] text-[rgba(70,0,1,0.5)] font-bold">
+                <p class="text-[14px] text-brand-gray font-bold">
                     {{ $minumanTerlaris->total_terjual ?? 0 }} Terjual Hari ini
                 </p>
             </div>
@@ -143,16 +143,16 @@
 
     {{-- ── Charts ── --}}
     <div class="grid grid-cols-1 gap-8 mb-8">
-        <div class="bg-white rounded-[9px] shadow-sm px-8 pt-7 pb-6">
+        <div class="rounded-[9px] bg-white px-4 pb-5 pt-5 shadow-sm sm:px-8 sm:pb-6 sm:pt-7">
             <p class="text-[24px] font-bold text-[#460001] tracking-[1px] mb-6">Pesanan Hari Ini</p>
-            <div class="relative h-[340px]">
+            <div class="relative h-[260px] sm:h-[340px]">
                 <canvas id="chartPesanan"></canvas>
             </div>
         </div>
 
-        <div class="bg-white rounded-[9px] shadow-sm px-8 pt-7 pb-6">
+        <div class="rounded-[9px] bg-white px-4 pb-5 pt-5 shadow-sm sm:px-8 sm:pb-6 sm:pt-7">
             <p class="text-[24px] font-bold text-[#460001] tracking-[1px] mb-6">Pendapatan Minggu Ini</p>
-            <div class="relative h-[340px]">
+            <div class="relative h-[260px] sm:h-[340px]">
                 <canvas id="chartPendapatan"></canvas>
             </div>
         </div>

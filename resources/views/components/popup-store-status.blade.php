@@ -11,10 +11,10 @@
 
 <div id="{{ $id }}" data-confirm-modal
      class="hidden fixed inset-0 z-[70] bg-black/40 backdrop-blur-[2px] flex items-center justify-center p-4 transition-all"
-     onclick="if(event.target === this) closeConfirmModal('{{ $id }}')"
+     onclick="if(event.target === this) closeAppModal('{{ $id }}')"
      role="dialog" aria-modal="true" aria-labelledby="{{ $id }}-heading">
 
-    <div class="bg-white rounded-[9px] shadow-[2px_4px_8px_rgba(0,0,0,0.25)] w-full max-w-[400px] px-[30px] py-[24px] flex flex-col gap-[15px] relative">
+    <div class="kvt-modal-panel relative flex w-full max-w-[400px] flex-col gap-[15px] overflow-y-auto rounded-[9px] bg-white px-5 py-5 shadow-[2px_4px_8px_rgba(0,0,0,0.25)] sm:px-[30px] sm:py-[24px]">
 
         {{-- Header: title + close X --}}
         <div class="flex items-start justify-between gap-[5px]">
@@ -23,7 +23,7 @@
                 {{ $heading }}
             </h2>
             <button type="button"
-                    onclick="closeConfirmModal('{{ $id }}')"
+                    onclick="closeAppModal('{{ $id }}')"
                     class="text-[#460001] hover:text-[#681F1F] transition-colors flex-shrink-0 -mr-1"
                     aria-label="Tutup popup">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -39,7 +39,7 @@
                      class="h-[120px] w-auto object-contain">
             @else
                 {{-- Fallback placeholder until the matching illustration asset is added --}}
-                <div class="h-[120px] w-[210px] flex items-center justify-center bg-gray-100 rounded text-[10px] text-brand-gray uppercase tracking-wide">
+                <div class="flex h-[120px] w-full max-w-[210px] items-center justify-center rounded bg-gray-100 text-[10px] uppercase tracking-wide text-brand-gray">
                     illustration missing
                 </div>
             @endif
@@ -48,7 +48,7 @@
         {{-- Footer: Kembali button --}}
         <div class="flex justify-end">
             <button type="button"
-                    onclick="closeConfirmModal('{{ $id }}')"
+                    onclick="closeAppModal('{{ $id }}')"
                     class="bg-[#CCCCCC] hover:bg-[#BFBFBF] text-[#681F1F] px-[12px] py-[6px] rounded-[9px] text-[14px] tracking-[0.7px] shadow-[2px_4px_4px_rgba(0,0,0,0.25)] transition-colors">
                 Kembali
             </button>
