@@ -14,11 +14,11 @@
 
 <div id="{{ $id }}" data-form-modal
     class="hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-[2px] flex items-center justify-center p-4"
-    onclick="if(event.target === this) closeConfirmModal('{{ $id }}')">
-    <div class="bg-white rounded-2xl shadow-[0_8px_24px_rgba(0,0,0,0.15)] w-full max-w-[460px] p-8 relative">
+    onclick="if(event.target === this) closeAppModal('{{ $id }}')">
+    <div class="kvt-modal-panel relative w-full max-w-[460px] overflow-y-auto rounded-2xl bg-white p-5 shadow-[0_8px_24px_rgba(0,0,0,0.15)] sm:p-8">
         {{-- Close Icon (X) --}}
-        <button type="button" class="absolute top-7 right-8 text-[#380000] hover:text-[#681F1F] transition-colors"
-            onclick="closeConfirmModal('{{ $id }}')" aria-label="Tutup popup">
+        <button type="button" class="absolute right-5 top-5 text-[#380000] transition-colors hover:text-[#681F1F] sm:right-8 sm:top-7"
+            onclick="closeAppModal('{{ $id }}')" aria-label="Tutup popup">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -94,12 +94,12 @@
             </div>
 
             {{-- Action Buttons --}}
-            <div class="flex justify-end gap-3">
-                <button type="button" onclick="closeConfirmModal('{{ $id }}')"
+            <div class="kvt-modal-actions flex justify-end gap-3">
+                <button type="button" onclick="closeAppModal('{{ $id }}')"
                     class="bg-[#EBE4E0] text-[#380000] px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-[#DFD4CF] transition-colors">
                     Batal
                 </button>
-                <button type="button" onclick="openConfirmModal('confirm-simpan-{{ $mode }}-{{ $id }}')"
+                <button type="button" onclick="openAppModal('confirm-simpan-{{ $mode }}-{{ $id }}')"
                     class="bg-[#380000] text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-[#2A0000] transition-colors">
                     Simpan
                 </button>
@@ -123,12 +123,12 @@
     document.addEventListener('click', function(e) {
         const btn = e.target.closest('[data-toggle-password]');
         if (!btn) return;
-        
+
         const inputId = btn.dataset.togglePassword;
         const input = document.getElementById(inputId);
         const eyeClosed = btn.querySelector('svg[id$="-eye-closed"]');
         const eyeOpen = btn.querySelector('svg[id$="-eye-open"]');
-        
+
         if (input.type === 'password') {
             input.type = 'text';
             eyeClosed.classList.add('hidden');
@@ -145,7 +145,7 @@
 @if ($errors->any() && old('_open_modal') === $id)
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-        openConfirmModal('{{ $id }}');
+        openAppModal('{{ $id }}');
     });
 </script>
 @endif

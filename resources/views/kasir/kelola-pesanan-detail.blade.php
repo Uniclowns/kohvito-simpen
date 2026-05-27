@@ -10,12 +10,12 @@
         $totalPesanan = $subtotalPesanan + $ppnPesanan;
     @endphp
 
-    <div class="max-w-[540px] mx-auto mb-40">
+    <div class="mx-auto mb-16 max-w-[540px] sm:mb-40">
         <div
-            class="relative bg-[#EDE4E4] rounded-[9px] shadow-[2px_4px_4px_rgba(0,0,0,0.25)] overflow-hidden flex flex-col py-7">
+            class="relative flex flex-col overflow-hidden rounded-[9px] bg-[#EDE4E4] py-5 shadow-[2px_4px_4px_rgba(0,0,0,0.25)] sm:py-7">
 
             <a href="{{ route('kasir.pesanan.index') }}"
-                class="absolute right-8 top-7 z-10 text-[#460001] hover:opacity-70"
+                class="absolute right-4 top-4 z-10 text-[#460001] hover:opacity-70 sm:right-8 sm:top-7"
                 aria-label="Tutup detail pesanan">
                 <svg class="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -23,13 +23,13 @@
                 </svg>
             </a>
 
-            <div class="px-8">
-                <h3 class="text-black text-[28px] font-bold leading-[34px] tracking-[1.2px] mb-3">Detail Pesanan</h3>
+            <div class="px-4 sm:px-8">
+                <h3 class="mb-3 pr-10 text-[23px] font-bold leading-[30px] tracking-[1.2px] text-black sm:text-[28px] sm:leading-[34px]">Detail Pesanan</h3>
             </div>
 
-            <div class="px-8 py-3 flex items-center gap-5">
+            <div class="flex flex-col items-stretch gap-3 px-4 py-3 sm:flex-row sm:items-center sm:gap-5 sm:px-8">
                 <div
-                    class="bg-[#D9C7C7] rounded-[9px] px-4 py-2 text-center shrink-0 flex flex-col items-center justify-center">
+                    class="flex shrink-0 flex-col items-center justify-center rounded-[9px] bg-[#D9C7C7] px-4 py-2 text-center">
                     <p
                         class="text-[#460001] text-[14px] font-bold uppercase leading-[18px] tracking-[0.7px] whitespace-nowrap">
                         TABLE {{ $pesanan->meja?->no_meja ?? '-' }}
@@ -58,7 +58,7 @@
                 </div>
             </div>
 
-            <div class="pl-8 pr-3 flex flex-col gap-3">
+            <div class="flex flex-col gap-3 px-2 sm:pl-8 sm:pr-3">
                 <div class="flex flex-col">
                     @foreach ($pesanan->detailPesanan as $idx => $detail)
                         @php
@@ -156,7 +156,7 @@
                 </div>
             </div>
 
-            <div class="px-8 pt-5 flex items-stretch gap-3">
+            <div class="grid grid-cols-1 items-stretch gap-3 px-4 pt-5 min-[400px]:grid-cols-2 sm:flex sm:px-8">
                 <a href="{{ route('kasir.pesanan.index') }}"
                     class="flex-1 text-center bg-[#CCCCCC] text-[#681F1F] text-[16px] leading-[22px] tracking-[0.7px] rounded-[9px] px-4 py-2.5 shadow-[2px_4px_2px_rgba(0,0,0,0.25)] hover:bg-[#BEBEBE] transition-colors">
                     Tutup
@@ -184,7 +184,7 @@
                         </button>
                     </form>
                     <a href="{{ route('kasir.pesanan.cetak', $pesanan->no_pesanan) }}" target="_blank"
-                        class="flex-1 text-center bg-[#681F1F] text-white text-[16px] leading-[22px] tracking-[0.7px] rounded-[9px] px-4 py-2.5 shadow-[2px_4px_2px_rgba(0,0,0,0.25)] hover:brightness-110 transition-all">
+                        class="flex-1 text-center bg-[#681F1F] text-white text-[16px] leading-[22px] tracking-[0.7px] rounded-[9px] px-4 py-2.5 shadow-[2px_4px_2px_rgba(0,0,0,0.25)] hover:brightness-110 transition-all min-[400px]:col-span-2 sm:col-span-1">
                         Cetak Struk
                     </a>
                 @endif

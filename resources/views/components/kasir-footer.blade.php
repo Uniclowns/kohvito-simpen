@@ -1,8 +1,8 @@
 {{-- Footer brand untuk halaman kasir dengan navigasi khusus kasir. --}}
-<footer class="kasir-footer-texture min-h-[360px] bg-[#460001] px-14 py-12 text-white">
+<footer class="kasir-footer-texture min-h-[360px] bg-[#460001] px-4 py-8 text-white sm:px-8 sm:py-10 lg:px-12 lg:py-12">
     <div class="mx-auto flex max-w-[1180px] flex-col gap-9">
-        <div class="grid grid-cols-1 items-start justify-between gap-12 lg:grid-cols-[500px_1fr_460px]">
-            <div class="flex min-h-[190px] flex-col justify-between">
+        <div class="grid grid-cols-1 items-start justify-between gap-9 lg:grid-cols-[minmax(0,1.1fr)_minmax(150px,.55fr)_minmax(260px,1fr)] lg:gap-8">
+            <div class="flex flex-col justify-between gap-6 lg:min-h-[190px]">
                 <img src="{{ asset('images/logo/KOHVITO LOGO WHITE.png') }}" alt="Kohvito" class="h-[84px] w-[194px] object-contain">
                 <p class="w-full text-justify text-[16px] leading-6 tracking-[0.7px] text-white">
                     A Coffee, Dining &amp; Lifestyle Space Crafted for People Who Love Good Coffee, Cozy Atmosphere, and Meaningful Daily Experiences.
@@ -26,7 +26,7 @@
                 </div>
             </div>
 
-            <div class="flex h-[190px] flex-col gap-5 whitespace-nowrap">
+            <div class="flex flex-col gap-5 whitespace-nowrap lg:h-[190px]">
                 <p class="text-[22px] font-bold leading-8 tracking-[1px]">Navigation</p>
                 <nav class="flex flex-1 flex-col justify-between text-[16px] leading-6 tracking-[0.7px] text-white">
                     <a href="{{ route('kasir.beranda') }}" class="hover:text-white/80">Beranda Kasir</a>
@@ -35,7 +35,7 @@
                 </nav>
             </div>
 
-            <div class="flex min-h-[190px] flex-col justify-between">
+            <div class="flex flex-col justify-between gap-7 lg:min-h-[190px]">
                 <div class="flex flex-col gap-5">
                     <p class="text-[22px] font-bold leading-8 tracking-[1px]">Visit us!</p>
                     <div class="flex flex-wrap items-center gap-x-5 gap-y-3 text-[16px] leading-6 tracking-[0.7px] text-white">
@@ -61,7 +61,7 @@
                 <div class="flex flex-col gap-5">
                     <p class="text-[22px] font-bold leading-8 tracking-[1px]">Reservation?</p>
                     <a href="https://wa.me/6281348922789"
-                       class="inline-flex w-fit items-center justify-center gap-3 rounded-[9px] bg-white px-4 py-2 text-[16px] leading-6 tracking-[0.7px] text-[#460001] hover:bg-[#F6F6F6]">
+                       class="inline-flex w-fit max-w-full flex-wrap items-center justify-center gap-x-3 gap-y-1 rounded-[9px] bg-white px-4 py-2 text-[16px] leading-6 tracking-[0.7px] text-[#460001] hover:bg-[#F6F6F6]">
                         <span>Contact Us!</span>
                         <span class="font-bold">+62 813-4892-2789</span>
                     </a>

@@ -1,14 +1,14 @@
 <x-layouts.kasir title="Kelola Histori" page-title="Kelola Histori">
 
-    <div class="bg-white rounded-[6px] shadow-[2px_4px_4px_rgba(0,0,0,0.25)] px-8 py-8 mb-40">
-        <div class="flex items-start justify-between gap-4 mb-7">
+    <div class="mb-16 rounded-[6px] bg-white px-4 py-6 shadow-[2px_4px_4px_rgba(0,0,0,0.25)] sm:mb-40 sm:px-8 sm:py-8">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-7">
             <h2 class="text-[#460001] text-[22px] font-bold tracking-[0.9px]">Histori Pesanan</h2>
 
             @if ($pesanans->isNotEmpty())
                 <button type="button"
                         data-print-url="{{ route('kasir.histori.cetak-semua') }}"
                         data-print-success="all"
-                        class="inline-flex items-center gap-2 bg-[#681F1F] text-white text-[15px] tracking-[0.6px] px-5 py-2.5 rounded-[6px] shadow-[2px_4px_4px_rgba(0,0,0,0.25)] hover:brightness-110 transition-all whitespace-nowrap">
+                        class="inline-flex items-center justify-center gap-2 bg-[#681F1F] text-white text-[15px] tracking-[0.6px] px-5 py-2.5 rounded-[6px] shadow-[2px_4px_4px_rgba(0,0,0,0.25)] hover:brightness-110 transition-all whitespace-nowrap w-full sm:w-auto">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z" />
                     </svg>
@@ -31,7 +31,7 @@
                 <p class="text-[#808080] text-[18px] tracking-[0.7px]">Belum ada pesanan selesai hari ini.</p>
             </div>
         @else
-            <div class="overflow-x-auto">
+            <div class="kvt-scroll-region overflow-x-auto" tabindex="0" aria-label="Histori pesanan">
                 <table class="w-full min-w-[940px] border-collapse">
                     <thead>
                         <tr class="border-b border-[#E6E6E6]">
@@ -95,11 +95,11 @@
                     $totalPesanan = $subtotalPesanan + $ppnPesanan;
                 @endphp
                 <div id="{{ $modalId }}"
-                     class="fixed inset-0 z-[80] hidden items-center justify-center bg-black/35 px-4 py-8"
+                     class="fixed inset-0 z-[80] hidden items-center justify-center bg-black/35 px-2 py-4 sm:px-4 sm:py-8"
                      data-modal>
-                    <div class="relative w-full max-w-[540px] max-h-[92vh] bg-white rounded-[6px] shadow-[2px_4px_4px_rgba(0,0,0,0.25)] overflow-hidden flex flex-col">
+                    <div class="kvt-modal-panel relative flex w-full max-w-[540px] flex-col overflow-hidden rounded-[6px] bg-white shadow-[2px_4px_4px_rgba(0,0,0,0.25)]">
                         <button type="button"
-                                class="absolute right-9 top-8 z-10 text-[#460001] hover:opacity-70"
+                                class="absolute right-4 top-4 sm:right-9 sm:top-8 z-10 text-[#460001] hover:opacity-70"
                                 data-modal-close
                                 aria-label="Tutup detail histori">
                             <svg class="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -107,24 +107,24 @@
                             </svg>
                         </button>
 
-                        <div class="px-9 pt-8 pb-5">
-                            <h3 class="text-black text-[30px] font-bold tracking-[1.3px] mb-6">Detail Histori Pesanan</h3>
-                            <div class="flex items-start gap-5">
-                                <div class="bg-[#D9C7C7] rounded-[9px] px-4 py-2 text-center shrink-0">
+                        <div class="px-4 pt-6 pb-5 sm:px-9 sm:pt-8">
+                            <h3 class="text-black text-[22px] sm:text-[30px] font-bold tracking-[1.3px] mb-6">Detail Histori Pesanan</h3>
+                            <div class="flex flex-col sm:flex-row items-start gap-3 sm:gap-5">
+                                <div class="bg-[#D9C7C7] rounded-[9px] px-4 py-2 text-center shrink-0 w-full sm:w-auto">
                                     <p class="text-[#460001] text-[14px] font-bold uppercase leading-[18px] tracking-[0.7px]">
                                         Table {{ $pesanan->meja?->no_meja ?? '-' }}
                                     </p>
                                     <p class="text-[#460001] text-[12px] leading-[14px] tracking-[0.5px]">(indoor Lt 1)</p>
                                 </div>
-                                <div class="min-w-0 flex-1">
-                                    <p class="text-[#460001] text-[24px] font-bold leading-[30px] tracking-[1px] truncate">
+                                <div class="min-w-0 flex-1 w-full">
+                                    <p class="text-[#460001] text-[20px] sm:text-[24px] font-bold leading-[30px] tracking-[1px] truncate">
                                         {{ $pesanan->nama_konsumen }}
                                     </p>
                                     <p class="text-[#681F1F] text-[12px] tracking-[0.5px] mt-1">
                                         Order #{{ Str::limit($pesanan->no_pesanan, 8, '') }}
                                     </p>
                                 </div>
-                                <div class="pt-1 text-right">
+                                <div class="pt-1 text-left sm:text-right w-full sm:w-auto">
                                     <span class="inline-flex bg-[#58E52D] text-white text-[12px] px-2.5 py-1 rounded-[4px] shadow-[0_0_14px_rgba(88,229,45,0.65)]">
                                         Selesai
                                     </span>
@@ -136,7 +136,7 @@
                         </div>
 
                         <div class="relative min-h-0 flex-1">
-                            <div class="px-9 pb-5 overflow-y-auto max-h-[440px] pr-5" data-scroll-panel>
+                            <div class="px-4 sm:px-9 pb-5 overflow-y-auto max-h-[320px] sm:max-h-[440px] pr-3 sm:pr-5" data-scroll-panel>
                                 <div class="divide-y divide-[#E6E6E6]">
                                     @foreach ($pesanan->detailPesanan as $detail)
                                         @php
@@ -198,14 +198,14 @@
                             @if ($pesanan->detailPesanan->count() > 4)
                                 <div class="absolute left-0 right-0 bottom-0 h-24 flex items-end justify-center pb-5 pointer-events-none [background:linear-gradient(0deg,#B0ADAD_12.5%,rgba(255,255,255,0)_100%)] backdrop-blur-[4.8px] transition-opacity duration-150"
                                      data-scroll-hint>
-                                    <p class="text-[#681F1F] text-[20px] leading-[24px] tracking-[0.9px]">
+                                    <p class="text-[#681F1F] text-[16px] sm:text-[20px] leading-[24px] tracking-[0.9px]">
                                         Scroll Untuk Melihat Menu Lainnya <span class="inline-block translate-y-[-1px]">v</span>
                                     </p>
                                 </div>
                             @endif
                         </div>
 
-                        <div class="px-9 py-6 bg-white grid grid-cols-2 gap-3">
+                        <div class="grid grid-cols-1 gap-3 bg-white px-4 py-4 min-[360px]:grid-cols-2 sm:px-9 sm:py-6">
                             <button type="button"
                                     data-modal-close
                                     class="bg-[#CCCCCC] text-[#681F1F] text-[16px] tracking-[0.7px] rounded-[9px] py-2.5 shadow-[2px_4px_4px_rgba(0,0,0,0.25)] hover:bg-[#BEBEBE] transition-colors">
@@ -227,9 +227,9 @@
     <div id="histori-print-success"
          class="fixed inset-0 z-[90] hidden items-center justify-center bg-black/35 px-4"
          data-success-modal>
-        <div class="relative w-full max-w-[540px] bg-white rounded-[6px] shadow-[2px_4px_4px_rgba(0,0,0,0.35)] px-10 pt-16 pb-9">
+        <div class="kvt-modal-panel relative w-full max-w-[540px] overflow-y-auto rounded-[6px] bg-white px-5 pb-6 pt-12 shadow-[2px_4px_4px_rgba(0,0,0,0.35)] sm:px-10 sm:pb-9 sm:pt-16">
             <button type="button"
-                    class="absolute right-9 top-8 text-[#460001] hover:opacity-70"
+                    class="absolute right-4 top-4 text-[#460001] hover:opacity-70 sm:right-9 sm:top-8"
                     data-success-close
                     aria-label="Tutup notifikasi cetak">
                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -237,8 +237,8 @@
                 </svg>
             </button>
             <div class="flex flex-col items-center text-center">
-                <img src="{{ asset('images/illustration/print success.svg') }}" alt="" class="w-[240px] h-[250px] object-contain mb-7">
-                <p id="histori-print-success-title" class="text-[#460001] text-[26px] font-bold leading-[32px] tracking-[1.1px] max-w-[440px]">
+                <img src="{{ asset('images/illustration/print success.svg') }}" alt="" class="mb-5 h-[170px] w-[180px] object-contain sm:mb-7 sm:h-[250px] sm:w-[240px]">
+                <p id="histori-print-success-title" class="max-w-[440px] text-[21px] font-bold leading-[29px] tracking-[1.1px] text-[#460001] sm:text-[26px] sm:leading-[32px]">
                     Berhasil Mencetak Histori Pesanan
                 </p>
                 <div class="w-full flex justify-end mt-8">

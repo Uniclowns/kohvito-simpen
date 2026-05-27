@@ -10,13 +10,13 @@
 
 <div id="{{ $id }}" data-confirm-modal
     class="hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-[2px] flex items-center justify-center p-4 transition-all"
-    onclick="if(event.target === this) closeConfirmModal('{{ $id }}')">
+    onclick="if(event.target === this) closeAppModal('{{ $id }}')">
 
     <div
-        class="bg-white rounded-2xl shadow-[0_8px_24px_rgba(0,0,0,0.15)] w-full max-w-[840px] p-8 relative overflow-y-auto max-h-[90vh]">
+        class="kvt-modal-panel relative w-full max-w-[840px] overflow-y-auto rounded-2xl bg-white p-4 shadow-[0_8px_24px_rgba(0,0,0,0.15)] sm:p-8">
         {{-- Close Icon (X) --}}
-        <button type="button" class="absolute top-8 right-8 text-brand-gray hover:text-brand-black transition-colors"
-            onclick="closeConfirmModal('{{ $id }}')">
+        <button type="button" class="absolute right-4 top-4 text-brand-gray transition-colors hover:text-brand-black sm:right-8 sm:top-8"
+            onclick="closeAppModal('{{ $id }}')">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -36,7 +36,7 @@
         </div>
 
         {{-- 2-Column Body --}}
-        <div class="grid md:grid-cols-2 gap-8 mb-8">
+        <div class="mb-8 grid gap-5 md:grid-cols-2 md:gap-8">
             {{-- Left: Image --}}
             <div class="flex items-center justify-center bg-gray-50/50 rounded-xl p-4">
                 <img src="{{ $imgSrc }}" alt="{{ $menu->nama_menu }}"
@@ -85,20 +85,20 @@
         </div>
 
         {{-- Footer Buttons --}}
-        <div class="flex flex-wrap justify-end gap-3 mt-auto border-t border-gray-100 pt-6">
+        <div class="kvt-modal-actions mt-auto flex flex-wrap justify-end gap-3 border-t border-gray-100 pt-6">
             <button type="button"
                 class="bg-[#EBE4E0] text-[#380000] px-6 py-2.5 rounded-xl text-sm font-medium hover:bg-[#DFD4CF] transition-colors"
-                onclick="closeConfirmModal('{{ $id }}')">
+                onclick="closeAppModal('{{ $id }}')">
                 Kembali
             </button>
             <button type="button"
                 class="bg-[#380000] text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-[#2A0000] transition-colors"
-                onclick="closeConfirmModal('{{ $id }}'); setTimeout(() => openConfirmModal('form-edit-menu-{{ $menu->id_menu }}'), 50);">
+                onclick="closeAppModal('{{ $id }}'); setTimeout(() => openAppModal('form-edit-menu-{{ $menu->id_menu }}'), 50);">
                 Edit
             </button>
             <button type="button"
                 class="bg-[#E03131] text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-[#C92A2A] transition-colors"
-                onclick="closeConfirmModal('{{ $id }}'); setTimeout(() => confirmDelete('{{ route('admin.menu.destroy', $menu->id_menu) }}'), 50);">
+                onclick="closeAppModal('{{ $id }}'); setTimeout(() => confirmDelete('{{ route('admin.menu.destroy', $menu->id_menu) }}'), 50);">
                 Hapus Menu
             </button>
         </div>

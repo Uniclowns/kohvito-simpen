@@ -6,8 +6,8 @@
         </a>
 
         <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
-            <div class="p-6 border-b border-gray-100">
-                <div class="flex items-center justify-between mb-2">
+            <div class="border-b border-gray-100 p-4 sm:p-6">
+                <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
                     <h2 class="text-lg font-semibold text-gray-800">{{ $pesanan->no_pesanan }}</h2>
                     <span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full">Selesai</span>
                 </div>
@@ -19,12 +19,12 @@
                 </p>
             </div>
 
-            <div class="p-6 border-b border-gray-100">
+            <div class="border-b border-gray-100 p-4 sm:p-6">
                 <h3 class="text-sm font-semibold text-gray-700 mb-3">Item Pesanan</h3>
                 <div class="space-y-3">
                     @foreach ($pesanan->detailPesanan as $detail)
-                        <div class="flex justify-between items-start">
-                            <div>
+                        <div class="flex min-w-0 justify-between gap-3 items-start">
+                            <div class="min-w-0">
                                 <p class="text-sm font-medium text-gray-800">
                                     {{ $detail->menu?->nama_menu ?? 'Menu' }} &times; {{ $detail->jumlah }}
                                 </p>
@@ -45,12 +45,12 @@
                 </div>
             @endif
 
-            <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 p-4 sm:p-6">
                 <span class="font-semibold text-gray-800">Total</span>
                 <span class="font-bold text-gray-900 text-lg">Rp {{ number_format($pesanan->total_harga, 0, ',', '.') }}</span>
             </div>
 
-            <div class="p-6">
+            <div class="p-4 sm:p-6">
                 <a href="{{ route('kasir.histori.cetak', $pesanan->no_pesanan) }}"
                    target="_blank"
                    class="px-4 py-2 text-sm border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">

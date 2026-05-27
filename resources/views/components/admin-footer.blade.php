@@ -3,17 +3,18 @@
     Dipakai di halaman admin (Beranda Admin, Kelola Menu, dll) sebagai slot pageFooter.
     Edit di satu file untuk update semua halaman.
 --}}
-<footer class="bg-brand-dark px-10 py-12 mt-auto">
-    <div class="grid grid-cols-12 gap-8 border-b border-white/10 pb-8">
+<footer class="bg-brand-dark px-6 py-10 sm:px-10 sm:py-12 mt-auto">
+    {{-- Mobile-first: single column on phones/tablets, restore the 12-col desktop grid at md+ (PRD Workstream B). --}}
+    <div class="grid grid-cols-1 gap-8 md:grid-cols-12 border-b border-white/10 pb-8">
 
         {{-- Brand & Info --}}
-        <div class="col-span-6 pr-8">
+        <div class="md:col-span-6 md:pr-8">
             <img src="{{ asset('images/logo/KOHVITO LOGO WHITE.png') }}" alt="Kohvito" class="h-24 w-auto mb-6">
-            <p class="text-[18px] text-white/90 leading-relaxed mb-6 w-[75%]">
+            <p class="text-[18px] text-white/90 leading-relaxed mb-6 w-full md:w-[75%]">
                 A Coffee, Dining &amp; Lifestyle Space Crafted for People Who Love Good Coffee, Cozy Atmosphere, and
                 Meaningful Daily Experiences.
             </p>
-            <div class="flex items-center gap-6">
+            <div class="flex flex-wrap items-center gap-x-6 gap-y-3">
                 <div class="flex items-center gap-2">
                     <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -34,7 +35,7 @@
         </div>
 
         {{-- Navigation --}}
-        <div class="col-span-2">
+        <div class="md:col-span-2">
             <p class="text-base font-bold text-white mb-5 tracking-wide">Navigation</p>
             <ul class="space-y-4">
                 <li><a href="#" class="text-[18px] text-white/80 hover:text-white transition-colors">Beranda
@@ -49,7 +50,7 @@
         </div>
 
         {{-- Visit Us & Reservation --}}
-        <div class="col-span-4">
+        <div class="md:col-span-4">
             <p class="text-base font-bold text-white mb-5 tracking-wide">Visit Us!</p>
             <div class="flex items-center gap-5 mb-8 flex-wrap">
                 <div class="flex items-center gap-1.5">

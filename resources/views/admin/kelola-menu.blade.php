@@ -2,7 +2,7 @@
     <x-slot:headerEnd>
         <div class="flex gap-2">
             <button
-                onclick="openConfirmModal('form-add-menu')"
+                onclick="openAppModal('form-add-menu')"
                 class="bg-brand-red hover:bg-brand-dark text-white p-2 rounded-md text-[14px] transition-colors flex items-center gap-1 font-medium shadow-sm">
                 <img src="{{ asset('images/icons/plus.svg') }}" class="w-3 h-3 invert"
                     style="filter: brightness(0) invert(1)" alt="Tambah">
@@ -24,7 +24,7 @@
     </form>
 
     <!-- Grid Cards -->
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 2xl:grid-cols-6 gap-6 pb-4 justify-items-center">
+    <div class="grid grid-cols-1 gap-5 pb-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 justify-items-center" data-anim="stagger">
         @forelse ($menus as $menu)
             @php
                 $badgeIcon = null;
@@ -43,8 +43,9 @@
                 }
             @endphp
             <div
-                onclick="openConfirmModal('detail-menu-{{ $menu->id_menu }}')"
-                class="bg-white w-full max-w-[220px] rounded-xl shadow-[0_8px_24px_rgba(0,0,0,0.08)] overflow-hidden flex flex-col relative border border-gray-100/50 p-4 pt-0 cursor-pointer hover:shadow-lg transition-all">
+                onclick="openAppModal('detail-menu-{{ $menu->id_menu }}')"
+                class="relative flex w-full max-w-none cursor-pointer flex-col overflow-hidden rounded-xl border border-gray-100/50 bg-white p-4 pt-0 shadow-[0_8px_24px_rgba(0,0,0,0.08)] transition-all hover:shadow-lg sm:max-w-[220px]"
+                data-anim-item>
                 {{-- Badge pojok kanan atas --}}
                 @if ($badgeIcon)
                     <div class="absolute top-1 right-1 flex items-center justify-center z-10">
@@ -88,7 +89,7 @@
 
                     <div class="mt-auto pt-4 flex gap-2">
                         <button
-                            onclick="event.stopPropagation(); openConfirmModal('form-edit-menu-{{ $menu->id_menu }}')"
+                            onclick="event.stopPropagation(); openAppModal('form-edit-menu-{{ $menu->id_menu }}')"
                             class="flex-1 bg-[#D4C4C0] text-black py-2 rounded-xl text-[13px] font-medium hover:bg-[#C2B2AE] transition-colors">Edit</button>
 
                         <button type="button"
@@ -167,7 +168,7 @@
         <x-popup-success id="popup-menu-action" :heading="$menuActionHeadings[$menuActionKey]" />
         <script>
             document.addEventListener('DOMContentLoaded', () => {
-                setTimeout(() => window.openConfirmModal && window.openConfirmModal('popup-menu-action'), 120);
+                setTimeout(() => window.openAppModal && window.openAppModal('popup-menu-action'), 120);
             });
         </script>
     @endif
@@ -179,7 +180,7 @@
             illustration="error.svg" />
         <script>
             document.addEventListener('DOMContentLoaded', () => {
-                setTimeout(() => window.openConfirmModal && window.openConfirmModal('popup-menu-error'), 120);
+                setTimeout(() => window.openAppModal && window.openAppModal('popup-menu-error'), 120);
             });
         </script>
     @endif
@@ -189,7 +190,7 @@
             const modal = document.getElementById('confirm-delete');
             const form = modal.querySelector('form');
             form.action = actionUrl;
-            openConfirmModal('confirm-delete');
+            openAppModal('confirm-delete');
         }
 
         // Live search — auto-submit saat user mengetik (debounce 350ms)

@@ -14,9 +14,9 @@
     data-status-modal
     class="hidden fixed inset-0 z-[70] bg-black/40 backdrop-blur-[2px] flex items-center justify-center p-4"
     onclick="if(event.target === this) closeStatusModal('{{ $id }}')">
-    <div class="bg-white rounded-lg shadow-[0_8px_24px_rgba(0,0,0,0.18)] w-full max-w-[556px] min-h-[300px] p-8 relative">
+    <div class="kvt-modal-panel relative w-full max-w-[556px] overflow-y-auto rounded-lg bg-white p-5 shadow-[0_8px_24px_rgba(0,0,0,0.18)] sm:min-h-[300px] sm:p-8">
         <button type="button"
-            class="absolute top-7 right-8 text-[#380000] hover:text-[#681F1F] transition-colors"
+            class="absolute right-5 top-5 text-[#380000] transition-colors hover:text-[#681F1F] sm:right-8 sm:top-7"
             onclick="closeStatusModal('{{ $id }}')"
             aria-label="Tutup popup">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -24,7 +24,7 @@
             </svg>
         </button>
 
-        <h2 class="text-[24px] font-bold text-[#380000] leading-tight pr-10">
+        <h2 class="pr-10 text-[20px] font-bold leading-tight text-[#380000] sm:text-[24px]">
             {{ $title }}
         </h2>
 

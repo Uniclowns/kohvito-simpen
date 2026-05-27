@@ -13,11 +13,11 @@
          class="absolute inset-0 w-full h-full object-cover pointer-events-none select-none">
 
     {{-- Centered split card --}}
-    <main class="relative min-h-screen flex items-center justify-center p-6">
-        <div class="w-full max-w-[1129px] flex items-stretch shadow-[2px_4px_8px_rgba(0,0,0,0.25)] rounded-[18px] overflow-hidden">
+    <main class="relative min-h-screen flex items-center justify-center p-4 sm:p-6">
+        <div class="flex w-full max-w-md items-stretch overflow-hidden rounded-[18px] shadow-[2px_4px_8px_rgba(0,0,0,0.25)] lg:max-w-[1129px]">
 
             {{-- Left panel: glass greeting + figure --}}
-            <div class="hidden md:flex relative w-[567px] h-[613px] bg-white/10 backdrop-blur-sm px-8 py-12 overflow-hidden">
+            <div class="relative hidden h-[613px] w-[567px] overflow-hidden bg-white/10 px-8 py-12 backdrop-blur-sm lg:flex">
                 {{-- Figure illustration (standing man holding coffee) --}}
                 <img src="{{ asset('images/illustration/login figure.svg') }}" alt=""
                      class="absolute left-[111px] top-[227px] w-[343px] h-auto pointer-events-none select-none opacity-95">
@@ -34,7 +34,7 @@
             </div>
 
             {{-- Right panel: dark maroon login form --}}
-            <div class="flex-1 bg-[#460001] px-8 py-10 flex flex-col justify-center min-h-[613px]">
+            <div class="flex min-h-0 flex-1 flex-col justify-center bg-[#460001] px-6 py-10 sm:px-10 sm:py-12 lg:min-h-[613px] lg:px-8 lg:py-10">
                 <form method="POST" action="{{ route('login.store') }}" class="flex flex-col gap-[26px] w-full">
                     @csrf
 

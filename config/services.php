@@ -37,6 +37,20 @@ return [
 
     'xendit' => [
         'api_key' => env('XENDIT_API_KEY', ''),
+        'callback_token' => env('XENDIT_CALLBACK_TOKEN', ''),
+    ],
+
+    'midtrans' => [
+        'server_key' => env('MIDTRANS_SERVER_KEY', ''),
+        'client_key' => env('MIDTRANS_CLIENT_KEY', ''),
+        'merchant_id' => env('MIDTRANS_MERCHANT_ID', ''),
+        'is_production' => env('MIDTRANS_IS_PRODUCTION', false),
+    ],
+
+    'bayar' => [
+        // Driver pembayaran: 'mock' (lokal, tanpa internet), 'xendit', atau 'midtrans'.
+        // Lihat PANDUAN-PAYMENT-GATEWAY.md untuk detail setup tiap driver.
+        'driver' => env('BAYAR_DRIVER', 'mock'),
     ],
 
 ];

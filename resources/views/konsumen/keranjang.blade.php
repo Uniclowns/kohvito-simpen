@@ -1,228 +1,320 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Keranjang — {{ config('app.name') }}</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body class="bg-gray-50 min-h-screen">
+{{-- Keranjang Konsumen
+    Route: konsumen.keranjang (/keranjang)
+    Controller: KeranjangKonsumenController@index
+    Variables: $keranjang, $totalHarga
+--}}
+<x-layouts.konsumen
+    :title="'Keranjang Pesanan - ' . config('app.name')"
+    bodyClass="min-h-screen bg-[#F6F6F6] pb-[124px] lg:pb-0 font-sans text-brand-black kvt-konsumen-mobile-view">
+    @php
+        $cartCount = array_sum(array_column($keranjang, 'jumlah'));
+        $hasOrder = session('no_pesanan_baru');
+        $mejaNo = session('id_meja_no');
+        $ppnAmount = (int) round($totalHarga * 0.11);
+        $grandTotal = $totalHarga + $ppnAmount;
+    @endphp
 
-    {{-- Header --}}
-    <header class="bg-white border-b border-gray-200 px-4 py-4 sticky top-0 z-10">
-        <div class="max-w-lg mx-auto flex items-center gap-3">
-            @if (session('id_meja_no'))
-                <a href="{{ route('konsumen.beranda', session('id_meja_no')) }}"
-                   class="text-gray-500 hover:text-gray-700 transition-colors p-1 -ml-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-                    </svg>
-                </a>
-            @endif
-            <div>
-                <h1 class="text-lg font-semibold text-gray-900">Keranjang</h1>
-                @if (session('id_meja_no'))
-                    <p class="text-xs text-gray-500 mt-0.5">Meja {{ session('id_meja_no') }}</p>
-                @endif
+    <header class="kvt-slide-down bg-brand-dark px-[18px] pt-[14px] pb-[12px] safe-top">
+        <div class="mx-auto flex max-w-[390px] md:max-w-4xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl items-center justify-between">
+            <p class="flex-1 text-[12px] font-bold leading-4 tracking-[0.6px] text-white">Keranjang Pesanan</p>
+            <div class="flex h-8 w-8 shrink-0 items-center justify-center">
+                <img src="{{ asset('images/icons/MASCOOT WHITE.svg') }}" alt="Kohvito"
+                    class="h-full w-full object-contain">
             </div>
+            <p class="flex-1 text-right text-[12px] font-bold leading-4 tracking-[0.6px] text-white">
+                TABLE {{ $mejaNo ?? 'XXX' }}
+            </p>
         </div>
     </header>
 
-    <main class="max-w-lg mx-auto px-4 py-6 pb-32">
+    <main class="mx-auto max-w-[390px] md:max-w-4xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl px-[18px] pb-5">
+        <div class="pt-3 pb-[9px]">
+            @if ($mejaNo)
+                <a href="{{ route('konsumen.beranda', $mejaNo) }}"
+                    class="inline-flex items-center gap-3 text-brand-black active:opacity-70">
+                    <svg class="h-5 w-5 text-brand-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        stroke-width="3">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                    <span class="text-[20px] font-bold leading-7 tracking-[1px]">Kembali</span>
+                </a>
+            @endif
+        </div>
 
-        {{-- Flash Messages --}}
         @if (session('success'))
-            <div class="mb-4 bg-green-50 border border-green-200 text-green-800 text-sm px-4 py-3 rounded-lg">
+            <div
+                class="kvt-card mb-3 rounded-[9px] border border-green-200 bg-green-50 px-3 py-2 text-[10px] font-bold leading-3 text-green-800">
                 {{ session('success') }}
             </div>
         @endif
+
         @if (session('error'))
-            <div class="mb-4 bg-red-50 border border-red-200 text-red-800 text-sm px-4 py-3 rounded-lg">
+            <div
+                class="kvt-card mb-3 rounded-[9px] border border-red-200 bg-red-50 px-3 py-2 text-[10px] font-bold leading-3 text-red-800">
                 {{ session('error') }}
             </div>
         @endif
 
-        {{-- ═══════════════════════════════════════════════════════════
-             STATE 1: Order just placed — show "Lanjutkan Pembayaran"
-             ═══════════════════════════════════════════════════════════ --}}
-        @if (empty($keranjang) && session('no_pesanan_baru'))
-            <div class="text-center py-10">
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                </div>
-                <h2 class="text-lg font-semibold text-gray-900 mb-1">Pesanan Dibuat!</h2>
-                <p class="text-sm text-gray-500 mb-1">No. Pesanan:</p>
-                <p class="text-base font-mono font-semibold text-amber-700 mb-6">{{ session('no_pesanan_baru') }}</p>
-
-                <form method="POST" action="{{ route('konsumen.bayar') }}">
-                    @csrf
-                    <input type="hidden" name="no_pesanan" value="{{ session('no_pesanan_baru') }}">
-                    <button type="submit"
-                            class="w-full bg-amber-600 hover:bg-amber-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors">
-                        Lanjutkan Pembayaran
-                    </button>
-                </form>
+        @if ($errors->has('id_meja') || $errors->has('order') || $errors->has('item'))
+            <div
+                class="kvt-card mb-3 rounded-[9px] border border-red-200 bg-red-50 px-3 py-2 text-[10px] font-bold leading-3 text-red-800">
+                {{ $errors->first('id_meja') ?: ($errors->first('order') ?: $errors->first('item')) }}
             </div>
-
-        {{-- ═══════════════════════════════════════════════
-             STATE 2: Cart is empty, no pending order
-             ═══════════════════════════════════════════════ --}}
-        @elseif (empty($keranjang))
-            <div class="text-center py-16">
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                </div>
-                <h2 class="text-base font-semibold text-gray-700 mb-2">Keranjang kosong</h2>
-                <p class="text-sm text-gray-500 mb-6">Belum ada item di keranjang.</p>
-                @if (session('id_meja_no'))
-                    <a href="{{ route('konsumen.beranda', session('id_meja_no')) }}"
-                       class="inline-block bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium px-6 py-2.5 rounded-lg transition-colors">
-                        Lihat Menu
-                    </a>
-                @endif
-            </div>
-
-        {{-- ═══════════════════════════════════════════════
-             STATE 3: Cart has items
-             ═══════════════════════════════════════════════ --}}
-        @else
-            {{-- Cart Items --}}
-            <div class="space-y-3 mb-6">
-                @foreach ($keranjang as $idMenu => $item)
-                    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
-
-                        {{-- Item Header: name + subtotal --}}
-                        <div class="px-4 pt-4 pb-3 flex items-start justify-between gap-3">
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-semibold text-gray-800 leading-snug truncate">
-                                    {{ $item['nama_menu'] }}
-                                </p>
-                                <p class="text-xs text-gray-500 mt-0.5">
-                                    Rp {{ number_format($item['harga'], 0, ',', '.') }} / porsi
-                                </p>
-                            </div>
-                            <p class="text-sm font-bold text-amber-700 flex-shrink-0">
-                                Rp {{ number_format($item['subtotal'], 0, ',', '.') }}
-                            </p>
-                        </div>
-
-                        {{-- Quantity Controls --}}
-                        <div class="px-4 pb-3 flex items-center gap-2">
-
-                            {{-- Decrease (jumlah - 1; will remove if reaches 0) --}}
-                            <form method="POST" action="{{ route('konsumen.keranjang.update') }}">
-                                @csrf
-                                @method('PUT')
-                                <input type="hidden" name="id_menu" value="{{ $idMenu }}">
-                                <input type="hidden" name="jumlah" value="{{ $item['jumlah'] - 1 }}">
-                                <button type="submit"
-                                        class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-colors text-base font-bold leading-none">
-                                    &minus;
-                                </button>
-                            </form>
-
-                            <span class="w-8 text-center text-sm font-semibold text-gray-800">
-                                {{ $item['jumlah'] }}
-                            </span>
-
-                            {{-- Increase --}}
-                            <form method="POST" action="{{ route('konsumen.keranjang.update') }}">
-                                @csrf
-                                @method('PUT')
-                                <input type="hidden" name="id_menu" value="{{ $idMenu }}">
-                                <input type="hidden" name="jumlah" value="{{ $item['jumlah'] + 1 }}">
-                                <button type="submit"
-                                        class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-colors text-base font-bold leading-none">
-                                    &#43;
-                                </button>
-                            </form>
-
-                            {{-- Remove --}}
-                            <form method="POST" action="{{ route('konsumen.keranjang.update') }}" class="ml-auto">
-                                @csrf
-                                @method('PUT')
-                                <input type="hidden" name="id_menu" value="{{ $idMenu }}">
-                                <input type="hidden" name="jumlah" value="0">
-                                <button type="submit"
-                                        class="text-xs text-red-500 hover:text-red-700 transition-colors px-2 py-1">
-                                    Hapus
-                                </button>
-                            </form>
-                        </div>
-
-                        {{-- Notes Form --}}
-                        <form method="POST" action="{{ route('konsumen.keranjang.notes') }}"
-                              class="px-4 pb-4 border-t border-gray-100 pt-3">
-                            @csrf
-                            @method('PUT')
-                            <input type="hidden" name="id_menu" value="{{ $idMenu }}">
-                            <label class="block text-xs text-gray-500 mb-1" for="catatan-{{ $idMenu }}">
-                                Catatan (opsional)
-                            </label>
-                            <div class="flex gap-2">
-                                <input type="text"
-                                       id="catatan-{{ $idMenu }}"
-                                       name="catatan"
-                                       value="{{ $item['catatan'] ?? '' }}"
-                                       maxlength="255"
-                                       placeholder="Contoh: tanpa gula, es sedikit…"
-                                       class="flex-1 text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent placeholder-gray-400">
-                                <button type="submit"
-                                        class="flex-shrink-0 text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-lg transition-colors">
-                                    Simpan
-                                </button>
-                            </div>
-                        </form>
-
-                    </div>
-                @endforeach
-            </div>
-
-            {{-- Order Summary --}}
-            <div class="bg-white rounded-xl border border-gray-200 px-4 py-4 mb-6">
-                <div class="flex items-center justify-between">
-                    <span class="text-sm font-medium text-gray-700">Total</span>
-                    <span class="text-base font-bold text-amber-700">
-                        Rp {{ number_format($totalHarga, 0, ',', '.') }}
-                    </span>
-                </div>
-            </div>
-
-            {{-- Checkout Form --}}
-            <div class="bg-white rounded-xl border border-gray-200 px-4 py-4">
-                <h2 class="text-sm font-semibold text-gray-800 mb-3">Informasi Pemesan</h2>
-                <form method="POST" action="{{ route('konsumen.keranjang.pesan') }}">
-                    @csrf
-                    <div class="mb-4">
-                        <label for="nama_konsumen" class="block text-xs text-gray-500 mb-1">
-                            Nama Pemesan <span class="text-red-500">*</span>
-                        </label>
-                        <input type="text"
-                               id="nama_konsumen"
-                               name="nama_konsumen"
-                               value="{{ old('nama_konsumen') }}"
-                               maxlength="255"
-                               required
-                               placeholder="Masukkan nama Anda"
-                               class="w-full text-sm border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent placeholder-gray-400 @error('nama_konsumen') border-red-400 @enderror">
-                        @error('nama_konsumen')
-                            <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-                    <button type="submit"
-                            class="w-full bg-amber-600 hover:bg-amber-700 text-white font-semibold py-3 px-4 rounded-xl transition-colors">
-                        Pesan Sekarang
-                    </button>
-                </form>
-            </div>
-
         @endif
 
+        @if (empty($keranjang) && $hasOrder)
+            <section class="kvt-card rounded-[9px] bg-white p-5 text-center shadow-[2px_4px_4px_rgba(0,0,0,0.25)]">
+                <p class="text-[20px] font-bold leading-7 tracking-[1px] text-brand-dark">Pesanan Berhasil Dibuat</p>
+                <p class="mt-2 text-[12px] leading-4 tracking-[0.6px] text-brand-gray">Nomor Transaksi</p>
+                <p
+                    class="mt-2 rounded-[9px] bg-[rgba(104,31,31,0.12)] px-3 py-2 text-[14px] font-bold leading-5 tracking-[0.7px] text-brand-dark">
+                    {{ $hasOrder }}
+                </p>
+                <a href="{{ route('konsumen.pembayaran', $hasOrder) }}"
+                    class="mt-5 inline-flex w-full items-center justify-center rounded-[9px] bg-brand-dark px-3 py-2 text-[14px] font-bold leading-5 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)]">
+                    Lanjutkan Pembayaran
+                </a>
+            </section>
+        @elseif (empty($keranjang))
+            {{-- Empty state — Figma 1509-19168 "Keranjang Kosong" --}}
+            <div class="flex min-h-[58vh] flex-col items-center justify-center text-center px-6">
+                <img src="{{ asset('images/illustration/empty-cart.svg') }}" alt="" class="w-[150px] h-[150px] mb-5"
+                    data-anim="fade-up">
+                <p class="text-[20px] font-bold leading-7 tracking-[1px] text-[#CCCCCC]">Keranjang Kosong</p>
+                <p class="mt-2 text-[14px] leading-5 tracking-[0.7px] text-[#CCCCCC] max-w-[240px]">Silahkan Melakukan Pemesanan di Halaman Menu</p>
+            </div>
+        @else
+            <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-12 md:items-start md:gap-8">
+                <!-- Left Column: Cart items list (7 columns) -->
+                <div class="md:col-span-7 flex flex-col gap-3">
+                    <section class="kvt-card rounded-[9px] bg-white p-[10px]" style="animation-delay: 0.08s">
+                        <div class="flex flex-col gap-[10px]" data-anim="stagger">
+                            @foreach ($keranjang as $cartKey => $item)
+                                @php
+                                    $menuId = $item['id_menu'] ?? $cartKey;
+                                    $menuModel = \App\Models\Menu::find($menuId);
+                                    $imgSrc = null;
+                                    if ($menuModel && $menuModel->gambar_menu) {
+                                        $imgType = $menuModel->jenis_menu === 'Makanan' ? 'food' : 'drink';
+                                        $imgSrc = str_starts_with($menuModel->gambar_menu, 'http')
+                                            ? $menuModel->gambar_menu
+                                            : asset("images/{$imgType}/{$menuModel->gambar_menu}");
+                                    }
+
+                                    $rawNotes = (string) ($item['catatan'] ?? '');
+                                    preg_match('/Suhu:\s*([^|]+)/i', $rawNotes, $variantMatch);
+                                    $variantLabel = trim($variantMatch[1] ?? '');
+                                    $noteSummary = collect(explode('|', $rawNotes))
+                                        ->map(fn ($note) => trim($note))
+                                        ->filter()
+                                        ->reject(fn ($note) => str_starts_with(strtolower($note), 'suhu:'))
+                                        ->map(fn ($note) => trim(preg_replace('/^[^:]+:\s*/', '', $note)))
+                                        ->filter()
+                                        ->implode(', ');
+                                @endphp
+
+                                <article
+                                    class="rounded-[9px] bg-white p-[10px] shadow-[2px_4px_4px_rgba(0,0,0,0.25)]"
+                                    data-anim-item>
+                                    <div class="flex items-center gap-[5px] px-3">
+                                        @if ($imgSrc)
+                                            <img src="{{ $imgSrc }}" alt="{{ $item['nama_menu'] }}"
+                                                class="h-[54px] w-[54px] shrink-0 rounded-[9px] object-cover">
+                                        @else
+                                            <div
+                                                class="flex h-[54px] w-[54px] shrink-0 items-center justify-center rounded-[9px] bg-brand-gray-extralight">
+                                                <span class="text-[8px] text-brand-gray">No Image</span>
+                                            </div>
+                                        @endif
+
+                                        <div class="min-w-0 flex-1 py-[5px]">
+                                            <div class="flex min-h-[14px] items-center gap-0 text-[12px] font-bold leading-4 tracking-[0.6px] text-brand-black">
+                                                <h2 class="min-w-0 truncate capitalize">
+                                                    {{ $item['jumlah'] }} {{ $item['nama_menu'] }}
+                                                </h2>
+                                                @if ($variantLabel)
+                                                    <span class="shrink-0 italic text-brand-dark">({{ $variantLabel }})</span>
+                                                @endif
+                                            </div>
+                                            <p class="min-h-[14px] truncate text-[10px] leading-3 tracking-[0.5px] text-brand-gray">
+                                                {{ $noteSummary ?: 'Tidak ada catatan tambahan' }}
+                                            </p>
+                                        </div>
+
+                                        <p class="shrink-0 text-right text-[12px] font-bold leading-4 tracking-[0.6px] text-brand-black">
+                                            {{ number_format($item['subtotal'], 0, ',', '.') }}
+                                        </p>
+                                    </div>
+
+                                    <div class="mt-[10px] flex items-start gap-2">
+                                        <form method="POST" action="{{ route('konsumen.keranjang.update') }}"
+                                            class="min-w-0 flex-1">
+                                            @csrf
+                                            @method('PUT')
+                                            <input type="hidden" name="cart_key" value="{{ $cartKey }}">
+                                            <input type="hidden" name="id_menu" value="{{ $menuId }}">
+                                            <input type="hidden" name="jumlah" value="0">
+                                            <button type="submit"
+                                                class="h-8 w-full rounded-[9px] bg-state-red px-1 sm:px-3 py-1.5 text-[13px] sm:text-[14px] leading-5 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)]">
+                                                Hapus
+                                            </button>
+                                        </form>
+
+                                        <a href="{{ route('konsumen.menu.detail', $menuId) }}"
+                                            class="flex h-8 min-w-0 flex-1 items-center justify-center rounded-[9px] bg-brand-red px-1 sm:px-3 py-1.5 text-[13px] sm:text-[14px] leading-5 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)]">
+                                            Edit
+                                        </a>
+
+                                        <div class="flex h-8 min-w-0 flex-1 items-center rounded-[9px] bg-[rgba(70,0,1,0.25)]">
+                                            <form method="POST" action="{{ route('konsumen.keranjang.update') }}">
+                                                @csrf
+                                                @method('PUT')
+                                                <input type="hidden" name="cart_key" value="{{ $cartKey }}">
+                                                <input type="hidden" name="id_menu" value="{{ $menuId }}">
+                                                <input type="hidden" name="jumlah" value="{{ $item['jumlah'] - 1 }}">
+                                                <button type="submit"
+                                                    class="flex h-8 w-6 sm:w-8 items-center justify-center rounded-l-[9px] text-[13px] sm:text-[14px] font-bold text-brand-dark">&minus;</button>
+                                            </form>
+                                            <span class="flex-1 text-center text-[13px] sm:text-[14px] leading-5 tracking-[0.7px] text-black">
+                                                {{ $item['jumlah'] }}
+                                            </span>
+                                            <form method="POST" action="{{ route('konsumen.keranjang.update') }}">
+                                                @csrf
+                                                @method('PUT')
+                                                <input type="hidden" name="cart_key" value="{{ $cartKey }}">
+                                                <input type="hidden" name="id_menu" value="{{ $menuId }}">
+                                                <input type="hidden" name="jumlah" value="{{ $item['jumlah'] + 1 }}">
+                                                <button type="submit"
+                                                    class="flex h-8 w-6 sm:w-8 items-center justify-center rounded-r-[9px] text-[13px] sm:text-[14px] font-bold text-brand-dark">&#43;</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </article>
+                            @endforeach
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Right Column: Order totals & Checkout info card (5 columns) -->
+                <div class="md:col-span-5 md:sticky md:top-6 flex flex-col gap-4">
+                    <!-- Totals Card -->
+                    <section class="kvt-card rounded-[9px] bg-white p-5 shadow-[2px_4px_4px_rgba(0,0,0,0.25)] flex flex-col gap-3">
+                        <h3 class="text-[16px] font-bold text-brand-dark border-b border-brand-gray-light pb-2">Ringkasan Pesanan</h3>
+                        <div class="flex flex-col gap-[5px] text-[12px] font-bold leading-4 tracking-[0.6px]">
+                            <div class="flex items-center justify-between gap-[14px]">
+                                <span class="text-brand-dark">SubTotal Pemesanan</span>
+                                <span class="text-brand-black">{{ number_format($totalHarga, 0, ',', '.') }}</span>
+                            </div>
+                            <div class="flex items-center justify-between gap-[14px]">
+                                <span class="text-brand-dark">Ppn 11%</span>
+                                <span class="text-brand-black">{{ number_format($ppnAmount, 0, ',', '.') }}</span>
+                            </div>
+                            <div class="border-t border-brand-gray-light pt-[5px]">
+                                <div class="flex items-center justify-between gap-[14px]">
+                                    <span class="text-brand-dark">Total Pemesanan</span>
+                                    <span class="text-brand-black">{{ number_format($grandTotal, 0, ',', '.') }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Checkout Input Section -->
+                    <section class="kvt-card rounded-[9px] bg-white p-5 shadow-[2px_4px_4px_rgba(0,0,0,0.25)] flex flex-col gap-4">
+                        <h3 class="text-[16px] font-bold text-brand-dark border-b border-brand-gray-light pb-2">Informasi Pemesan</h3>
+                        <div class="flex flex-col gap-4">
+                            <div>
+                                <label for="nama_konsumen"
+                                    class="text-[14px] font-bold leading-5 tracking-[0.7px] text-brand-dark">Nama Pesanan</label>
+                                <input id="nama_konsumen"
+                                    name="nama_konsumen"
+                                    form="checkout-form"
+                                    type="text"
+                                    maxlength="255"
+                                    required
+                                    value="{{ old('nama_konsumen') }}"
+                                    placeholder="Masukkan Nama Pesanan (Cth: Yaya)"
+                                    class="mt-[5px] w-full rounded-[9px] border-none bg-[rgba(104,31,31,0.12)] p-[10px] text-[14px] leading-5 tracking-[0.7px] text-brand-black placeholder:text-brand-gray focus:outline-none focus:ring-2 focus:ring-brand-red/40">
+                                <p data-name-required
+                                    class="mt-[3px] text-[10px] leading-3 tracking-[0.5px] text-state-red">
+                                    Nama Pesanan Wajib Di isi
+                                </p>
+                                @error('nama_konsumen')
+                                    <p class="mt-[3px] text-[10px] leading-3 tracking-[0.5px] text-state-red">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div>
+                                <label for="catatan_pesanan"
+                                    class="text-[14px] font-bold leading-5 tracking-[0.7px] text-brand-dark">Notes Pesanan</label>
+                                <textarea id="catatan_pesanan" name="catatan_pesanan" form="checkout-form" rows="4" maxlength="500"
+                                    placeholder="Masukkan Notes Pesanan (opsional)"
+                                    class="mt-[5px] h-[78px] w-full resize-none rounded-[9px] border-none bg-[rgba(104,31,31,0.12)] p-[10px] text-[14px] leading-5 tracking-[0.7px] text-brand-black placeholder:text-brand-gray focus:outline-none focus:ring-2 focus:ring-brand-red/40">{{ old('catatan_pesanan') }}</textarea>
+                                @error('catatan_pesanan')
+                                    <p class="mt-[3px] text-[10px] leading-3 tracking-[0.5px] text-state-red">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <button type="button"
+                                data-open-checkout-confirm
+                                class="flex h-8 w-full items-center justify-center rounded-[9px] bg-brand-red px-3 py-1.5 text-[14px] leading-5 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)]">
+                                Pesan
+                            </button>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <form id="checkout-form" method="POST" action="{{ route('konsumen.keranjang.pesan') }}"
+                data-checkout-form>
+                @csrf
+            </form>
+
+            <x-konsumen-confirm-modal
+                id="confirm-pesan-konsumen"
+                title="Apakah Anda Yakin Ingin Memesan Menu?"
+                subtitle="Pastikan menu yang anda pesan telah sesuai"
+                confirmLabel="Ya, Pesan"
+                cancelLabel="Batal"
+                form="checkout-form" />
+        @endif
     </main>
 
-</body>
-</html>
+    <x-konsumen-bottom-nav active="keranjang" :mejaNo="$mejaNo" :cartCount="$cartCount" />
+
+    <script>
+        (function () {
+            const form = document.querySelector('[data-checkout-form]');
+            const openButton = document.querySelector('[data-open-checkout-confirm]');
+            const nameInput = document.getElementById('nama_konsumen');
+            const requiredHint = document.querySelector('[data-name-required]');
+
+            function syncNameHint() {
+                if (!requiredHint || !nameInput) return;
+                requiredHint.classList.toggle('hidden', nameInput.value.trim().length > 0);
+            }
+
+            if (nameInput) {
+                nameInput.addEventListener('input', syncNameHint);
+                syncNameHint();
+            }
+
+            if (openButton && form) {
+                openButton.addEventListener('click', () => {
+                    syncNameHint();
+                    if (!form.reportValidity()) return;
+                    window.openAppModal && window.openAppModal('confirm-pesan-konsumen');
+                });
+            }
+
+            if (form) {
+                form.addEventListener('submit', () => {
+                    const submitBtn = document.querySelector('[data-open-checkout-confirm]');
+                    if (!submitBtn) return;
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+                    submitBtn.textContent = 'Sedang Mengirim Pesanan...';
+                });
+            }
+        })();
+    </script>
+</x-layouts.konsumen>
