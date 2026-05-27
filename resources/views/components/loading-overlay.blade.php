@@ -1,22 +1,22 @@
 @props([
     'id' => 'loading-overlay',
+    'label' => 'Loading',
+    'gif' => 'loading_dots_white.gif',
 ])
 
 <div id="{{ $id }}"
-     class="hidden fixed inset-0 z-[80] bg-black/55 backdrop-blur-sm flex flex-col items-center justify-center gap-2 transition-all"
+     class="hidden fixed inset-0 z-[80] bg-black/55 backdrop-blur-sm flex flex-col items-center justify-center gap-3 transition-all"
      aria-hidden="true" role="presentation">
 
-    <img src="{{ asset('images/illustration/walking.png') }}" alt=""
-         class="h-[150px] w-auto drop-shadow-[2px_4px_4px_rgba(0,0,0,0.35)]">
+    @if (file_exists(public_path('images/gif/' . $gif)))
+        <img src="{{ asset('images/gif/' . $gif) }}" alt="" aria-hidden="true"
+             class="h-[120px] w-auto drop-shadow-[2px_4px_8px_rgba(0,0,0,0.35)]">
+    @else
+        <img src="{{ asset('images/illustration/walking.png') }}" alt=""
+             class="h-[150px] w-auto drop-shadow-[2px_4px_4px_rgba(0,0,0,0.35)]">
+    @endif
 
-    <div class="flex items-end gap-1">
-        <span class="font-bold text-white text-[24px] leading-[32px] tracking-[1.2px]">Loading</span>
-        <span class="flex items-end gap-[3px] pb-[10px]">
-            <span class="loading-dot inline-block w-[6px] h-[6px] rounded-full bg-white"></span>
-            <span class="loading-dot inline-block w-[6px] h-[6px] rounded-full bg-white" style="animation-delay:0.2s"></span>
-            <span class="loading-dot inline-block w-[6px] h-[6px] rounded-full bg-white" style="animation-delay:0.4s"></span>
-        </span>
-    </div>
+    <span class="font-bold text-white text-[20px] leading-[28px] tracking-[1px]">{{ $label }}</span>
 </div>
 
 @once

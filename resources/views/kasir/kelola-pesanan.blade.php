@@ -1,11 +1,11 @@
 <x-layouts.kasir title="Kelola Pesanan" page-title="Kelola Pesanan" content-width="1280px">
 
     <x-slot:headerEnd>
-        <div class="flex items-center gap-4">
+        <div class="hidden items-center gap-4 sm:flex">
             <div class="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-[#460001]">
                 <img src="{{ asset('images/icons/KVT ICON USER.svg') }}" alt="User Avatar" class="h-12 w-12 object-contain">
             </div>
-            <span class="text-[22px] leading-8 tracking-[1px] text-[#460001]">
+            <span class="max-w-[220px] truncate text-[22px] leading-8 tracking-[1px] text-[#460001]">
                 {{ auth()->user()?->nama_lengkap ?? (auth()->user()?->name ?? 'Username') }}
             </span>
         </div>
@@ -24,12 +24,12 @@
     @endif
 
     @if ($pesanans->isEmpty())
-        <div class="rounded-[9px] border border-gray-200 bg-white p-16 text-center shadow-[2px_4px_4px_rgba(0,0,0,0.08)]">
+        <div class="rounded-[9px] border border-gray-200 bg-white p-6 text-center shadow-[2px_4px_4px_rgba(0,0,0,0.08)] sm:p-16">
             <p class="text-[18px] text-[#808080]">Tidak ada pesanan aktif saat ini.</p>
         </div>
     @else
         <div class="flex flex-col gap-8" data-order-content>
-        <section class="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3" data-order-grid>
+        <section class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3" data-order-grid data-anim="stagger">
             @foreach ($pesanans as $pesanan)
                 @php
                     $isWaiting = $pesanan->status_pesanan === 'menunggu konfirmasi';
@@ -41,11 +41,12 @@
                 @endphp
 
                 <article
-                    class="flex h-[360px] min-w-0 flex-col overflow-hidden rounded-[9px] bg-[#681F1F] shadow-[2px_4px_4px_rgba(0,0,0,0.25)]"
+                    class="flex min-h-[360px] min-w-0 flex-col overflow-hidden rounded-[9px] bg-[#681F1F] shadow-[2px_4px_4px_rgba(0,0,0,0.25)] sm:h-[360px]"
                     data-order-card="{{ $panelId }}"
-                    data-order-preview-card>
-                        <div class="flex h-[82px] items-center gap-4 p-4">
-                            <div class="flex h-full shrink-0 items-center justify-center rounded-[9px] bg-[#D9C7C7] px-4">
+                    data-order-preview-card
+                    data-anim-item>
+                        <div class="flex min-h-[82px] flex-col items-stretch gap-3 p-4 sm:flex-row sm:items-center sm:gap-4">
+                            <div class="flex shrink-0 items-center justify-center rounded-[9px] bg-[#D9C7C7] px-4 py-2 sm:h-full sm:py-0">
                                 <div class="text-center leading-none">
                                     <p class="whitespace-nowrap text-[14px] font-bold uppercase leading-[18px] tracking-[0.6px] text-[#460001]">
                                         Table {{ $pesanan->meja?->no_meja ?? '-' }}
@@ -58,7 +59,7 @@
 
                             <div class="relative flex min-w-0 flex-1 flex-col justify-center">
                                 <div class="flex items-start justify-between gap-2">
-                                    <p class="min-w-0 truncate text-[24px] font-bold leading-8 tracking-[1px] text-white">
+                                    <p class="min-w-0 truncate text-[18px] sm:text-[24px] font-bold leading-8 tracking-[1px] text-white">
                                         {{ $pesanan->nama_konsumen ?? '-' }}
                                     </p>
                                     <span class="{{ $statusBg }} {{ $statusText }} mt-0.5 inline-flex shrink-0 items-center justify-center rounded-[6px] px-2.5 py-1 text-[12px] leading-4 tracking-[0.5px] shadow-[2px_4px_2px_rgba(0,0,0,0.25)]">
@@ -67,7 +68,7 @@
                                 </div>
                                 <div class="flex items-center justify-between gap-3 text-[12px] leading-4 tracking-[0.5px] text-white/60">
                                     <p class="w-[90px] truncate">Order #{{ \Illuminate\Support\Str::limit($pesanan->no_pesanan, 8, '') }}</p>
-                                    <div class="flex shrink-0 items-start justify-end gap-[3px] whitespace-nowrap">
+                                    <div class="flex shrink-0 flex-wrap items-start justify-end gap-x-[3px] gap-y-0.5 text-right sm:flex-nowrap sm:whitespace-nowrap">
                                         @if ($pesanan->tgl_pembayaran)
                                             <p>{{ $pesanan->tgl_pembayaran->translatedFormat('l, d F Y') }}</p>
                                             <p>{{ $pesanan->tgl_pembayaran->format('H:i') }}</p>
@@ -118,7 +119,7 @@
                                 </div>
                             @endif
 
-                            <div class="mt-4 flex h-11 shrink-0 gap-3">
+                            <div class="mt-4 grid shrink-0 grid-cols-2 gap-3 sm:flex sm:h-11">
                                 <button type="button" data-order-panel-target="{{ $panelId }}"
                                     class="flex-1 rounded-[9px] bg-[#CCCCCC] px-4 py-2 text-center text-[16px] leading-6 tracking-[0.7px] text-[#681F1F] shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition-colors hover:bg-[#BEBEBE]">
                                     Detail
@@ -143,7 +144,7 @@
                                         </button>
                                     </form>
                                     <button type="button" data-order-print-url="{{ route('kasir.pesanan.cetak', $pesanan->no_pesanan) }}"
-                                        class="flex-1 rounded-[9px] bg-[#681F1F] px-4 py-2 text-center text-[16px] leading-6 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition hover:brightness-110">
+                                        class="col-span-2 flex-1 rounded-[9px] bg-[#681F1F] px-4 py-2 text-center text-[16px] leading-6 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition hover:brightness-110 sm:col-span-1">
                                         Cetak Struk
                                     </button>
                                 @endif
@@ -166,11 +167,11 @@
                     @endphp
 
                     <div id="{{ $panelId }}"
-                        class="fixed inset-0 z-[80] hidden items-start justify-center bg-black/35 px-4 py-6 xl:static xl:inset-auto xl:z-auto xl:items-start xl:justify-start xl:bg-transparent xl:p-0"
+                        class="fixed inset-0 z-[80] hidden items-center justify-center bg-black/35 px-2 py-4 sm:px-4 sm:py-6 2xl:static 2xl:inset-auto 2xl:z-auto 2xl:items-start 2xl:justify-start 2xl:bg-transparent 2xl:p-0"
                         data-order-detail-panel>
-                        <aside class="relative flex h-[760px] max-h-[calc(100vh-48px)] w-full max-w-[420px] flex-col overflow-hidden rounded-[9px] bg-[rgba(104,31,31,0.12)] py-7 shadow-[2px_4px_4px_rgba(0,0,0,0.25)] xl:max-h-none">
-                            <div class="flex items-start justify-between gap-4 px-7">
-                                <h2 class="text-[28px] font-bold leading-9 tracking-[1.2px] text-black">Detail Pesanan</h2>
+                        <aside class="relative flex h-[calc(100dvh-2rem)] w-full max-w-[420px] flex-col overflow-hidden rounded-[9px] bg-[rgba(104,31,31,0.12)] py-5 shadow-[2px_4px_4px_rgba(0,0,0,0.25)] sm:h-[760px] sm:max-h-[calc(100dvh-48px)] sm:py-7 2xl:max-h-none">
+                            <div class="flex items-start justify-between gap-4 px-4 sm:px-7">
+                                <h2 class="text-[22px] sm:text-[28px] font-bold leading-9 tracking-[1.2px] text-black">Detail Pesanan</h2>
                                 <button type="button" class="h-9 w-9 shrink-0 text-[#460001] transition hover:opacity-70" data-panel-close aria-label="Tutup detail pesanan">
                                     <svg class="h-9 w-9" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M6 6l12 12M18 6 6 18"/>
@@ -178,7 +179,7 @@
                                 </button>
                             </div>
 
-                            <div class="px-7 py-4">
+                            <div class="px-4 sm:px-7 py-4">
                                 <div class="flex items-start">
                                     <p class="text-center text-[14px] font-bold uppercase leading-[18px] tracking-[0.6px] text-[#460001]">
                                         Table {{ $pesanan->meja?->no_meja ?? '-' }}
@@ -188,7 +189,7 @@
                                     </p>
                                 </div>
                                 <div class="flex items-center justify-between gap-4">
-                                    <p class="min-w-0 truncate text-[24px] font-bold leading-8 tracking-[1px] text-[#460001]">
+                                    <p class="min-w-0 truncate text-[20px] sm:text-[24px] font-bold leading-8 tracking-[1px] text-[#460001]">
                                         {{ $pesanan->nama_konsumen ?? '-' }}
                                     </p>
                                     <span class="{{ $statusBg }} {{ $statusText }} inline-flex shrink-0 items-center justify-center rounded-[6px] px-2.5 py-1 text-[12px] leading-4 tracking-[0.5px] shadow-[2px_4px_2px_rgba(0,0,0,0.25)]">
@@ -197,7 +198,7 @@
                                 </div>
                                 <div class="flex items-center justify-between gap-4 text-[12px] leading-4 tracking-[0.5px] text-[#681F1F]">
                                     <p class="w-[90px] truncate">Order #{{ \Illuminate\Support\Str::limit($pesanan->no_pesanan, 8, '') }}</p>
-                                    <div class="flex shrink-0 items-start justify-end gap-[3px] whitespace-nowrap">
+                                    <div class="flex shrink-0 flex-wrap items-start justify-end gap-x-[3px] gap-y-0.5 text-right sm:flex-nowrap sm:whitespace-nowrap">
                                         @if ($pesanan->tgl_pembayaran)
                                             <p>{{ $pesanan->tgl_pembayaran->translatedFormat('l, d F Y') }}</p>
                                             <p>{{ $pesanan->tgl_pembayaran->format('H:i') }}</p>
@@ -208,7 +209,7 @@
                                 </div>
                             </div>
 
-                            <div class="relative min-h-0 flex-1 px-7 pb-3">
+                            <div class="relative min-h-0 flex-1 px-4 sm:px-7 pb-3">
                                 <div class="kasir-order-detail-scroll h-full overflow-y-auto" data-scroll-panel>
                                     <div class="flex flex-col">
                                         @foreach ($pesanan->detailPesanan as $idx => $detail)
@@ -290,7 +291,7 @@
 
                             </div>
 
-                            <div class="flex gap-3 px-7 pt-3">
+                            <div class="grid grid-cols-2 gap-3 px-4 pt-3 sm:flex sm:px-7">
                                 <button type="button" data-panel-close
                                     class="min-w-0 flex-1 rounded-[9px] bg-[#CCCCCC] px-3 py-2 text-[15px] leading-6 tracking-[0.7px] text-[#681F1F] shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition-colors hover:bg-[#BEBEBE]">
                                     Tutup
@@ -314,7 +315,7 @@
                                         </button>
                                     </form>
                                     <button type="button" data-order-print-url="{{ route('kasir.pesanan.cetak', $pesanan->no_pesanan) }}"
-                                        class="min-w-0 flex-1 rounded-[9px] bg-[#681F1F] px-3 py-2 text-[15px] leading-6 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition hover:brightness-110">
+                                        class="col-span-2 min-w-0 flex-1 rounded-[9px] bg-[#681F1F] px-3 py-2 text-[15px] leading-6 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition hover:brightness-110 sm:col-span-1">
                                         Cetak Struk
                                     </button>
                                 @endif
@@ -327,8 +328,8 @@
 
     <div id="kasir-order-success" class="fixed inset-0 z-[90] hidden items-center justify-center bg-black/35 px-4"
         data-success-modal data-initial-action="{{ session('order_action') }}">
-        <div class="relative w-full max-w-[540px] rounded-[6px] bg-white px-10 pb-9 pt-16 shadow-[2px_4px_4px_rgba(0,0,0,0.35)]">
-            <button type="button" class="absolute right-9 top-8 text-[#460001] transition hover:opacity-70" data-success-close
+        <div class="kvt-modal-panel relative w-full max-w-[540px] overflow-y-auto rounded-[6px] bg-white px-5 pb-6 pt-12 shadow-[2px_4px_4px_rgba(0,0,0,0.35)] sm:px-10 sm:pb-9 sm:pt-16">
+            <button type="button" class="absolute right-4 top-4 text-[#460001] transition hover:opacity-70 sm:right-9 sm:top-8" data-success-close
                 aria-label="Tutup notifikasi pesanan">
                 <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 6l12 12M18 6 6 18"/>
@@ -336,7 +337,7 @@
             </button>
             <div class="flex flex-col items-center text-center">
                 <img src="{{ asset('images/illustration/print success.svg') }}" alt=""
-                    class="mb-7 h-[250px] w-[240px] object-contain">
+                    class="mb-5 h-[170px] w-[180px] object-contain sm:mb-7 sm:h-[250px] sm:w-[240px]">
                 <p id="kasir-order-success-title"
                     class="max-w-[440px] text-[26px] font-bold leading-8 tracking-[1.1px] text-[#460001]">
                     Berhasil Menerima Pesanan
@@ -364,7 +365,7 @@
                 const grid = document.querySelector('[data-order-grid]');
                 const panels = Array.from(document.querySelectorAll('[data-order-detail-panel]'));
                 const cards = Array.from(document.querySelectorAll('[data-order-card]'));
-                const desktopDetailQuery = window.matchMedia('(min-width: 1280px)');
+                const desktopDetailQuery = window.matchMedia('(min-width: 1536px)');
 
                 const getActivePanel = () => panels.find((panel) => !panel.classList.contains('hidden'));
 
@@ -401,12 +402,11 @@
                 const syncDetailLayout = () => {
                     const hasActivePanel = Boolean(getActivePanel());
 
-                    content?.classList.toggle('xl:grid', hasActivePanel);
-                    content?.classList.toggle('xl:grid-cols-[828px_420px]', hasActivePanel);
-                    content?.classList.toggle('xl:items-start', hasActivePanel);
+                    content?.classList.toggle('2xl:grid', hasActivePanel);
+                    content?.classList.toggle('2xl:grid-cols-[828px_420px]', hasActivePanel);
+                    content?.classList.toggle('2xl:items-start', hasActivePanel);
 
-                    grid?.classList.toggle('xl:grid-cols-2', hasActivePanel);
-                    grid?.classList.toggle('xl:grid-cols-3', !hasActivePanel);
+                    grid?.classList.toggle('2xl:grid-cols-2', hasActivePanel);
 
                     window.requestAnimationFrame(syncCardPreviews);
                 };

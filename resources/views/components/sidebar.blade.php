@@ -2,7 +2,7 @@
 
 @auth
 @if ($variant === 'kasir')
-<aside class="w-[98px] h-screen sticky top-0 bg-[#460001] flex flex-col items-center px-[18px] py-14 flex-shrink-0 z-50 overflow-hidden">
+<aside data-app-sidebar class="kvt-sidebar fixed left-0 top-0 z-50 flex h-screen w-[98px] -translate-x-full flex-shrink-0 flex-col items-center overflow-hidden bg-[#460001] px-[18px] py-14 lg:sticky lg:translate-x-0">
     <a href="{{ route('kasir.beranda') }}" class="block w-[47px] h-[21px] mb-[43px]" aria-label="{{ config('app.name') }}">
         <img src="{{ asset('images/logo/KOHVITO LOGO WHITE.png') }}"
              alt="{{ config('app.name') }}"
@@ -54,7 +54,7 @@
     </form>
 </aside>
 @else
-<aside class="group w-[72px] hover:w-64 h-screen sticky top-0 bg-brand-dark flex flex-col py-6 flex-shrink-0 transition-all duration-300 z-50 overflow-hidden">
+<aside data-app-sidebar class="kvt-sidebar group fixed left-0 top-0 z-50 flex h-screen w-[72px] -translate-x-full flex-shrink-0 flex-col overflow-hidden bg-brand-dark py-6 transition-all duration-300 hover:w-64 lg:sticky lg:translate-x-0">
 
     {{-- Logo --}}
     <div class="mb-8 flex items-center justify-center w-full h-16">

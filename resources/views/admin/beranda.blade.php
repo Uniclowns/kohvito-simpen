@@ -2,7 +2,7 @@
 
     {{-- ── Header: filter + Toko Buka/Tutup ── --}}
     <x-slot:headerEnd>
-        <div class="flex items-center gap-4">
+        <div class="flex flex-wrap items-center gap-2 sm:gap-4">
             {{-- Filter button --}}
             <button type="button" onclick="openFilterModal()"
                     class="flex items-center justify-center transition-colors hover:opacity-80"
@@ -19,7 +19,7 @@
                 <button type="button"
                         id="btn-toggle-store"
                         data-store-state="buka"
-                        onclick="openConfirmModal('confirm-close-store')"
+                        onclick="openAppModal('confirm-close-store')"
                         class="toggle-store-btn {{ session('success') ? 'toggle-store-btn--success' : '' }} flex items-center gap-2 bg-white border border-black text-brand-black pl-1.5 pr-5 py-1 rounded-full text-sm font-medium shadow-sm hover:bg-gray-50">
                     <img src="{{ asset('images/icons/Toko Buka.svg') }}"
                          class="w-9 h-9 flex-shrink-0" alt="">
@@ -30,7 +30,7 @@
                 <button type="button"
                         id="btn-toggle-store"
                         data-store-state="tutup"
-                        onclick="openConfirmModal('confirm-open-store')"
+                        onclick="openAppModal('confirm-open-store')"
                         class="toggle-store-btn {{ session('success') ? 'toggle-store-btn--success' : '' }} flex items-center gap-2 bg-[#380000] text-white pl-5 pr-1.5 py-1 rounded-full text-sm font-medium shadow-sm hover:bg-[#2A0000]">
                     Toko Tutup
                     <img src="{{ asset('images/icons/Toko Tutup.svg') }}"
@@ -65,14 +65,14 @@
     <div id="filter-modal"
         data-confirm-modal
         class="hidden fixed inset-0 z-[60] bg-black/40 backdrop-blur-[2px] flex items-center justify-center p-4 transition-all"
-        onclick="if(event.target === this) closeConfirmModal('filter-modal')">
-        <div class="bg-white rounded-2xl shadow-[0_8px_24px_rgba(0,0,0,0.15)] w-full max-w-[400px] p-6 relative">
+        onclick="if(event.target === this) closeAppModal('filter-modal')">
+        <div class="kvt-modal-panel relative w-full max-w-[400px] overflow-y-auto rounded-2xl bg-white p-5 shadow-[0_8px_24px_rgba(0,0,0,0.15)] sm:p-6">
             {{-- Header --}}
             <div class="flex items-start justify-between mb-5">
                 <h2 class="text-xl font-bold text-[#380000]">Filter</h2>
                 <button type="button"
                     class="text-[#380000] hover:text-[#681F1F] transition-colors"
-                    onclick="closeConfirmModal('filter-modal')"
+                    onclick="closeAppModal('filter-modal')"
                     aria-label="Tutup filter">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M6 18L18 6M6 6l12 12" />
@@ -82,7 +82,7 @@
 
             <form id="filter-form" method="GET" action="{{ route('admin.beranda') }}">
                 {{-- Date inputs --}}
-                <div class="flex items-end gap-3 mb-6">
+                <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end">
                     <div class="flex-1">
                         <label for="filter-dari" class="block text-xs text-brand-gray mb-1.5">Dari Tanggal</label>
                         <input type="date"
@@ -91,7 +91,7 @@
                             value="{{ request('tanggal_mulai') }}"
                             class="w-full border border-[#380000] rounded-lg px-3 py-2 text-sm text-[#380000] focus:outline-none focus:ring-2 focus:ring-[#380000] uppercase">
                     </div>
-                    <span class="pb-3 text-brand-gray">—</span>
+                    <span class="hidden pb-3 text-brand-gray sm:block">—</span>
                     <div class="flex-1">
                         <label for="filter-sampai" class="block text-xs text-brand-gray mb-1.5">Sampai Tanggal</label>
                         <input type="date"
@@ -103,14 +103,14 @@
                 </div>
 
                 {{-- Footer buttons --}}
-                <div class="flex justify-end items-center gap-2">
+                <div class="kvt-modal-actions flex items-center justify-end gap-2">
                     <button type="button"
-                        onclick="closeConfirmModal('filter-modal')"
+                        onclick="closeAppModal('filter-modal')"
                         class="bg-[#D0D0D0] text-[#681F1F] px-4 py-2 rounded-lg text-sm font-medium shadow-[0_3px_6px_rgba(0,0,0,0.18)] hover:bg-[#C4C4C4] transition-colors">
                         Batal
                     </button>
                     <button type="button"
-                        onclick="openConfirmModal('confirm-hapus-filter')"
+                        onclick="openAppModal('confirm-hapus-filter')"
                         class="bg-[#E52E2D] text-white px-4 py-2 rounded-lg text-sm font-bold shadow-[0_3px_6px_rgba(0,0,0,0.18)] hover:bg-[#C92A2A] transition-colors">
                         Hapus Filter
                     </button>
@@ -140,12 +140,12 @@
             const sampai = '{{ request('tanggal_selesai') }}';
             document.getElementById('filter-dari').value = dari;
             document.getElementById('filter-sampai').value = sampai;
-            openConfirmModal('filter-modal');
+            openAppModal('filter-modal');
         }
 
         function hapusFilterTanggal() {
-            closeConfirmModal('confirm-hapus-filter');
-            closeConfirmModal('filter-modal');
+            closeAppModal('confirm-hapus-filter');
+            closeAppModal('filter-modal');
             // Redirect to base /admin without query params (today default)
             window.location.href = '{{ route('admin.beranda') }}';
         }
@@ -182,83 +182,83 @@
 
     <script>
         function triggerPrintLaporan() {
-            closeConfirmModal('confirm-print-laporan');
+            closeAppModal('confirm-print-laporan');
             const a = document.createElement('a');
             a.href = "{{ route('admin.laporan.cetak') }}";
             a.rel = 'noopener';
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-            setTimeout(() => openConfirmModal('popup-print-success'), 700);
+            setTimeout(() => openAppModal('popup-print-success'), 700);
         }
     </script>
 
     {{-- ── Summary Cards ── --}}
-    <div class="grid grid-cols-4 gap-4 mb-6 mt-2">
+    <div class="mb-6 mt-2 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4" data-anim="stagger">
 
         {{-- Total Menu --}}
-        <div class="bg-[#681F1F]/12 rounded-xl px-5 py-4">
+        <div class="bg-[#681F1F]/12 rounded-xl px-5 py-4" data-anim-item>
             <div class="flex items-center gap-2 mb-2">
                 <img src="{{ asset('images/icons/coffee.svg') }}" alt=""
                      class="w-4 h-4 [filter:brightness(0)_saturate(1)_invert(15%)_sepia(80%)_saturate(600%)_hue-rotate(320deg)_brightness(70%)] opacity-70">
                 <h6 class="text-[12px] text-brand-black font-bold uppercase">Total Menu</h6>
             </div>
             <div class="flex items-baseline gap-1.5 mt-2">
-                <p class="text-4xl font-bold text-brand-black leading-none">{{ $totalMenu }}</p>
+                <p class="text-4xl font-bold text-brand-black leading-none" data-count-up="{{ $totalMenu }}">{{ $totalMenu }}</p>
                 <p class="text-sm font-bold text-brand-black">Menu</p>
             </div>
             <p class="text-[10px] text-brand-gray mt-2 font-medium">30 Minuman &nbsp; 20 Makanan</p>
         </div>
 
         {{-- Total Pengguna Kasir --}}
-        <div class="bg-[#681F1F]/12 rounded-xl px-5 py-4">
+        <div class="bg-[#681F1F]/12 rounded-xl px-5 py-4" data-anim-item>
             <div class="flex items-center gap-2 mb-2">
                 <img src="{{ asset('images/icons/user-group.svg') }}" alt="" class="w-4 h-4 [filter:brightness(0)_saturate(1)_invert(15%)_sepia(80%)_saturate(600%)_hue-rotate(320deg)_brightness(70%)] opacity-70">
                 <p class="text-[11px] text-brand-black font-bold uppercase">Total Pengguna Kasir</p>
             </div>
             <div class="flex items-baseline gap-1.5 mt-2">
-                <p class="text-4xl font-bold text-brand-black leading-none">{{ $totalKasir }}</p>
+                <p class="text-4xl font-bold text-brand-black leading-none" data-count-up="{{ $totalKasir }}">{{ $totalKasir }}</p>
                 <p class="text-sm font-bold text-brand-black">Kasir</p>
             </div>
             <p class="text-[10px] text-brand-gray mt-2 font-medium">&nbsp;</p>
         </div>
 
         {{-- Total Transaksi --}}
-        <div class="bg-[#681F1F]/12 rounded-xl px-5 py-4">
+        <div class="bg-[#681F1F]/12 rounded-xl px-5 py-4" data-anim-item>
             <div class="flex items-center gap-2 mb-2">
                 <img src="{{ asset('images/icons/shopping-cart.svg') }}" alt="" class="w-4 h-4 [filter:brightness(0)_saturate(1)_invert(15%)_sepia(80%)_saturate(600%)_hue-rotate(320deg)_brightness(70%)] opacity-70">
                 <p class="text-[11px] text-brand-black font-bold uppercase">Total Transaksi</p>
             </div>
             <div class="flex items-baseline gap-1.5 mt-2">
-                <p class="text-4xl font-bold text-brand-black leading-none">{{ $totalTransaksi }}</p>
+                <p class="text-4xl font-bold text-brand-black leading-none" data-count-up="{{ $totalTransaksi }}">{{ $totalTransaksi }}</p>
                 <p class="text-sm font-bold text-brand-black">Transaksi</p>
             </div>
             <p class="text-[10px] text-brand-gray mt-2 font-medium">&nbsp;</p>
         </div>
 
         {{-- Total Pendapatan Kotor --}}
-        <div class="bg-[#681F1F]/12 rounded-xl px-5 py-4">
+        <div class="bg-[#681F1F]/12 rounded-xl px-5 py-4" data-anim-item>
             <div class="flex items-center gap-2 mb-2">
                 <img src="{{ asset('images/icons/currency-dollar.svg') }}" alt="" class="w-4 h-4 [filter:brightness(0)_saturate(1)_invert(15%)_sepia(80%)_saturate(600%)_hue-rotate(320deg)_brightness(70%)] opacity-70">
                 <p class="text-[11px] text-brand-black font-bold uppercase">Total Pendapatan Kotor</p>
             </div>
             <div class="flex items-baseline gap-1 mt-2">
                 <p class="text-lg font-bold text-brand-black">Rp</p>
-                <p class="text-3xl font-bold text-brand-black leading-none">{{ number_format($omzetBulanIni, 0, ',', '.') }}</p>
+                <p class="kvt-break-anywhere text-2xl font-bold leading-none text-brand-black sm:text-3xl" data-count-up="{{ $omzetBulanIni }}">{{ number_format($omzetBulanIni, 0, ',', '.') }}</p>
             </div>
             <p class="text-[10px] text-brand-gray mt-2 font-medium">Rp {{ number_format($omzetBulanIni / 30, 0, ',', '.') }} Rata-Rata Pembelian</p>
         </div>
     </div>
 
     {{-- ── Terlaris Cards ── --}}
-    <div class="grid grid-cols-2 gap-4 mb-6">
+    <div class="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
 
         {{-- Makanan Terlaris --}}
-        <div class="bg-white rounded-xl shadow-sm border border-brand-gray-extralight flex overflow-hidden h-24">
+        <div class="flex min-h-24 overflow-hidden rounded-xl border border-brand-gray-extralight bg-white shadow-sm sm:h-24">
             <div class="w-20 bg-brand-dark flex items-center justify-center flex-shrink-0">
                 <img src="{{ asset('images/icons/Food.svg') }}" alt="" class="w-8 h-8 brightness-0 invert">
             </div>
-            <div class="flex-1 py-3 px-4 flex items-center gap-4">
+            <div class="flex min-w-0 flex-1 items-center gap-3 px-3 py-3 sm:gap-4 sm:px-4">
                 @if ($makananTerlaris?->gambar_menu)
                     @php
                         $imgSrc = str_starts_with($makananTerlaris->gambar_menu, 'http')
@@ -274,9 +274,9 @@
                         <img src="{{ asset('images/icons/Food.svg') }}" alt="" class="w-8 h-8 opacity-20">
                     </div>
                 @endif
-                <div>
+                <div class="min-w-0">
                     <p class="text-[10px] text-brand-red font-bold uppercase tracking-wider mb-1">Makanan Terlaris</p>
-                    <p class="text-lg font-bold text-brand-black leading-tight mb-1">{{ $makananTerlaris?->nama_menu ?? '—' }}</p>
+                    <p class="mb-1 truncate text-lg font-bold leading-tight text-brand-black">{{ $makananTerlaris?->nama_menu ?? '—' }}</p>
                     @if ($makananTerlaris)
                         <p class="text-[10px] text-brand-gray font-medium">{{ $makananTerlaris->total_terjual }} Terjual Hari Ini</p>
                     @else
@@ -287,11 +287,11 @@
         </div>
 
         {{-- Minuman Terlaris --}}
-        <div class="bg-white rounded-xl shadow-sm border border-brand-gray-extralight flex overflow-hidden h-24">
+        <div class="flex min-h-24 overflow-hidden rounded-xl border border-brand-gray-extralight bg-white shadow-sm sm:h-24">
             <div class="w-20 bg-brand-dark flex items-center justify-center flex-shrink-0">
                 <img src="{{ asset('images/icons/Drink.svg') }}" alt="" class="w-8 h-8 brightness-0 invert">
             </div>
-            <div class="flex-1 py-3 px-4 flex items-center gap-4">
+            <div class="flex min-w-0 flex-1 items-center gap-3 px-3 py-3 sm:gap-4 sm:px-4">
                 @if ($minumanTerlaris?->gambar_menu)
                     @php
                         $imgSrc = str_starts_with($minumanTerlaris->gambar_menu, 'http')
@@ -307,9 +307,9 @@
                         <img src="{{ asset('images/icons/Drink.svg') }}" alt="" class="w-8 h-8 opacity-20">
                     </div>
                 @endif
-                <div>
+                <div class="min-w-0">
                     <p class="text-[10px] text-brand-red font-bold uppercase tracking-wider mb-1">Minuman Terlaris</p>
-                    <p class="text-lg font-bold text-brand-black leading-tight mb-1">{{ $minumanTerlaris?->nama_menu ?? '—' }}</p>
+                    <p class="mb-1 truncate text-lg font-bold leading-tight text-brand-black">{{ $minumanTerlaris?->nama_menu ?? '—' }}</p>
                     @if ($minumanTerlaris)
                         <p class="text-[10px] text-brand-gray font-medium">{{ $minumanTerlaris->total_terjual }} Terjual Hari Ini</p>
                     @else
@@ -322,19 +322,19 @@
 
     {{-- ── Data Pesanan Hari Ini ── --}}
     <div class="bg-white rounded-xl border border-brand-gray-extralight shadow-sm mb-6">
-        <div class="flex items-center justify-between px-6 py-4 border-b border-brand-gray-extralight">
+        <div class="flex flex-col items-start justify-between gap-3 border-b border-brand-gray-extralight px-4 py-4 sm:flex-row sm:items-center sm:px-6">
             <div class="flex items-center gap-2">
                 <p class="font-bold text-brand-black">Data Pesanan Hari Ini</p>
             </div>
             <button type="button"
-                onclick="openConfirmModal('confirm-print-laporan')"
-                class="flex items-center justify-center gap-2 bg-brand-dark text-white text-xs font-bold px-4 py-2 rounded-xl hover:bg-opacity-90 transition-colors shadow-sm">
+                onclick="openAppModal('confirm-print-laporan')"
+                class="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-dark px-4 py-2 text-xs font-bold text-white shadow-sm transition-colors hover:bg-opacity-90 sm:w-auto">
                 <img src="{{ asset('images/icons/template.svg') }}" alt="" class="w-4 h-4 brightness-0 invert">
                 Cetak Laporan Kasir
             </button>
         </div>
 
-        <div class="overflow-x-auto">
+        <div class="kvt-scroll-region overflow-x-auto" tabindex="0" aria-label="Data pesanan hari ini">
             <table class="w-full text-sm">
                 <thead>
                     <tr class="text-left text-[11px] text-brand-dark font-bold border-b border-brand-gray-extralight">
@@ -385,7 +385,7 @@
     </div>
 
     {{-- ── Charts ── --}}
-    <div class="grid grid-cols-1 gap-6 mb-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
 
         <div class="bg-white rounded-xl border border-brand-gray-extralight shadow-sm p-6">
             <p class="font-bold text-brand-dark text-sm mb-4 tracking-wide">Pesanan Hari Ini</p>
@@ -475,7 +475,7 @@
         @if (session('store_status_changed_to'))
         <script>
         document.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => window.openConfirmModal && window.openConfirmModal('popup-store-status'), 120);
+            setTimeout(() => window.openAppModal && window.openAppModal('popup-store-status'), 120);
         });
         </script>
         @endif
@@ -491,9 +491,9 @@
                     btn.classList.add('toggle-store-btn--pressing');
 
                     // Close confirm modals & show loading overlay while form submits + page reloads
-                    if (window.closeConfirmModal) {
-                        window.closeConfirmModal('confirm-close-store');
-                        window.closeConfirmModal('confirm-open-store');
+                    if (window.closeAppModal) {
+                        window.closeAppModal('confirm-close-store');
+                        window.closeAppModal('confirm-open-store');
                     }
                     if (window.showLoadingOverlay) window.showLoadingOverlay();
 
