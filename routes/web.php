@@ -8,6 +8,7 @@ use App\Http\Controllers\BerandaKonsumenController;
 use App\Http\Controllers\HistoriPesananController;
 use App\Http\Controllers\ImageCompressController;
 use App\Http\Controllers\KelolaKategoriMenuController;
+use App\Http\Controllers\KelolaMejaController;
 use App\Http\Controllers\KelolaMenuController;
 use App\Http\Controllers\KelolaPenggunaKasirController;
 use App\Http\Controllers\KelolaPesananController;
@@ -66,6 +67,14 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     Route::post('/pengguna-kasir', [KelolaPenggunaKasirController::class, 'storePenggunaKasir'])->name('pengguna-kasir.store');
     Route::put('/pengguna-kasir/{id}', [KelolaPenggunaKasirController::class, 'updatePenggunaKasir'])->name('pengguna-kasir.update');
     Route::delete('/pengguna-kasir/{id}', [KelolaPenggunaKasirController::class, 'destroyPenggunaKasir'])->name('pengguna-kasir.destroy');
+
+    // Kelola Meja & QR Code
+    // /cetak harus didefinisikan SEBELUM /{id} agar tidak ditangkap sebagai id=cetak
+    Route::get('/meja', [KelolaMejaController::class, 'index'])->name('meja.index');
+    Route::get('/meja/cetak', [KelolaMejaController::class, 'cetakQr'])->name('meja.cetak');
+    Route::post('/meja', [KelolaMejaController::class, 'storeMeja'])->name('meja.store');
+    Route::put('/meja/{id}', [KelolaMejaController::class, 'updateMeja'])->name('meja.update');
+    Route::delete('/meja/{id}', [KelolaMejaController::class, 'destroyMeja'])->name('meja.destroy');
 });
 
 /*
