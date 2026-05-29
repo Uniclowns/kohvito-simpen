@@ -44,9 +44,10 @@
                     <img src="{{ asset('images/icons/keranjang_konsumen.svg') }}" class="kvt-nav-icon h-[30px] w-[30px]" alt="">
                     <span class="kvt-nav-label text-[10px] font-bold leading-3 tracking-wide text-white capitalize">Keranjang</span>
                 </div>
-                @if ($cartCount > 0)
-                    <span class="kvt-nav-badge">{{ $cartCount }}</span>
-                @endif
+                {{-- Always render badge supaya JS bisa update real-time saat cart change.
+                     Hidden saat count=0; toggle via kelas .hidden dari JS (lihat keranjang.blade.php). --}}
+                <span class="kvt-nav-badge {{ $cartCount === 0 ? 'hidden' : '' }}"
+                      data-cart-count>{{ $cartCount }}</span>
             </a>
 
             {{-- Lacak (timeline) --}}

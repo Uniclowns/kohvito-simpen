@@ -9,7 +9,9 @@ use App\Http\Requests\UpdateCartNotesRequest;
 use App\Models\DetailPesanan;
 use App\Models\Menu;
 use App\Models\Pesanan;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -132,7 +134,7 @@ class KeranjangKonsumenController extends Controller
      * @param  \App\Http\Requests\UpdateCartItemRequest  $request  Request validasi update kuantitas
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function updatePesanan(UpdateCartItemRequest $request): RedirectResponse
+    public function updatePesanan(UpdateCartItemRequest $request): RedirectResponse|JsonResponse
     {
         $keranjang = session('keranjang', []);
         $cartKey   = $request->input('cart_key', (string) $request->id_menu);
@@ -140,13 +142,21 @@ class KeranjangKonsumenController extends Controller
 
         // 1. Cek eksistensi item di keranjang
         if (! isset($keranjang[$cartKey])) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'ok'      => false,
+                    'message' => 'Item tidak ditemukan di keranjang.',
+                ], 404);
+            }
             return redirect()->route('konsumen.keranjang')
                 ->withErrors(['item' => 'Item tidak ditemukan di keranjang.']);
         }
 
         // 2. Jika disetel ke kuantitas 0, lakukan penghapusan baris belanjaan (unset)
+        $removed = false;
         if ($jumlah === 0) {
             unset($keranjang[$cartKey]);
+            $removed = true;
         } else {
             // 3. Jika tidak 0, perbarui kuantitas dan hitung ulang nilai subtotal
             $keranjang[$cartKey]['jumlah']   = $jumlah;
@@ -155,6 +165,32 @@ class KeranjangKonsumenController extends Controller
 
         // 4. Rekam pembaruan di session
         session(['keranjang' => $keranjang]);
+
+        // 5. Branch response: JSON untuk AJAX (instant update tanpa reload),
+        //    redirect klasik untuk non-JS / progressive enhancement fallback.
+        if ($request->expectsJson()) {
+            $totalHarga = array_sum(array_column($keranjang, 'subtotal'));
+            $ppnAmount  = (int) round($totalHarga * 0.11);
+            $grandTotal = $totalHarga + $ppnAmount;
+            $cartCount  = array_sum(array_column($keranjang, 'jumlah'));
+
+            return response()->json([
+                'ok'              => true,
+                'cartKey'         => $cartKey,
+                'removed'         => $removed,
+                'jumlah'          => $removed ? 0 : $keranjang[$cartKey]['jumlah'],
+                'subtotal'        => $removed ? 0 : $keranjang[$cartKey]['subtotal'],
+                'subtotalFmt'     => $removed ? '0' : number_format($keranjang[$cartKey]['subtotal'], 0, ',', '.'),
+                'totalHarga'      => $totalHarga,
+                'totalHargaFmt'   => number_format($totalHarga, 0, ',', '.'),
+                'ppn'             => $ppnAmount,
+                'ppnFmt'          => number_format($ppnAmount, 0, ',', '.'),
+                'grandTotal'      => $grandTotal,
+                'grandTotalFmt'   => number_format($grandTotal, 0, ',', '.'),
+                'cartCount'       => $cartCount,
+                'cartIsEmpty'     => empty($keranjang),
+            ]);
+        }
 
         return redirect()->route('konsumen.keranjang');
     }
