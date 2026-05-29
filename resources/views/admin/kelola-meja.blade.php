@@ -1,7 +1,7 @@
 <x-layouts.admin title="Kelola Meja" pageTitle="Kelola Meja & QR Code">
     <x-slot:headerEnd>
         <div class="flex items-center gap-2">
-            <a href="{{ route('admin.meja.cetak') }}" target="_blank"
+            <a href="{{ route('superadmin.meja.cetak') }}" target="_blank"
                class="inline-flex items-center gap-2 rounded-md border border-brand-dark/15 bg-white px-4 py-2 text-[14px] font-medium text-brand-dark shadow-sm transition-colors hover:bg-brand-dark hover:text-white">
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -57,7 +57,7 @@
         </div>
 
         {{-- Search bar --}}
-        <form method="GET" action="{{ route('admin.meja.index') }}" id="search-form" class="mb-6">
+        <form method="GET" action="{{ route('superadmin.meja.index') }}" id="search-form" class="mb-6">
             <div class="relative">
                 <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
                     <svg class="h-5 w-5 text-brand-gray" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -136,7 +136,7 @@
                                 Edit
                             </button>
                             <button type="button"
-                                    onclick="confirmHapusMeja('{{ route('admin.meja.destroy', $m->id_meja) }}', '{{ $m->no_meja }}')"
+                                    onclick="confirmHapusMeja('{{ route('superadmin.meja.destroy', $m->id_meja) }}', '{{ $m->no_meja }}')"
                                     class="inline-flex items-center justify-center gap-1.5 rounded-md bg-[#E03131] px-3 py-1.5 text-xs font-bold text-white transition-colors hover:bg-[#C92A2A]">
                                 <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -166,7 +166,7 @@
                             </h2>
                             <p class="mt-2 text-sm text-[#808080]">Ubah nomor meja. QR Code akan otomatis ter-generate ulang.</p>
 
-                            <form method="POST" action="{{ route('admin.meja.update', $m->id_meja) }}" class="mt-6">
+                            <form method="POST" action="{{ route('superadmin.meja.update', $m->id_meja) }}" class="mt-6">
                                 @csrf @method('PUT')
                                 <label class="mb-2 block text-sm font-medium text-brand-dark">Nomor Meja</label>
                                 <input type="text" name="no_meja" value="{{ $m->no_meja }}" required maxlength="10"
@@ -210,7 +210,7 @@
                 Beri nomor unik untuk meja fisik di café Anda.
             </p>
 
-            <form method="POST" action="{{ route('admin.meja.store') }}" class="mt-6">
+            <form method="POST" action="{{ route('superadmin.meja.store') }}" class="mt-6">
                 @csrf
                 <label class="mb-2 block text-sm font-medium text-brand-dark">Nomor Meja</label>
                 <input type="text" name="no_meja" required maxlength="10"

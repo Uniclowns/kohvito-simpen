@@ -77,7 +77,7 @@ class KelolaMejaController extends Controller
         $meja->qr_code = $meja->scan_url;
         $meja->save();
 
-        return redirect()->route('admin.meja.index')
+        return redirect()->route('superadmin.meja.index')
             ->with('success', "Meja {$meja->no_meja} berhasil ditambahkan.");
     }
 
@@ -106,7 +106,7 @@ class KelolaMejaController extends Controller
         $meja->qr_code = $meja->scan_url; // refresh snapshot URL
         $meja->save();
 
-        return redirect()->route('admin.meja.index')
+        return redirect()->route('superadmin.meja.index')
             ->with('success', "Meja {$meja->no_meja} berhasil diperbarui.");
     }
 
@@ -125,7 +125,7 @@ class KelolaMejaController extends Controller
 
         $meja->delete();
 
-        return redirect()->route('admin.meja.index')
+        return redirect()->route('superadmin.meja.index')
             ->with('success', "Meja {$noMeja} berhasil dihapus.");
     }
 }

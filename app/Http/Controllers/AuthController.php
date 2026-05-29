@@ -58,14 +58,22 @@ class AuthController extends Controller
             $request->session()->regenerate();
 
             // 4. Mengambil nama role pengguna secara case-insensitive untuk menentukan halaman tujuan.
-            $role = strtolower(Auth::user()->role->nama_role);
+            //    Normalisasi sama dengan CheckRole middleware (lowercase + strip space)
+            //    agar "Super Admin" → "superadmin".
+            $role = str_replace(' ', '', strtolower(Auth::user()->role->nama_role));
 
-            // 5. Jika role adalah Admin, arahkan ke beranda panel admin.
+            // 5. Super Admin: arahkan ke beranda admin sebagai launchpad. Dari situ
+            //    bisa navigasi bebas ke panel kasir, halaman konsumen meja, dan kelola meja.
+            if ($role === 'superadmin') {
+                return redirect()->route('admin.beranda');
+            }
+
+            // 6. Jika role adalah Admin, arahkan ke beranda panel admin.
             if ($role === 'admin') {
                 return redirect()->route('admin.beranda');
             }
 
-            // 6. Jika role adalah Kasir, arahkan ke beranda panel kasir.
+            // 7. Jika role adalah Kasir, arahkan ke beranda panel kasir.
             if ($role === 'kasir') {
                 return redirect()->route('kasir.beranda');
             }

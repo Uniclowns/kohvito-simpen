@@ -121,7 +121,7 @@
             </span>
         </div>
         <div style="display:flex; gap:8px;">
-            <a href="{{ route('admin.meja.index') }}"
+            <a href="{{ route('superadmin.meja.index') }}"
                style="background:white; color:#380000; border:1px solid #380000; padding:9px 16px; border-radius:8px; text-decoration:none; font-weight:500;">
                 ← Kembali
             </a>
@@ -134,7 +134,7 @@
     @if ($meja->isEmpty())
         <div class="empty">
             <p>Belum ada meja terdaftar.</p>
-            <a href="{{ route('admin.meja.index') }}" style="color:#380000;">Tambah meja dulu →</a>
+            <a href="{{ route('superadmin.meja.index') }}" style="color:#380000;">Tambah meja dulu →</a>
         </div>
     @else
         <div class="grid">

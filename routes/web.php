@@ -68,6 +68,18 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     Route::put('/pengguna-kasir/{id}', [KelolaPenggunaKasirController::class, 'updatePenggunaKasir'])->name('pengguna-kasir.update');
     Route::delete('/pengguna-kasir/{id}', [KelolaPenggunaKasirController::class, 'destroyPenggunaKasir'])->name('pengguna-kasir.destroy');
 
+});
+
+/*
+|--------------------------------------------------------------------------
+| Super Admin Routes — Middleware: auth + role:superadmin
+|--------------------------------------------------------------------------
+| Khusus untuk akun Super Admin (god mode). Saat ini hanya menampung fitur
+| Kelola Meja & QR Code agar manajemen meja fisik terpisah dari operasional
+| admin sehari-hari. Super Admin juga dapat mengakses semua route admin/kasir
+| karena CheckRole middleware menerapkan bypass khusus untuk role ini.
+*/
+Route::prefix('superadmin')->middleware(['auth', 'role:superadmin'])->name('superadmin.')->group(function () {
     // Kelola Meja & QR Code
     // /cetak harus didefinisikan SEBELUM /{id} agar tidak ditangkap sebagai id=cetak
     Route::get('/meja', [KelolaMejaController::class, 'index'])->name('meja.index');

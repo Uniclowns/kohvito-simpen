@@ -66,7 +66,15 @@
     {{-- Nav --}}
     <nav class="flex-1 flex flex-col gap-3 w-full px-3">
 
-        @if (auth()->user()->id_role === 1)
+        @php
+            $userRoleId = auth()->user()->id_role;
+            // Admin nav shown for: Admin (id=1) + Super Admin (id=3).
+            // Kelola Meja sub-link below is shown ONLY for Super Admin.
+            $showAdminNav = in_array($userRoleId, [1, 3], true);
+            $isSuperadmin = $userRoleId === 3;
+        @endphp
+
+        @if ($showAdminNav)
             {{-- Admin Navigation --}}
             <a href="{{ route('admin.beranda') }}"
                class="relative flex items-center h-12 px-3 rounded-xl transition-colors overflow-hidden
@@ -104,17 +112,19 @@
                 <span class="ml-4 font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">Pengguna Kasir</span>
             </a>
 
-            <a href="{{ route('admin.meja.index') }}"
-               class="relative flex items-center h-12 px-3 rounded-xl transition-colors overflow-hidden
-                      {{ request()->routeIs('admin.meja.*') ? 'bg-white text-brand-dark' : 'text-white hover:bg-white/10' }}">
-                <svg class="w-5 min-w-[1.25rem] h-5 flex-shrink-0"
-                     fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                     style="{{ request()->routeIs('admin.meja.*') ? '' : 'opacity:.8' }}">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M3 4h18v4H3V4zm0 8h6v8H3v-8zm10 0h8v8h-8v-8z"/>
-                </svg>
-                <span class="ml-4 font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">Kelola Meja</span>
-            </a>
+            @if ($isSuperadmin)
+                <a href="{{ route('superadmin.meja.index') }}"
+                   class="relative flex items-center h-12 px-3 rounded-xl transition-colors overflow-hidden
+                          {{ request()->routeIs('superadmin.meja.*') ? 'bg-white text-brand-dark' : 'text-white hover:bg-white/10' }}">
+                    <svg class="w-5 min-w-[1.25rem] h-5 flex-shrink-0"
+                         fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                         style="{{ request()->routeIs('superadmin.meja.*') ? '' : 'opacity:.8' }}">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M3 4h18v4H3V4zm0 8h6v8H3v-8zm10 0h8v8h-8v-8z"/>
+                    </svg>
+                    <span class="ml-4 font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">Kelola Meja</span>
+                </a>
+            @endif
 
         @else
             {{-- Kasir Navigation --}}
