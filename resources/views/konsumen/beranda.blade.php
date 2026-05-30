@@ -373,7 +373,8 @@
             onclick="closeMenuSheet()"></div>
 
         <div id="menu-sheet-panel"
-            class="absolute inset-x-0 bottom-0 top-0 bg-[#F6F6F6] max-w-md mx-auto overflow-y-auto shadow-[0_-12px_40px_rgba(0,0,0,0.35)]">
+            class="absolute inset-x-0 bottom-0 top-0 bg-[#F6F6F6] max-w-md mx-auto overflow-y-auto overscroll-contain shadow-[0_-12px_40px_rgba(0,0,0,0.35)]"
+            style="-webkit-overflow-scrolling: touch; touch-action: pan-y;">
 
             {{-- Drag indicator on top (also clickable to close) --}}
             <button type="button" onclick="closeMenuSheet()"
@@ -529,25 +530,45 @@
         // Remember pre-sheet scroll so we can restore it on close.
         let __menuSheetReturnScrollY = 0;
 
+        // ─── Robust body scroll lock (iOS Safari–safe) ───
+        // `body { overflow: hidden }` alone is bypassed on iOS — body still scrolls
+        // and scroll chains from the panel into the catalog beneath. The cure is
+        // pinning <body> in place with `position: fixed; top: -<scrollY>px` while
+        // the sheet is open, then restoring scroll on close.
+        function lockBodyScroll() {
+            __menuSheetReturnScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+            document.body.style.position = 'fixed';
+            document.body.style.top = `-${__menuSheetReturnScrollY}px`;
+            document.body.style.left = '0';
+            document.body.style.right = '0';
+            document.body.style.width = '100%';
+            document.body.style.overflow = 'hidden';
+        }
+        function unlockBodyScroll() {
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.left = '';
+            document.body.style.right = '';
+            document.body.style.width = '';
+            document.body.style.overflow = '';
+            if (__menuSheetReturnScrollY > 0) {
+                window.scrollTo(0, __menuSheetReturnScrollY);
+                __menuSheetReturnScrollY = 0;
+            }
+        }
+
         window.openMenuSheet = async function(id) {
             const sheet = document.getElementById('menu-sheet');
             const body = document.getElementById('menu-sheet-body');
             const loader = document.getElementById('menu-sheet-loader');
             if (!sheet || !body) return;
 
-            // The beranda header lives at the top of the document (it's part of
-            // the absolute-positioned hero). To make sure the user can still see
-            // that header while the sheet is open, jump to the top first and
-            // remember the original scroll so we can restore on close.
-            __menuSheetReturnScrollY = window.scrollY;
-            if (window.scrollY > 0) window.scrollTo(0, 0);
-
             // Reset & reveal
             body.innerHTML = '';
             if (loader) loader.style.display = '';
             sheet.classList.remove('hidden');
             sheet.setAttribute('aria-hidden', 'false');
-            document.body.style.overflow = 'hidden';
+            lockBodyScroll();
 
             // Force the browser to register the initial translateY(100%) state
             // BEFORE we toggle .is-open — otherwise display:none→block in the
@@ -602,15 +623,11 @@
             sheet.setAttribute('aria-hidden', 'true');
 
             // After the slide-down transition completes, hide the sheet entirely
-            // and restore the user's prior scroll position.
+            // and restore the user's prior scroll position via unlockBodyScroll().
             setTimeout(() => {
                 sheet.classList.add('hidden');
                 if (body) body.innerHTML = '';
-                document.body.style.overflow = '';
-                if (__menuSheetReturnScrollY > 0) {
-                    window.scrollTo(0, __menuSheetReturnScrollY);
-                    __menuSheetReturnScrollY = 0;
-                }
+                unlockBodyScroll();
             }, 420);
         };
 

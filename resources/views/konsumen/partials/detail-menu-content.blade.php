@@ -31,7 +31,7 @@
         </div>
     </header>
 
-    <main class="mx-auto max-w-[390px] px-4 pb-[140px] sm:px-[18px] md:max-w-4xl lg:max-w-5xl">
+    <main class="mx-auto max-w-[390px] px-4 pb-6 sm:px-[18px] md:max-w-4xl lg:max-w-5xl">
         <div class="dm-enter pt-3 pb-1" style="animation-delay: 0.12s">
             <a href="{{ session('id_meja_no') ? route('konsumen.beranda', session('id_meja_no')) : '#' }}"
                data-dm-back
@@ -202,19 +202,30 @@
         </form>
     </main>
 
-    <div class="dm-fixed-footer fixed inset-x-0 bottom-0 z-30 bg-white shadow-[0_-4px_16px_rgba(0,0,0,0.08)]">
-        <div class="mx-auto flex max-w-[390px] flex-col items-stretch justify-between gap-3 px-4 pb-[54px] pt-[18px] min-[360px]:flex-row min-[360px]:items-center min-[360px]:gap-[17px] sm:px-[18px] md:max-w-4xl lg:max-w-5xl">
-            <div class="min-w-0">
-                <p class="text-[10px] leading-3 tracking-[0.5px] text-brand-gray">Harga Total</p>
-                <p id="dm-subtotal" data-base-price="{{ (int) $menu->harga }}" class="text-[14px] leading-5 font-bold tracking-[0.7px] text-brand-black">
+    {{-- Sticky footer: stays pinned to bottom of scroll container.
+         Tidak pakai `fixed` karena #menu-sheet-panel punya `will-change: transform`
+         yang bikin fixed jadi anchored ke panel (bukan viewport) → ikut scroll.
+         Sticky bottom-0 pin ke bottom container scroll (panel di sheet, body di standalone).
+         Footer adalah sibling of <main>, jadi dm-scope (parent) yang menentukan lebar. --}}
+    <div class="dm-fixed-footer sticky bottom-0 z-30 border-t border-brand-dark/8 bg-white/95 backdrop-blur-md shadow-[0_-8px_24px_rgba(70,0,1,0.10)]"
+         style="padding-bottom: max(14px, env(safe-area-inset-bottom));">
+        <div class="mx-auto flex max-w-[390px] items-center justify-between gap-4 px-4 pt-[14px] sm:px-[18px] md:max-w-4xl lg:max-w-5xl">
+            <div class="min-w-0 flex-shrink-0">
+                <p class="text-[10px] leading-3 tracking-[0.5px] text-brand-gray uppercase">Harga Total</p>
+                <p id="dm-subtotal" data-base-price="{{ (int) $menu->harga }}"
+                   class="mt-1 text-[18px] leading-6 font-bold tracking-[0.5px] text-brand-dark">
                     Rp {{ number_format($menu->harga, 0, ',', '.') }}
                 </p>
             </div>
             <button type="submit"
                     form="detail-form"
-                    class="w-full shrink-0 rounded-[9px] bg-brand-red px-3 py-1.5 text-[14px] leading-5 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)] active:scale-[0.98] min-[360px]:w-auto"
+                    class="flex-1 max-w-[220px] shrink-0 rounded-[12px] bg-brand-red px-4 py-3 text-[14px] font-bold leading-5 tracking-[0.7px] text-white shadow-[0_4px_12px_rgba(229,46,45,0.35)] transition-all active:scale-[0.97] disabled:bg-brand-gray disabled:shadow-none disabled:cursor-not-allowed"
                     @if ($stock === 0) disabled @endif>
-                Tambah Ke Keranjang
+                @if ($stock === 0)
+                    Stok Habis
+                @else
+                    + Tambah Ke Keranjang
+                @endif
             </button>
         </div>
     </div>

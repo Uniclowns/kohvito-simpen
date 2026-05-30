@@ -36,18 +36,24 @@ class CheckRole
             abort(403, 'Akses ditolak.');
         }
 
-        // 4. Membandingkan nama role pengguna saat ini dengan kriteria parameter rute.
-        //    Gunakan standardisasi huruf kecil (strtolower) agar perbandingan bersifat case-insensitive
-        //    serta menghindari kesalahan pengetikan karakter kapital di database.
-        $rolePengguna = strtolower($user->role->nama_role);
-        $roleSyarat   = strtolower($role);
+        // 4. Standardisasi: lowercase + buang spasi agar "Super Admin" → "superadmin"
+        //    (matches route param `role:superadmin` tanpa peduli ejaan DB).
+        $rolePengguna = str_replace(' ', '', strtolower($user->role->nama_role));
+        $roleSyarat   = str_replace(' ', '', strtolower($role));
+
+        // 5. SUPER ADMIN BYPASS — god mode: lolos semua role check (admin/kasir/superadmin).
+        //    Designed agar 1 akun Super Admin bisa pantau & operasikan semua panel
+        //    (admin, kasir, konsumen) tanpa harus logout-login antar role.
+        if ($rolePengguna === 'superadmin') {
+            return $next($request);
+        }
 
         if ($rolePengguna !== $roleSyarat) {
-            // 5. Jika peran tidak sesuai dengan syarat rute, batalkan request dengan respon 403 Forbidden
+            // 6. Jika peran tidak sesuai dengan syarat rute, batalkan request dengan respon 403 Forbidden
             abort(403, 'Anda tidak memiliki akses ke halaman ini.');
         }
 
-        // 6. Jika semua validasi lolos, ijinkan user melanjutkan ke controller rute yang dituju
+        // 7. Jika semua validasi lolos, ijinkan user melanjutkan ke controller rute yang dituju
         return $next($request);
     }
 }

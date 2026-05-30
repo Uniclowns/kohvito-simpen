@@ -114,8 +114,10 @@
                                 @endphp
 
                                 <article
-                                    class="rounded-[9px] bg-white p-[10px] shadow-[2px_4px_4px_rgba(0,0,0,0.25)]"
-                                    data-anim-item>
+                                    class="cart-item rounded-[9px] bg-white p-[10px] shadow-[2px_4px_4px_rgba(0,0,0,0.25)] transition-all duration-300"
+                                    data-anim-item
+                                    data-cart-item
+                                    data-cart-key="{{ $cartKey }}">
                                     <div class="flex items-center gap-[5px] px-3">
                                         @if ($imgSrc)
                                             <img src="{{ $imgSrc }}" alt="{{ $item['nama_menu'] }}"
@@ -130,7 +132,7 @@
                                         <div class="min-w-0 flex-1 py-[5px]">
                                             <div class="flex min-h-[14px] items-center gap-0 text-[12px] font-bold leading-4 tracking-[0.6px] text-brand-black">
                                                 <h2 class="min-w-0 truncate capitalize">
-                                                    {{ $item['jumlah'] }} {{ $item['nama_menu'] }}
+                                                    <span data-item-qty-name>{{ $item['jumlah'] }}</span> {{ $item['nama_menu'] }}
                                                 </h2>
                                                 @if ($variantLabel)
                                                     <span class="shrink-0 italic text-brand-dark">({{ $variantLabel }})</span>
@@ -141,21 +143,24 @@
                                             </p>
                                         </div>
 
-                                        <p class="shrink-0 text-right text-[12px] font-bold leading-4 tracking-[0.6px] text-brand-black">
+                                        <p class="shrink-0 text-right text-[12px] font-bold leading-4 tracking-[0.6px] text-brand-black"
+                                           data-item-subtotal>
                                             {{ number_format($item['subtotal'], 0, ',', '.') }}
                                         </p>
                                     </div>
 
                                     <div class="mt-[10px] flex items-start gap-2">
                                         <form method="POST" action="{{ route('konsumen.keranjang.update') }}"
-                                            class="min-w-0 flex-1">
+                                            class="min-w-0 flex-1"
+                                            data-cart-form
+                                            data-action-type="remove">
                                             @csrf
                                             @method('PUT')
                                             <input type="hidden" name="cart_key" value="{{ $cartKey }}">
                                             <input type="hidden" name="id_menu" value="{{ $menuId }}">
                                             <input type="hidden" name="jumlah" value="0">
                                             <button type="submit"
-                                                class="h-8 w-full rounded-[9px] bg-state-red px-1 sm:px-3 py-1.5 text-[13px] sm:text-[14px] leading-5 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)]">
+                                                class="h-8 w-full rounded-[9px] bg-state-red px-1 sm:px-3 py-1.5 text-[13px] sm:text-[14px] leading-5 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)] disabled:opacity-60">
                                                 Hapus
                                             </button>
                                         </form>
@@ -166,26 +171,31 @@
                                         </a>
 
                                         <div class="flex h-8 min-w-0 flex-1 items-center rounded-[9px] bg-[rgba(70,0,1,0.25)]">
-                                            <form method="POST" action="{{ route('konsumen.keranjang.update') }}">
+                                            <form method="POST" action="{{ route('konsumen.keranjang.update') }}"
+                                                  data-cart-form
+                                                  data-action-type="minus">
                                                 @csrf
                                                 @method('PUT')
                                                 <input type="hidden" name="cart_key" value="{{ $cartKey }}">
                                                 <input type="hidden" name="id_menu" value="{{ $menuId }}">
-                                                <input type="hidden" name="jumlah" value="{{ $item['jumlah'] - 1 }}">
+                                                <input type="hidden" name="jumlah" data-jumlah-input value="{{ $item['jumlah'] - 1 }}">
                                                 <button type="submit"
-                                                    class="flex h-8 w-6 sm:w-8 items-center justify-center rounded-l-[9px] text-[13px] sm:text-[14px] font-bold text-brand-dark">&minus;</button>
+                                                    class="flex h-8 w-6 sm:w-8 items-center justify-center rounded-l-[9px] text-[13px] sm:text-[14px] font-bold text-brand-dark disabled:opacity-50">&minus;</button>
                                             </form>
-                                            <span class="flex-1 text-center text-[13px] sm:text-[14px] leading-5 tracking-[0.7px] text-black">
+                                            <span class="flex-1 text-center text-[13px] sm:text-[14px] leading-5 tracking-[0.7px] text-black"
+                                                  data-item-qty>
                                                 {{ $item['jumlah'] }}
                                             </span>
-                                            <form method="POST" action="{{ route('konsumen.keranjang.update') }}">
+                                            <form method="POST" action="{{ route('konsumen.keranjang.update') }}"
+                                                  data-cart-form
+                                                  data-action-type="plus">
                                                 @csrf
                                                 @method('PUT')
                                                 <input type="hidden" name="cart_key" value="{{ $cartKey }}">
                                                 <input type="hidden" name="id_menu" value="{{ $menuId }}">
-                                                <input type="hidden" name="jumlah" value="{{ $item['jumlah'] + 1 }}">
+                                                <input type="hidden" name="jumlah" data-jumlah-input value="{{ $item['jumlah'] + 1 }}">
                                                 <button type="submit"
-                                                    class="flex h-8 w-6 sm:w-8 items-center justify-center rounded-r-[9px] text-[13px] sm:text-[14px] font-bold text-brand-dark">&#43;</button>
+                                                    class="flex h-8 w-6 sm:w-8 items-center justify-center rounded-r-[9px] text-[13px] sm:text-[14px] font-bold text-brand-dark disabled:opacity-50">&#43;</button>
                                             </form>
                                         </div>
                                     </div>
@@ -198,21 +208,22 @@
                 <!-- Right Column: Order totals & Checkout info card (5 columns) -->
                 <div class="md:col-span-5 md:sticky md:top-6 flex flex-col gap-4">
                     <!-- Totals Card -->
-                    <section class="kvt-card rounded-[9px] bg-white p-5 shadow-[2px_4px_4px_rgba(0,0,0,0.25)] flex flex-col gap-3">
+                    <section class="kvt-card rounded-[9px] bg-white p-5 shadow-[2px_4px_4px_rgba(0,0,0,0.25)] flex flex-col gap-3"
+                             data-cart-totals>
                         <h3 class="text-[16px] font-bold text-brand-dark border-b border-brand-gray-light pb-2">Ringkasan Pesanan</h3>
                         <div class="flex flex-col gap-[5px] text-[12px] font-bold leading-4 tracking-[0.6px]">
                             <div class="flex items-center justify-between gap-[14px]">
                                 <span class="text-brand-dark">SubTotal Pemesanan</span>
-                                <span class="text-brand-black">{{ number_format($totalHarga, 0, ',', '.') }}</span>
+                                <span class="text-brand-black" data-total-subtotal>{{ number_format($totalHarga, 0, ',', '.') }}</span>
                             </div>
                             <div class="flex items-center justify-between gap-[14px]">
                                 <span class="text-brand-dark">Ppn 11%</span>
-                                <span class="text-brand-black">{{ number_format($ppnAmount, 0, ',', '.') }}</span>
+                                <span class="text-brand-black" data-total-ppn>{{ number_format($ppnAmount, 0, ',', '.') }}</span>
                             </div>
                             <div class="border-t border-brand-gray-light pt-[5px]">
                                 <div class="flex items-center justify-between gap-[14px]">
                                     <span class="text-brand-dark">Total Pemesanan</span>
-                                    <span class="text-brand-black">{{ number_format($grandTotal, 0, ',', '.') }}</span>
+                                    <span class="text-brand-black" data-total-grand>{{ number_format($grandTotal, 0, ',', '.') }}</span>
                                 </div>
                             </div>
                         </div>
@@ -315,6 +326,136 @@
                     submitBtn.textContent = 'Sedang Mengirim Pesanan...';
                 });
             }
+        })();
+    </script>
+
+    {{-- ──────────────────────────────────────────────────────────────────
+         AJAX Cart Updater (Progressive Enhancement)
+         Intercepts +/- and Hapus form submissions. Sends fetch() with
+         Accept: application/json — controller returns JSON state, JS
+         updates DOM in-place (no full page reload).
+         Non-JS users still get the classic redirect fallback.
+    ────────────────────────────────────────────────────────────────── --}}
+    <script>
+        (function () {
+            const cartListSection = document.querySelector('[data-cart-item]')?.closest('section');
+            if (!cartListSection) return;
+
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
+            const cartBadgeEls = document.querySelectorAll('[data-cart-count]'); // bottom nav badge if exists
+            let inflightCount = 0;
+
+            // ── Helpers ────────────────────────────────────────────────────
+            function setBusy(form, busy) {
+                form.querySelectorAll('button').forEach(b => b.disabled = busy);
+                if (busy) form.classList.add('opacity-70');
+                else form.classList.remove('opacity-70');
+            }
+
+            function updateItemRow(cartKey, jumlah, subtotalFmt) {
+                const article = document.querySelector(`[data-cart-key="${cartKey}"]`);
+                if (!article) return;
+
+                // Qty in title ("2 Angguro") + qty display in stepper
+                article.querySelectorAll('[data-item-qty-name], [data-item-qty]').forEach(el => {
+                    el.textContent = jumlah;
+                });
+                const subtotalEl = article.querySelector('[data-item-subtotal]');
+                if (subtotalEl) subtotalEl.textContent = subtotalFmt;
+
+                // Sync hidden inputs so next click reflects new state
+                const minusInput = article.querySelector('[data-action-type="minus"] [data-jumlah-input]');
+                const plusInput = article.querySelector('[data-action-type="plus"] [data-jumlah-input]');
+                if (minusInput) minusInput.value = String(jumlah - 1);
+                if (plusInput) plusInput.value = String(jumlah + 1);
+
+                // Disable minus when qty would go to 0 via stepper (1 → 0 is delete via Hapus button)
+                const minusBtn = article.querySelector('[data-action-type="minus"] button');
+                if (minusBtn) minusBtn.disabled = jumlah <= 1;
+            }
+
+            function removeItemRow(cartKey) {
+                const article = document.querySelector(`[data-cart-key="${cartKey}"]`);
+                if (!article) return;
+                article.style.opacity = '0';
+                article.style.transform = 'translateX(-12px)';
+                setTimeout(() => article.remove(), 280);
+            }
+
+            function updateTotals(data) {
+                const subEl = document.querySelector('[data-total-subtotal]');
+                const ppnEl = document.querySelector('[data-total-ppn]');
+                const grandEl = document.querySelector('[data-total-grand]');
+                if (subEl) subEl.textContent = data.totalHargaFmt;
+                if (ppnEl) ppnEl.textContent = data.ppnFmt;
+                if (grandEl) grandEl.textContent = data.grandTotalFmt;
+
+                // Sync nav cart badge if present
+                cartBadgeEls.forEach(el => {
+                    el.textContent = data.cartCount;
+                    el.classList.toggle('hidden', data.cartCount === 0);
+                });
+            }
+
+            // ── Event delegation: tangkap submit semua form keranjang ──────
+            cartListSection.addEventListener('submit', async (event) => {
+                const form = event.target.closest('[data-cart-form]');
+                if (!form) return;
+                event.preventDefault();
+                if (form.dataset.busy === '1') return; // anti double-click
+                form.dataset.busy = '1';
+                inflightCount++;
+                setBusy(form, true);
+
+                try {
+                    const fd = new FormData(form);
+                    // Lavavel expects _method=PUT for method spoofing; FormData captures hidden input automatically
+                    const res = await fetch(form.action, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': csrfToken,
+                        },
+                        credentials: 'same-origin',
+                        body: fd,
+                    });
+
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                    const data = await res.json();
+                    if (!data.ok) throw new Error(data.message || 'Update gagal');
+
+                    if (data.removed) {
+                        removeItemRow(data.cartKey);
+                    } else {
+                        updateItemRow(data.cartKey, data.jumlah, data.subtotalFmt);
+                    }
+                    updateTotals(data);
+
+                    // Cart kosong → reload supaya tampil empty state Blade yang konsisten
+                    if (data.cartIsEmpty) {
+                        setTimeout(() => window.location.reload(), 320);
+                    }
+                } catch (err) {
+                    console.error('[cart-ajax]', err);
+                    // Fallback graceful: submit form klasik
+                    form.dataset.busy = '';
+                    form.submit();
+                    return;
+                } finally {
+                    inflightCount--;
+                    if (inflightCount === 0) {
+                        // small delay supaya animasi keluar tidak ke-cut
+                        setTimeout(() => {
+                            form.dataset.busy = '';
+                            setBusy(form, false);
+                        }, 80);
+                    } else {
+                        form.dataset.busy = '';
+                        setBusy(form, false);
+                    }
+                }
+            });
         })();
     </script>
 </x-layouts.konsumen>

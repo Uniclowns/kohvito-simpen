@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 /**
  * Class Meja
@@ -86,5 +87,45 @@ class Meja extends Model
             'id_meja',      // Foreign key di tabel pesanan yang mengarah ke meja ini
             'id_meja'       // Local key (primary key) pada tabel meja
         );
+    }
+
+    /**
+     * Accessor: URL yang di-encode ke QR Code meja ini.
+     * Konsumen scan QR → langsung masuk halaman menu konsumen meja ini.
+     *
+     * Contoh hasil: "http://192.168.1.48:8000/01"
+     *
+     * Base URL diambil dari config('app.qr_meja_base_url') agar bisa diganti
+     * tanpa menyentuh kode (cukup ubah .env saat pindah lokasi/WiFi).
+     *
+     * @return string
+     */
+    public function getScanUrlAttribute(): string
+    {
+        $base = rtrim(config('app.qr_meja_base_url'), '/');
+
+        return "{$base}/{$this->no_meja}";
+    }
+
+    /**
+     * Accessor: SVG string QR Code siap ditampilkan/dicetak.
+     *
+     * Menggunakan format SVG karena:
+     *  - Tidak butuh ekstensi PHP imagick/gd
+     *  - Scalable tanpa kehilangan kualitas saat dicetak A4
+     *  - Ukuran file kecil, embed langsung ke HTML
+     *
+     * Error correction level 'M' (~15% redundansi) — cukup untuk meja indoor
+     * yang dilaminasi. Untuk lingkungan kotor/outdoor pakai 'Q' atau 'H'.
+     *
+     * @return string SVG markup, gunakan {!! $meja->qr_svg !!} di Blade
+     */
+    public function getQrSvgAttribute(): string
+    {
+        return QrCode::format('svg')
+            ->size(280)
+            ->margin(1)
+            ->errorCorrection('M')
+            ->generate($this->scan_url);
     }
 }

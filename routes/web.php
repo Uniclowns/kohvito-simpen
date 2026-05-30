@@ -8,11 +8,13 @@ use App\Http\Controllers\BerandaKonsumenController;
 use App\Http\Controllers\HistoriPesananController;
 use App\Http\Controllers\ImageCompressController;
 use App\Http\Controllers\KelolaKategoriMenuController;
+use App\Http\Controllers\KelolaMejaController;
 use App\Http\Controllers\KelolaMenuController;
 use App\Http\Controllers\KelolaPenggunaKasirController;
 use App\Http\Controllers\KelolaPesananController;
 use App\Http\Controllers\KeranjangKonsumenController;
 use App\Http\Controllers\PesananController;
+use App\Http\Controllers\SuperadminController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -66,6 +68,35 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     Route::post('/pengguna-kasir', [KelolaPenggunaKasirController::class, 'storePenggunaKasir'])->name('pengguna-kasir.store');
     Route::put('/pengguna-kasir/{id}', [KelolaPenggunaKasirController::class, 'updatePenggunaKasir'])->name('pengguna-kasir.update');
     Route::delete('/pengguna-kasir/{id}', [KelolaPenggunaKasirController::class, 'destroyPenggunaKasir'])->name('pengguna-kasir.destroy');
+
+});
+
+/*
+|--------------------------------------------------------------------------
+| Super Admin Routes — Middleware: auth + role:superadmin
+|--------------------------------------------------------------------------
+| Khusus untuk akun Super Admin (god mode). Saat ini hanya menampung fitur
+| Kelola Meja & QR Code agar manajemen meja fisik terpisah dari operasional
+| admin sehari-hari. Super Admin juga dapat mengakses semua route admin/kasir
+| karena CheckRole middleware menerapkan bypass khusus untuk role ini.
+*/
+Route::prefix('superadmin')->middleware(['auth', 'role:superadmin'])->name('superadmin.')->group(function () {
+    // Dashboard Hub Super Admin — launchpad ke semua panel
+    Route::get('/', [SuperadminController::class, 'beranda'])->name('beranda');
+
+    // Kelola Admin — CRUD akun Administrator (id_role = 1)
+    Route::get('/kelola-admin', [SuperadminController::class, 'indexAdmin'])->name('admin.index');
+    Route::post('/kelola-admin', [SuperadminController::class, 'storeAdmin'])->name('admin.store');
+    Route::put('/kelola-admin/{id}', [SuperadminController::class, 'updateAdmin'])->name('admin.update');
+    Route::delete('/kelola-admin/{id}', [SuperadminController::class, 'destroyAdmin'])->name('admin.destroy');
+
+    // Kelola Meja & QR Code
+    // /cetak harus didefinisikan SEBELUM /{id} agar tidak ditangkap sebagai id=cetak
+    Route::get('/meja', [KelolaMejaController::class, 'index'])->name('meja.index');
+    Route::get('/meja/cetak', [KelolaMejaController::class, 'cetakQr'])->name('meja.cetak');
+    Route::post('/meja', [KelolaMejaController::class, 'storeMeja'])->name('meja.store');
+    Route::put('/meja/{id}', [KelolaMejaController::class, 'updateMeja'])->name('meja.update');
+    Route::delete('/meja/{id}', [KelolaMejaController::class, 'destroyMeja'])->name('meja.destroy');
 });
 
 /*
