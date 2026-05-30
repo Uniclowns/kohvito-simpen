@@ -14,6 +14,7 @@ use App\Http\Controllers\KelolaPenggunaKasirController;
 use App\Http\Controllers\KelolaPesananController;
 use App\Http\Controllers\KeranjangKonsumenController;
 use App\Http\Controllers\PesananController;
+use App\Http\Controllers\SuperadminController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -80,6 +81,15 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
 | karena CheckRole middleware menerapkan bypass khusus untuk role ini.
 */
 Route::prefix('superadmin')->middleware(['auth', 'role:superadmin'])->name('superadmin.')->group(function () {
+    // Dashboard Hub Super Admin — launchpad ke semua panel
+    Route::get('/', [SuperadminController::class, 'beranda'])->name('beranda');
+
+    // Kelola Admin — CRUD akun Administrator (id_role = 1)
+    Route::get('/kelola-admin', [SuperadminController::class, 'indexAdmin'])->name('admin.index');
+    Route::post('/kelola-admin', [SuperadminController::class, 'storeAdmin'])->name('admin.store');
+    Route::put('/kelola-admin/{id}', [SuperadminController::class, 'updateAdmin'])->name('admin.update');
+    Route::delete('/kelola-admin/{id}', [SuperadminController::class, 'destroyAdmin'])->name('admin.destroy');
+
     // Kelola Meja & QR Code
     // /cetak harus didefinisikan SEBELUM /{id} agar tidak ditangkap sebagai id=cetak
     Route::get('/meja', [KelolaMejaController::class, 'index'])->name('meja.index');

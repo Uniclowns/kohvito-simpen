@@ -62,10 +62,10 @@ class AuthController extends Controller
             //    agar "Super Admin" → "superadmin".
             $role = str_replace(' ', '', strtolower(Auth::user()->role->nama_role));
 
-            // 5. Super Admin: arahkan ke beranda admin sebagai launchpad. Dari situ
-            //    bisa navigasi bebas ke panel kasir, halaman konsumen meja, dan kelola meja.
+            // 5. Super Admin: arahkan ke dashboard hub khusus (route tersendiri).
+            //    Dari hub itu bisa navigasi ke panel admin, kasir, konsumen, kelola admin & meja.
             if ($role === 'superadmin') {
-                return redirect()->route('admin.beranda');
+                return redirect()->route('superadmin.beranda');
             }
 
             // 6. Jika role adalah Admin, arahkan ke beranda panel admin.

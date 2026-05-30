@@ -68,13 +68,109 @@
 
         @php
             $userRoleId = auth()->user()->id_role;
-            // Admin nav shown for: Admin (id=1) + Super Admin (id=3).
-            // Kelola Meja sub-link below is shown ONLY for Super Admin.
-            $showAdminNav = in_array($userRoleId, [1, 3], true);
-            $isSuperadmin = $userRoleId === 3;
+            $isSuperadmin = $userRoleId === 3; // Super Admin (god mode)
+            $isAdmin      = $userRoleId === 1; // Admin biasa
+            // Target tombol "Lihat Konsumen" untuk Super Admin (meja pertama).
+            $firstMejaNo  = $isSuperadmin ? optional(\App\Models\Meja::orderBy('no_meja')->first())->no_meja : null;
         @endphp
 
-        @if ($showAdminNav)
+        @if ($isSuperadmin)
+            {{-- ══ Super Admin Navigation (god-mode hub) ══ --}}
+            <a href="{{ route('superadmin.beranda') }}"
+               class="relative flex items-center h-12 px-3 rounded-xl transition-colors overflow-hidden
+                      {{ request()->routeIs('superadmin.beranda') ? 'bg-white text-brand-dark' : 'text-white hover:bg-white/10' }}">
+                <svg class="w-5 min-w-[1.25rem] h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                     style="{{ request()->routeIs('superadmin.beranda') ? '' : 'opacity:.8' }}">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                </svg>
+                <span class="ml-4 font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">Dashboard</span>
+            </a>
+
+            <a href="{{ route('superadmin.admin.index') }}"
+               class="relative flex items-center h-12 px-3 rounded-xl transition-colors overflow-hidden
+                      {{ request()->routeIs('superadmin.admin.*') ? 'bg-white text-brand-dark' : 'text-white hover:bg-white/10' }}">
+                <svg class="w-5 min-w-[1.25rem] h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                     style="{{ request()->routeIs('superadmin.admin.*') ? '' : 'opacity:.8' }}">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                </svg>
+                <span class="ml-4 font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">Kelola Admin</span>
+            </a>
+
+            <a href="{{ route('admin.pengguna-kasir.index') }}"
+               class="relative flex items-center h-12 px-3 rounded-xl transition-colors overflow-hidden
+                      {{ request()->routeIs('admin.pengguna-kasir.*') ? 'bg-white text-brand-dark' : 'text-white hover:bg-white/10' }}">
+                <img src="{{ asset('images/icons/users.svg') }}" alt=""
+                     class="w-5 min-w-[1.25rem] h-5 flex-shrink-0"
+                     style="{{ request()->routeIs('admin.pengguna-kasir.*') ? 'filter:brightness(0)' : 'filter:brightness(0) invert(1);opacity:.8' }}">
+                <span class="ml-4 font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">Kelola Kasir</span>
+            </a>
+
+            <a href="{{ route('admin.menu.index') }}"
+               class="relative flex items-center h-12 px-3 rounded-xl transition-colors overflow-hidden
+                      {{ request()->routeIs('admin.menu.*') ? 'bg-white text-brand-dark' : 'text-white hover:bg-white/10' }}">
+                <img src="{{ asset('images/icons/coffee.svg') }}" alt=""
+                     class="w-5 min-w-[1.25rem] h-5 flex-shrink-0"
+                     style="{{ request()->routeIs('admin.menu.*') ? 'filter:brightness(0)' : 'filter:brightness(0) invert(1);opacity:.8' }}">
+                <span class="ml-4 font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">Kelola Menu</span>
+            </a>
+
+            <a href="{{ route('admin.kategori.index') }}"
+               class="relative flex items-center h-12 px-3 rounded-xl transition-colors overflow-hidden
+                      {{ request()->routeIs('admin.kategori.*') ? 'bg-white text-brand-dark' : 'text-white hover:bg-white/10' }}">
+                <img src="{{ asset('images/icons/menu icon.svg') }}" alt=""
+                     class="w-5 min-w-[1.25rem] h-5 flex-shrink-0"
+                     style="{{ request()->routeIs('admin.kategori.*') ? 'filter:brightness(0)' : 'filter:brightness(0) invert(1);opacity:.8' }}">
+                <span class="ml-4 font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">Kelola Kategori</span>
+            </a>
+
+            <a href="{{ route('superadmin.meja.index') }}"
+               class="relative flex items-center h-12 px-3 rounded-xl transition-colors overflow-hidden
+                      {{ request()->routeIs('superadmin.meja.*') ? 'bg-white text-brand-dark' : 'text-white hover:bg-white/10' }}">
+                <svg class="w-5 min-w-[1.25rem] h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                     style="{{ request()->routeIs('superadmin.meja.*') ? '' : 'opacity:.8' }}">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M3 4h18v4H3V4zm0 8h6v8H3v-8zm10 0h8v8h-8v-8z"/>
+                </svg>
+                <span class="ml-4 font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">Kelola Meja</span>
+            </a>
+
+            {{-- Divider --}}
+            <div class="my-1 border-t border-white/10"></div>
+
+            <a href="{{ route('admin.beranda') }}"
+               class="relative flex items-center h-12 px-3 rounded-xl transition-colors overflow-hidden
+                      {{ request()->routeIs('admin.beranda') ? 'bg-white text-brand-dark' : 'text-white hover:bg-white/10' }}">
+                <img src="{{ asset('images/icons/template.svg') }}" alt=""
+                     class="w-5 min-w-[1.25rem] h-5 flex-shrink-0"
+                     style="{{ request()->routeIs('admin.beranda') ? 'filter:brightness(0)' : 'filter:brightness(0) invert(1);opacity:.8' }}">
+                <span class="ml-4 font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">Panel Admin</span>
+            </a>
+
+            <a href="{{ route('kasir.beranda') }}"
+               class="relative flex items-center h-12 px-3 rounded-xl transition-colors overflow-hidden
+                      {{ request()->routeIs('kasir.*') ? 'bg-white text-brand-dark' : 'text-white hover:bg-white/10' }}">
+                <svg class="w-5 min-w-[1.25rem] h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                     style="{{ request()->routeIs('kasir.*') ? '' : 'opacity:.8' }}">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <span class="ml-4 font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">Panel Kasir</span>
+            </a>
+
+            <a href="{{ $firstMejaNo ? url('/' . $firstMejaNo) : '#' }}" target="_blank"
+               class="relative flex items-center h-12 px-3 rounded-xl transition-colors overflow-hidden text-white hover:bg-white/10 {{ $firstMejaNo ? '' : 'opacity-40 pointer-events-none' }}">
+                <svg class="w-5 min-w-[1.25rem] h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="opacity:.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                </svg>
+                <span class="ml-4 font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">Lihat Konsumen</span>
+            </a>
+
+        @elseif ($isAdmin)
             {{-- Admin Navigation --}}
             <a href="{{ route('admin.beranda') }}"
                class="relative flex items-center h-12 px-3 rounded-xl transition-colors overflow-hidden
@@ -111,20 +207,6 @@
                      style="{{ request()->routeIs('admin.pengguna-kasir.*') ? 'filter:brightness(0)' : 'filter:brightness(0) invert(1);opacity:.8' }}">
                 <span class="ml-4 font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">Pengguna Kasir</span>
             </a>
-
-            @if ($isSuperadmin)
-                <a href="{{ route('superadmin.meja.index') }}"
-                   class="relative flex items-center h-12 px-3 rounded-xl transition-colors overflow-hidden
-                          {{ request()->routeIs('superadmin.meja.*') ? 'bg-white text-brand-dark' : 'text-white hover:bg-white/10' }}">
-                    <svg class="w-5 min-w-[1.25rem] h-5 flex-shrink-0"
-                         fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                         style="{{ request()->routeIs('superadmin.meja.*') ? '' : 'opacity:.8' }}">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M3 4h18v4H3V4zm0 8h6v8H3v-8zm10 0h8v8h-8v-8z"/>
-                    </svg>
-                    <span class="ml-4 font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">Kelola Meja</span>
-                </a>
-            @endif
 
         @else
             {{-- Kasir Navigation --}}
