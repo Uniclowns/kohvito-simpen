@@ -51,11 +51,8 @@
             </div>
 
             <div class="p-4 sm:p-6">
-                <a href="{{ route('kasir.histori.cetak', $pesanan->no_pesanan) }}"
-                   target="_blank"
-                   class="px-4 py-2 text-sm border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
-                    Cetak Struk
-                </a>
+                <x-cetak-struk-button :no-pesanan="$pesanan->no_pesanan"
+                    class="px-4 py-2 text-sm border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50" />
             </div>
         </div>
     </div>

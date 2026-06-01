@@ -183,10 +183,8 @@
                             Selesai
                         </button>
                     </form>
-                    <a href="{{ route('kasir.pesanan.cetak', $pesanan->no_pesanan) }}" target="_blank"
-                        class="flex-1 text-center bg-[#681F1F] text-white text-[16px] leading-[22px] tracking-[0.7px] rounded-[9px] px-4 py-2.5 shadow-[2px_4px_2px_rgba(0,0,0,0.25)] hover:brightness-110 transition-all min-[400px]:col-span-2 sm:col-span-1">
-                        Cetak Struk
-                    </a>
+                    <x-cetak-struk-button :no-pesanan="$pesanan->no_pesanan"
+                        class="flex-1 text-center bg-[#681F1F] text-white text-[16px] leading-[22px] tracking-[0.7px] rounded-[9px] px-4 py-2.5 shadow-[2px_4px_2px_rgba(0,0,0,0.25)] hover:brightness-110 transition-all min-[400px]:col-span-2 sm:col-span-1" />
                 @endif
             </div>
         </div>
