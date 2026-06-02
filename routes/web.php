@@ -5,6 +5,7 @@ use App\Http\Controllers\BayarController;
 use App\Http\Controllers\BerandaAdminController;
 use App\Http\Controllers\BerandaKasirController;
 use App\Http\Controllers\BerandaKonsumenController;
+use App\Http\Controllers\CetakStrukController;
 use App\Http\Controllers\HistoriPesananController;
 use App\Http\Controllers\ImageCompressController;
 use App\Http\Controllers\KelolaKategoriMenuController;
@@ -119,6 +120,9 @@ Route::prefix('kasir')->middleware(['auth', 'role:kasir'])->name('kasir.')->grou
     Route::get('/histori/{noPesanan}', [HistoriPesananController::class, 'detail'])->name('histori.detail');
     Route::get('/histori/{noPesanan}/cetak', [HistoriPesananController::class, 'cetakHistoriPesanan'])->name('histori.cetak');
     Route::get('/histori-cetak-semua', [HistoriPesananController::class, 'cetakSemuaHistoriPesanan'])->name('histori.cetak-semua');
+
+    // Cetak Struk langsung ke printer termal jaringan (ESC/POS) — dipakai kedua layar detail
+    Route::post('/struk/{noPesanan}/cetak', [CetakStrukController::class, 'cetak'])->name('struk.cetak');
 });
 
 /*
