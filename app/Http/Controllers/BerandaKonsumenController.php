@@ -48,13 +48,17 @@ class BerandaKonsumenController extends Controller
         $sessionMejaNo = session('id_meja_no');
 
         // 3. Evaluasi apakah sistem perlu membangkitkan sesi transaksi baru:
-        //    - Tidak membawa token ?u={code} di URL.
-        //    - Sesi token lokal server kosong.
-        //    - Token di URL berbeda dengan token session server (user baru menggunakan browser yang sama).
+        //    - Sesi token lokal server kosong (konsumen benar-benar baru / sesi kedaluwarsa).
+        //    - URL membawa token yang BERBEDA dengan token session server
+        //      (user lain memakai browser yang sama / membuka tautan ber-scope milik orang lain).
         //    - Terjadi perpindahan meja fisik (no_meja di session berbeda dengan no_meja QR).
-        $needsNewScope = ! $urlScope
-            || ! $sessionScope
-            || $urlScope !== $sessionScope
+        //
+        //    Catatan penting: kunjungan TANPA token ?u={code} sengaja TIDAK memicu reset
+        //    selama scope untuk meja yang sama masih valid. Navigasi antar-tab (mis. tombol
+        //    "Menu") menaut ke /{noMeja} tanpa token; bila ketiadaan token dianggap "sesi baru",
+        //    keranjang yang sedang berjalan ikut terhapus. Sesi yang sudah valid dipertahankan.
+        $needsNewScope = ! $sessionScope
+            || ($urlScope && $urlScope !== $sessionScope)
             || $sessionMejaNo !== $meja->no_meja;
 
         if ($needsNewScope) {

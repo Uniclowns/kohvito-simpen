@@ -7,7 +7,7 @@
     :title="'Keranjang Pesanan - ' . config('app.name')"
     bodyClass="min-h-screen bg-[#F6F6F6] pb-[124px] lg:pb-0 font-sans text-brand-black kvt-konsumen-mobile-view">
     @php
-        $cartCount = array_sum(array_column($keranjang, 'jumlah'));
+        $cartCount = count($keranjang);
         $hasOrder = session('no_pesanan_baru');
         $mejaNo = session('id_meja_no');
         $ppnAmount = (int) round($totalHarga * 0.11);
@@ -165,10 +165,10 @@
                                             </button>
                                         </form>
 
-                                        <a href="{{ route('konsumen.menu.detail', $menuId) }}"
-                                            class="flex h-8 min-w-0 flex-1 items-center justify-center rounded-[9px] bg-brand-red px-1 sm:px-3 py-1.5 text-[13px] sm:text-[14px] leading-5 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)]">
+                                        <button type="button" onclick="openMenuSheet({{ $menuId }})"
+                                            class="flex h-8 min-w-0 flex-1 items-center justify-center rounded-[9px] bg-brand-red px-1 sm:px-3 py-1.5 text-[13px] sm:text-[14px] leading-5 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition active:scale-[0.98]">
                                             Edit
-                                        </a>
+                                        </button>
 
                                         <div class="flex h-8 min-w-0 flex-1 items-center rounded-[9px] bg-[rgba(70,0,1,0.25)]">
                                             <form method="POST" action="{{ route('konsumen.keranjang.update') }}"
@@ -291,6 +291,9 @@
     </main>
 
     <x-konsumen-bottom-nav active="keranjang" :mejaNo="$mejaNo" :cartCount="$cartCount" />
+
+    {{-- Detail sheet/modal for editing a cart line (opens via openMenuSheet). --}}
+    <x-menu-detail-sheet />
 
     <script>
         (function () {

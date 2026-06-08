@@ -323,21 +323,43 @@ body.is-scrolled .hero-headline {
 }
 
 .dm-scope .dm-image {
+    position: relative;
     animation: dm-image-pop 0.58s cubic-bezier(0.34, 1.56, 0.64, 1) 0.18s both;
 }
 
+/* Premium framing for the product photo: a crisp inner hairline plus a
+   soft inward vignette so the shot reads as deliberately mounted rather
+   than a flat edge-to-edge fill. Pure overlay — never intercepts taps. */
+.dm-scope .dm-image::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    box-shadow: inset 0 0 0 1px rgba(70, 0, 1, 0.05),
+                inset 0 -30px 40px -30px rgba(70, 0, 1, 0.18);
+}
+
 .dm-scope .opt-chip {
-    min-height: 32px;
+    position: relative;
+    min-height: 40px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 9px;
-    padding: 6px 12px;
+    gap: 5px;
+    border-radius: 9999px;
+    padding: 9px 18px;
     font-size: 14px;
     line-height: 20px;
-    letter-spacing: 0.7px;
-    box-shadow: 2px 4px 2px rgba(0, 0, 0, 0.25);
-    transition: background-color 160ms ease, color 160ms ease, transform 120ms ease;
+    letter-spacing: 0.3px;
+    font-weight: 600;
+    background-color: #F7F4F4;
+    color: #460001;
+    border: 1.5px solid rgba(70, 0, 1, 0.12);
+    box-shadow: 0 1px 1.5px rgba(70, 0, 1, 0.04);
+    transition: background-color 180ms ease, background-image 180ms ease, color 180ms ease,
+                border-color 180ms ease, box-shadow 240ms ease,
+                transform 150ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .dm-scope .opt-chip span {
@@ -348,55 +370,83 @@ body.is-scrolled .hero-headline {
 .dm-scope .opt-chip .opt-chip-price {
     font-size: 10px;
     line-height: 12px;
-    letter-spacing: 0.5px;
-    font-weight: 400;
-    opacity: 0.78;
-    margin-left: 4px;
+    letter-spacing: 0.2px;
+    font-weight: 500;
+    opacity: 0.7;
+    margin-left: 2px;
+}
+
+@media (hover: hover) {
+    .dm-scope .opt-chip:not([data-selected="true"]):hover {
+        border-color: rgba(70, 0, 1, 0.42);
+        background-color: #FFF7F7;
+        transform: translateY(-2px);
+        box-shadow: 0 3px 6px rgba(70, 0, 1, 0.08), 0 12px 22px -10px rgba(70, 0, 1, 0.32);
+    }
 }
 
 .dm-scope .opt-chip:active {
-    transform: scale(0.95);
+    transform: scale(0.94);
 }
 
 .dm-scope .opt-chip[data-selected="true"] {
-    background-color: #681F1F;
+    background-color: #460001;
+    background-image: linear-gradient(135deg, #7A2727 0%, #460001 100%);
     color: #FFFFFF;
+    border-color: transparent;
+    box-shadow: 0 2px 6px rgba(70, 0, 1, 0.32), 0 12px 24px -9px rgba(70, 0, 1, 0.5);
+}
+
+.dm-scope .opt-chip[data-selected="true"] .opt-chip-price {
+    opacity: 0.85;
 }
 
 .dm-scope .opt-chip[data-selected="false"] {
-    background-color: #FFFFFF;
+    background-color: #F7F4F4;
     color: #460001;
 }
 
 .dm-scope .dm-note {
     width: 100%;
-    min-height: 80px;
+    min-height: 96px;
     resize: vertical;
-    border: 1px solid rgba(70, 0, 1, 0.18);
-    border-radius: 9px;
-    background-color: rgba(70, 0, 1, 0.08);
-    padding: 10px 12px;
+    border: 1.5px solid rgba(70, 0, 1, 0.12);
+    border-radius: 12px;
+    background-color: #F7F4F4;
+    padding: 12px 14px;
     color: #1A1A1A;
     font-size: 14px;
     line-height: 20px;
-    letter-spacing: 0.7px;
+    letter-spacing: 0.4px;
+    box-shadow: inset 0 1px 2px rgba(70, 0, 1, 0.04);
+    transition: border-color 180ms ease, box-shadow 220ms ease;
 }
 
 .dm-scope .dm-note::placeholder {
-    color: #808080;
+    color: #9A8C8C;
 }
 
 .dm-scope .dm-note:focus {
     outline: none;
-    border-color: #460001;
-    background-color: rgba(70, 0, 1, 0.12);
+    border-color: #681F1F;
+    box-shadow: 0 0 0 3px rgba(104, 31, 31, 0.12);
 }
 
 .dm-scope .qty-btn {
-    width: 32px;
-    height: 32px;
-    box-shadow: 2px 4px 2px rgba(0, 0, 0, 0.25);
-    transition: transform 120ms ease, opacity 120ms ease;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    color: #FFFFFF;
+    background-image: linear-gradient(135deg, #7A2727 0%, #460001 100%);
+    box-shadow: 0 4px 10px -3px rgba(70, 0, 1, 0.5);
+    transition: transform 130ms ease, box-shadow 200ms ease, opacity 130ms ease;
+}
+
+@media (hover: hover) {
+    .dm-scope .qty-btn:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 14px -3px rgba(70, 0, 1, 0.6);
+    }
 }
 
 .dm-scope .qty-btn:active:not(:disabled) {
@@ -404,8 +454,53 @@ body.is-scrolled .hero-headline {
 }
 
 .dm-scope .qty-btn:disabled {
-    opacity: 0.45;
+    opacity: 0.4;
     cursor: not-allowed;
+    background-image: none;
+    background-color: #C9B8B8;
+    box-shadow: none;
+}
+
+/* Quiet "opsional" hint on groups the guest may leave unselected.
+   Reads the data-optional flag already present on the fieldset — no
+   markup or behavior change, just a clearer affordance. */
+.dm-scope fieldset[data-optional="true"] > legend::after {
+    content: "opsional";
+    display: inline-block;
+    margin-left: 8px;
+    padding: 3px 9px;
+    border-radius: 9999px;
+    font-size: 9px;
+    line-height: 1;
+    font-weight: 700;
+    letter-spacing: 0.7px;
+    text-transform: uppercase;
+    color: #7A2727;
+    background-color: rgba(122, 39, 39, 0.10);
+    vertical-align: middle;
+    transform: translateY(-1px);
+}
+
+/* Slim, brand-tinted scrollbar for the detail panel so the scroll
+   chrome matches the maroon palette instead of the OS default. */
+#menu-sheet-panel {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(70, 0, 1, 0.22) transparent;
+}
+#menu-sheet-panel::-webkit-scrollbar {
+    width: 9px;
+}
+#menu-sheet-panel::-webkit-scrollbar-track {
+    background: transparent;
+}
+#menu-sheet-panel::-webkit-scrollbar-thumb {
+    background-color: rgba(70, 0, 1, 0.18);
+    border: 2px solid transparent;
+    background-clip: content-box;
+    border-radius: 9999px;
+}
+#menu-sheet-panel::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(70, 0, 1, 0.34);
 }
 
 /* ========== Consumer tracking and payment feedback ==========
@@ -573,13 +668,16 @@ body.is-scrolled .hero-headline {
     }
     #menu-sheet-panel {
         position: relative !important;
-        transform: scale(0.9) !important;
-        transition: transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1) !important;
-        max-width: 580px !important;
-        width: 90% !important;
-        max-height: 85vh !important;
-        border-radius: 18px !important;
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+        transform: scale(0.94) !important;
+        transition: transform 320ms cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+        /* Widened from 580px so the 2-column detail layout breathes like the
+           full-page view instead of being squished into a narrow strip. */
+        max-width: 880px !important;
+        width: 92% !important;
+        max-height: 88vh !important;
+        border-radius: 20px !important;
+        box-shadow: 0 24px 60px -12px rgba(70, 0, 1, 0.35), 0 8px 24px -8px rgba(0, 0, 0, 0.25) !important;
+        padding-bottom: 8px;
     }
     #menu-sheet.is-open #menu-sheet-panel {
         transform: scale(1) !important;

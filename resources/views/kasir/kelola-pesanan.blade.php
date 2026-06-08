@@ -143,10 +143,8 @@
                                             Selesai
                                         </button>
                                     </form>
-                                    <button type="button" data-order-print-url="{{ route('kasir.pesanan.cetak', $pesanan->no_pesanan) }}"
-                                        class="col-span-2 flex-1 rounded-[9px] bg-[#681F1F] px-4 py-2 text-center text-[16px] leading-6 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition hover:brightness-110 sm:col-span-1">
-                                        Cetak Struk
-                                    </button>
+                                    <x-cetak-struk-button :no-pesanan="$pesanan->no_pesanan"
+                                        class="col-span-2 flex-1 rounded-[9px] bg-[#681F1F] px-4 py-2 text-center text-[16px] leading-6 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition hover:brightness-110 sm:col-span-1" />
                                 @endif
                             </div>
                         </div>
@@ -289,6 +287,17 @@
                                     </div>
                                 </div>
 
+                                <div data-scroll-hint
+                                    class="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-center pb-3 opacity-0 transition-opacity duration-300">
+                                    <div class="pointer-events-none absolute inset-x-0 bottom-0 h-[100px] bg-gradient-to-t from-white from-[12%] via-white/85 to-transparent backdrop-blur-sm"></div>
+                                    <div class="relative flex items-center gap-1 text-[#460001]">
+                                        <span class="whitespace-nowrap text-[13px] leading-7 tracking-[0.9px] sm:text-[18px]">Scroll Untuk Melihat Menu Lainnya</span>
+                                        <svg class="h-[18px] w-[18px] animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="m6 9 6 6 6-6"/>
+                                        </svg>
+                                    </div>
+                                </div>
+
                             </div>
 
                             <div class="grid grid-cols-2 gap-3 px-4 pt-3 sm:flex sm:px-7">
@@ -314,10 +323,8 @@
                                             Selesai
                                         </button>
                                     </form>
-                                    <button type="button" data-order-print-url="{{ route('kasir.pesanan.cetak', $pesanan->no_pesanan) }}"
-                                        class="col-span-2 min-w-0 flex-1 rounded-[9px] bg-[#681F1F] px-3 py-2 text-[15px] leading-6 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition hover:brightness-110 sm:col-span-1">
-                                        Cetak Struk
-                                    </button>
+                                    <x-cetak-struk-button :no-pesanan="$pesanan->no_pesanan"
+                                        class="col-span-2 min-w-0 flex-1 rounded-[9px] bg-[#681F1F] px-3 py-2 text-[15px] leading-6 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition hover:brightness-110 sm:col-span-1" />
                                 @endif
                             </div>
                         </aside>
@@ -421,6 +428,18 @@
                     panel?.querySelector('[data-scroll-panel]')?.scrollTo({ top: 0 });
                 };
 
+                const SCROLL_HINT_THRESHOLD = 4;
+
+                const updateScrollHint = (panel) => {
+                    if (!panel) return;
+                    const scroller = panel.querySelector('[data-scroll-panel]');
+                    const hint = panel.querySelector('[data-scroll-hint]');
+                    if (!scroller || !hint) return;
+                    const hasOverflow = scroller.scrollHeight - scroller.clientHeight > SCROLL_HINT_THRESHOLD;
+                    const atBottom = scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - SCROLL_HINT_THRESHOLD;
+                    hint.classList.toggle('opacity-0', !hasOverflow || atBottom);
+                };
+
                 const activatePanel = (id) => {
                     let activePanel = null;
 
@@ -438,6 +457,7 @@
 
                     syncDetailLayout();
                     resetPanelScroll(activePanel);
+                    window.requestAnimationFrame(() => updateScrollHint(activePanel));
                     showBodyLockIfNeeded();
                 };
 
@@ -465,10 +485,14 @@
                     panel.addEventListener('click', (event) => {
                         if (event.target === panel) closePanel(panel);
                     });
+                    panel.querySelector('[data-scroll-panel]')?.addEventListener('scroll', () => updateScrollHint(panel), { passive: true });
                 });
 
                 desktopDetailQuery.addEventListener('change', showBodyLockIfNeeded);
-                window.addEventListener('resize', () => window.requestAnimationFrame(syncCardPreviews));
+                window.addEventListener('resize', () => window.requestAnimationFrame(() => {
+                    syncCardPreviews();
+                    updateScrollHint(getActivePanel());
+                }));
                 document.fonts?.ready?.then(syncCardPreviews);
 
                 const successModal = document.querySelector('[data-success-modal]');
@@ -477,10 +501,6 @@
                 const successCopy = {
                     accepted: {
                         title: 'Berhasil Menerima Pesanan',
-                        subtitle: '',
-                    },
-                    printed: {
-                        title: 'Berhasil Mencetak Struk',
                         subtitle: '',
                     },
                     completed: {
@@ -507,13 +527,10 @@
                     showBodyLockIfNeeded();
                 };
 
-                document.querySelectorAll('[data-order-print-url]').forEach((button) => {
-                    button.addEventListener('click', () => {
-                        const printWindow = window.open(button.dataset.orderPrintUrl, '_blank');
-                        if (printWindow) printWindow.opener = null;
-                        openSuccess('printed');
-                    });
-                });
+                // Cetak struk pelanggan + Checker (Barista/Kitchen) kini langsung ke
+                // printer termal jaringan via ESC/POS. Tombol "Cetak Struk" memakai
+                // komponen x-cetak-struk-button yang ditangani resources/js/cetak-struk.js
+                // (POST ke kasir.struk.cetak) — tanpa dialog printer, tab baru, atau PDF.
 
                 document.querySelectorAll('[data-success-close]').forEach((button) => {
                     button.addEventListener('click', closeSuccess);

@@ -172,7 +172,7 @@ class KeranjangKonsumenController extends Controller
             $totalHarga = array_sum(array_column($keranjang, 'subtotal'));
             $ppnAmount  = (int) round($totalHarga * 0.11);
             $grandTotal = $totalHarga + $ppnAmount;
-            $cartCount  = array_sum(array_column($keranjang, 'jumlah'));
+            $cartCount  = count($keranjang); // Jumlah jenis menu (baris keranjang), bukan total porsi
 
             return response()->json([
                 'ok'              => true,
