@@ -60,11 +60,16 @@ class BerandaKasirController extends Controller
         // 5. Total antrean pesanan yang masih harus dikerjakan saat ini
         $pesananAktif = $menunggu + $diproses;
 
-        // 6. Total transaksi lunas dan total omzet kotor sepanjang masa untuk perhitungan rata-rata belanja
-        $totalTransaksi = Pesanan::where('status_pembayaran', 'lunas')->count();
-        $omzetTotal     = (int) Pesanan::where('status_pembayaran', 'lunas')->sum('total_harga');
-        
-        // Perhitungan rata-rata nilai pembelian (basket size) per transaksi (menghindari division by zero)
+        // 6. Total transaksi lunas dan total omzet kotor KHUSUS HARI INI (konsisten dengan
+        //    kartu Selesai/Aktif yang juga berlingkup harian) untuk perhitungan rata-rata belanja
+        $totalTransaksi = Pesanan::where('status_pembayaran', 'lunas')
+            ->whereDate('tgl_pembayaran', $today)
+            ->count();
+        $omzetTotal     = (int) Pesanan::where('status_pembayaran', 'lunas')
+            ->whereDate('tgl_pembayaran', $today)
+            ->sum('total_harga');
+
+        // Perhitungan rata-rata nilai pembelian (basket size) per transaksi hari ini (menghindari division by zero)
         $rataPembelian  = $totalTransaksi > 0 ? (int) round($omzetTotal / $totalTransaksi) : 0;
 
         // 7. Agregasi Makanan terlaris yang dipesan khusus hari ini

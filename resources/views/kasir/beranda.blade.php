@@ -86,60 +86,72 @@
         </div>
     </div>
 
-    {{-- ── 2 Terlaris Cards ── --}}
-    <div class="mb-8 grid grid-cols-1 gap-4 sm:gap-5 xl:grid-cols-2">
-        @php
-            $imgSrcMk = $makananTerlaris?->gambar_menu
-                ? (str_starts_with($makananTerlaris->gambar_menu, 'http')
-                    ? $makananTerlaris->gambar_menu
-                    : asset('images/food/' . $makananTerlaris->gambar_menu))
-                : null;
-            $imgSrcMn = $minumanTerlaris?->gambar_menu
-                ? (str_starts_with($minumanTerlaris->gambar_menu, 'http')
-                    ? $minumanTerlaris->gambar_menu
-                    : asset('images/drink/' . $minumanTerlaris->gambar_menu))
-                : null;
-        @endphp
+    {{-- ── Terlaris Cards (desain disamakan dengan panel Admin) ── --}}
+    <div class="mb-10 grid grid-cols-1 gap-4 lg:grid-cols-2">
 
-        <div class="group flex items-stretch overflow-hidden rounded-2xl bg-white ring-1 ring-brand-dark/[0.06] shadow-[0_2px_4px_rgba(0,0,0,0.05),0_14px_32px_-18px_rgba(70,0,1,0.28)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_38px_-18px_rgba(70,0,1,0.34)]">
-            <div class="flex w-16 shrink-0 items-center justify-center bg-gradient-to-br from-brand-red to-brand-dark sm:w-[76px]">
-                <img src="{{ asset('images/icons/MASCOOT WHITE.svg') }}" alt="" class="h-9 w-9 object-contain sm:h-11 sm:w-11">
+        {{-- Makanan Terlaris --}}
+        <div class="flex min-h-24 overflow-hidden rounded-xl border border-brand-gray-extralight bg-white shadow-sm sm:h-24">
+            <div class="w-20 bg-brand-dark flex items-center justify-center flex-shrink-0">
+                <img src="{{ asset('images/icons/Food.svg') }}" alt="" class="w-8 h-8 brightness-0 invert">
             </div>
-            @if ($imgSrcMk)
-                <div class="h-auto w-[84px] shrink-0 overflow-hidden sm:w-[100px]">
-                    <img src="{{ $imgSrcMk }}" alt="" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105">
+            <div class="flex min-w-0 flex-1 items-center gap-3 px-3 py-3 sm:gap-4 sm:px-4">
+                @if ($makananTerlaris?->gambar_menu)
+                    @php
+                        $imgSrcMk = str_starts_with($makananTerlaris->gambar_menu, 'http')
+                            ? $makananTerlaris->gambar_menu
+                            : asset("images/food/{$makananTerlaris->gambar_menu}");
+                    @endphp
+                    <img src="{{ $imgSrcMk }}"
+                         alt="{{ $makananTerlaris->nama_menu }}"
+                         loading="lazy" decoding="async"
+                         class="w-16 h-16 object-cover rounded-full flex-shrink-0 border border-brand-gray-extralight">
+                @else
+                    <div class="w-16 h-16 rounded-full bg-brand-light flex items-center justify-center flex-shrink-0">
+                        <img src="{{ asset('images/icons/Food.svg') }}" alt="" class="w-8 h-8 opacity-20">
+                    </div>
+                @endif
+                <div class="min-w-0">
+                    <p class="text-[10px] text-brand-red font-bold uppercase tracking-wider mb-1">Makanan Terlaris</p>
+                    <p class="mb-1 truncate text-lg font-bold leading-tight text-brand-black">{{ $makananTerlaris?->nama_menu ?? '—' }}</p>
+                    @if ($makananTerlaris)
+                        <p class="text-[10px] text-brand-gray font-medium">{{ $makananTerlaris->total_terjual }} Terjual Hari Ini</p>
+                    @else
+                        <p class="text-[10px] text-brand-gray font-medium">Belum ada data</p>
+                    @endif
                 </div>
-            @endif
-            <div class="flex min-w-0 flex-1 flex-col justify-center px-4 py-4 sm:px-6">
-                <p class="text-[12px] font-bold uppercase tracking-[1px] text-brand-red">Makanan Terlaris</p>
-                <p class="mt-1 truncate text-[20px] font-bold leading-7 text-brand-black sm:text-[24px] sm:leading-8">
-                    {{ $makananTerlaris?->nama_menu ?? '—' }}
-                </p>
-                <p class="mt-1.5 inline-flex items-center gap-1.5 text-[13px] font-semibold text-brand-gray">
-                    <span class="inline-block h-1.5 w-1.5 rounded-full bg-brand-red"></span>
-                    {{ $makananTerlaris->total_terjual ?? 0 }} Terjual Hari ini
-                </p>
             </div>
         </div>
 
-        <div class="group flex items-stretch overflow-hidden rounded-2xl bg-white ring-1 ring-brand-dark/[0.06] shadow-[0_2px_4px_rgba(0,0,0,0.05),0_14px_32px_-18px_rgba(70,0,1,0.28)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_38px_-18px_rgba(70,0,1,0.34)]">
-            <div class="flex w-16 shrink-0 items-center justify-center bg-gradient-to-br from-brand-red to-brand-dark sm:w-[76px]">
-                <img src="{{ asset('images/icons/MASCOOT WHITE.svg') }}" alt="" class="h-9 w-9 object-contain sm:h-11 sm:w-11">
+        {{-- Minuman Terlaris --}}
+        <div class="flex min-h-24 overflow-hidden rounded-xl border border-brand-gray-extralight bg-white shadow-sm sm:h-24">
+            <div class="w-20 bg-brand-dark flex items-center justify-center flex-shrink-0">
+                <img src="{{ asset('images/icons/Drink.svg') }}" alt="" class="w-8 h-8 brightness-0 invert">
             </div>
-            @if ($imgSrcMn)
-                <div class="h-auto w-[84px] shrink-0 overflow-hidden sm:w-[100px]">
-                    <img src="{{ $imgSrcMn }}" alt="" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105">
+            <div class="flex min-w-0 flex-1 items-center gap-3 px-3 py-3 sm:gap-4 sm:px-4">
+                @if ($minumanTerlaris?->gambar_menu)
+                    @php
+                        $imgSrcMn = str_starts_with($minumanTerlaris->gambar_menu, 'http')
+                            ? $minumanTerlaris->gambar_menu
+                            : asset("images/drink/{$minumanTerlaris->gambar_menu}");
+                    @endphp
+                    <img src="{{ $imgSrcMn }}"
+                         alt="{{ $minumanTerlaris->nama_menu }}"
+                         loading="lazy" decoding="async"
+                         class="w-16 h-16 object-cover rounded-full flex-shrink-0 border border-brand-gray-extralight">
+                @else
+                    <div class="w-16 h-16 rounded-full bg-brand-light flex items-center justify-center flex-shrink-0">
+                        <img src="{{ asset('images/icons/Drink.svg') }}" alt="" class="w-8 h-8 opacity-20">
+                    </div>
+                @endif
+                <div class="min-w-0">
+                    <p class="text-[10px] text-brand-red font-bold uppercase tracking-wider mb-1">Minuman Terlaris</p>
+                    <p class="mb-1 truncate text-lg font-bold leading-tight text-brand-black">{{ $minumanTerlaris?->nama_menu ?? '—' }}</p>
+                    @if ($minumanTerlaris)
+                        <p class="text-[10px] text-brand-gray font-medium">{{ $minumanTerlaris->total_terjual }} Terjual Hari Ini</p>
+                    @else
+                        <p class="text-[10px] text-brand-gray font-medium">Belum ada data</p>
+                    @endif
                 </div>
-            @endif
-            <div class="flex min-w-0 flex-1 flex-col justify-center px-4 py-4 sm:px-6">
-                <p class="text-[12px] font-bold uppercase tracking-[1px] text-brand-red">Minuman Terlaris</p>
-                <p class="mt-1 truncate text-[20px] font-bold leading-7 text-brand-black sm:text-[24px] sm:leading-8">
-                    {{ $minumanTerlaris?->nama_menu ?? '—' }}
-                </p>
-                <p class="mt-1.5 inline-flex items-center gap-1.5 text-[13px] font-semibold text-brand-gray">
-                    <span class="inline-block h-1.5 w-1.5 rounded-full bg-brand-red"></span>
-                    {{ $minumanTerlaris->total_terjual ?? 0 }} Terjual Hari ini
-                </p>
             </div>
         </div>
     </div>

@@ -175,7 +175,7 @@
         onConfirm="triggerPrintLaporan()" />
 
     {{-- ── Popup: Berhasil Mencetak Laporan Kasir (after Ya, Cetak) ── --}}
-    <x-popup-success id="popup-print-success" heading="Berhasil Mencetak Laporan Kasir" />
+    <x-popup-success id="popup-print-success" heading="Berhasil Mencetak Laporan Kasir" gif="success.gif" />
 
     {{-- ── Loading overlay (shown during toggle store form submit) ── --}}
     <x-loading-overlay />
@@ -207,7 +207,7 @@
                 <p class="text-4xl font-bold text-brand-black leading-none" data-count-up="{{ $totalMenu }}">{{ $totalMenu }}</p>
                 <p class="text-sm font-bold text-brand-black">Menu</p>
             </div>
-            <p class="text-[10px] text-brand-gray mt-2 font-medium">30 Minuman &nbsp; 20 Makanan</p>
+            <p class="text-[10px] text-brand-gray mt-2 font-medium">{{ $totalMinuman }} Minuman &nbsp; {{ $totalMakanan }} Makanan</p>
         </div>
 
         {{-- Total Pengguna Kasir --}}
@@ -246,7 +246,7 @@
                 <p class="text-lg font-bold text-brand-black">Rp</p>
                 <p class="kvt-break-anywhere text-2xl font-bold leading-none text-brand-black sm:text-3xl" data-count-up="{{ $omzetBulanIni }}">{{ number_format($omzetBulanIni, 0, ',', '.') }}</p>
             </div>
-            <p class="text-[10px] text-brand-gray mt-2 font-medium">Rp {{ number_format($omzetBulanIni / 30, 0, ',', '.') }} Rata-Rata Pembelian</p>
+            <p class="text-[10px] text-brand-gray mt-2 font-medium">Rp {{ number_format($rataPembelian, 0, ',', '.') }} Rata-Rata Pembelian</p>
         </div>
     </div>
 
