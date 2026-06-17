@@ -86,57 +86,72 @@
         </div>
     </div>
 
-    {{-- ── 2 Terlaris Cards ── --}}
-    <div class="mb-10 grid grid-cols-1 gap-5 xl:grid-cols-2">
-        <div
-            class="flex flex-col sm:flex-row min-w-0 items-stretch sm:items-center overflow-hidden rounded-[9px] bg-white shadow-[2px_4px_4px_rgba(0,0,0,0.18)]">
-            <div class="bg-[#681F1F] hidden sm:flex items-center justify-center px-6 shrink-0">
-                <img src="{{ asset('images/icons/Food.svg') }}" alt="" class="w-10 h-10 brightness-0 invert">
+    {{-- ── Terlaris Cards (desain disamakan dengan panel Admin) ── --}}
+    <div class="mb-10 grid grid-cols-1 gap-4 lg:grid-cols-2">
+
+        {{-- Makanan Terlaris --}}
+        <div class="flex min-h-24 overflow-hidden rounded-xl border border-brand-gray-extralight bg-white shadow-sm sm:h-24">
+            <div class="w-20 bg-brand-dark flex items-center justify-center flex-shrink-0">
+                <img src="{{ asset('images/icons/Food.svg') }}" alt="" class="w-8 h-8 brightness-0 invert">
             </div>
-            @if ($makananTerlaris?->gambar_menu)
-                @php
-                    $imgSrcMk = str_starts_with($makananTerlaris->gambar_menu, 'http')
-                        ? $makananTerlaris->gambar_menu
-                        : asset('images/food/' . $makananTerlaris->gambar_menu);
-                @endphp
-                <div class="w-full h-44 sm:w-[120px] sm:h-[120px] shrink-0 overflow-hidden">
-                    <img src="{{ $imgSrcMk }}" alt="" class="w-full h-full object-cover">
+            <div class="flex min-w-0 flex-1 items-center gap-3 px-3 py-3 sm:gap-4 sm:px-4">
+                @if ($makananTerlaris?->gambar_menu)
+                    @php
+                        $imgSrcMk = str_starts_with($makananTerlaris->gambar_menu, 'http')
+                            ? $makananTerlaris->gambar_menu
+                            : asset("images/food/{$makananTerlaris->gambar_menu}");
+                    @endphp
+                    <img src="{{ $imgSrcMk }}"
+                         alt="{{ $makananTerlaris->nama_menu }}"
+                         loading="lazy" decoding="async"
+                         class="w-16 h-16 object-cover rounded-full flex-shrink-0 border border-brand-gray-extralight">
+                @else
+                    <div class="w-16 h-16 rounded-full bg-brand-light flex items-center justify-center flex-shrink-0">
+                        <img src="{{ asset('images/icons/Food.svg') }}" alt="" class="w-8 h-8 opacity-20">
+                    </div>
+                @endif
+                <div class="min-w-0">
+                    <p class="text-[10px] text-brand-red font-bold uppercase tracking-wider mb-1">Makanan Terlaris</p>
+                    <p class="mb-1 truncate text-lg font-bold leading-tight text-brand-black">{{ $makananTerlaris?->nama_menu ?? '—' }}</p>
+                    @if ($makananTerlaris)
+                        <p class="text-[10px] text-brand-gray font-medium">{{ $makananTerlaris->total_terjual }} Terjual Hari Ini</p>
+                    @else
+                        <p class="text-[10px] text-brand-gray font-medium">Belum ada data</p>
+                    @endif
                 </div>
-            @endif
-            <div class="min-w-0 flex-1 px-4 py-4 sm:py-3 sm:px-6">
-                <p class="text-[14px] text-brand-red font-bold uppercase tracking-[0.6px] mb-2">Makanan Terlaris</p>
-                <p class="truncate text-[24px] font-bold leading-[32px] text-black mb-2">
-                    {{ $makananTerlaris?->nama_menu ?? '—' }}
-                </p>
-                <p class="text-[14px] text-brand-gray font-bold">
-                    {{ $makananTerlaris->total_terjual ?? 0 }} Terjual Hari ini
-                </p>
             </div>
         </div>
 
-        <div
-            class="flex flex-col sm:flex-row min-w-0 items-stretch sm:items-center overflow-hidden rounded-[9px] bg-white shadow-[2px_4px_4px_rgba(0,0,0,0.18)]">
-            <div class="bg-[#681F1F] hidden sm:flex items-center justify-center px-6 shrink-0">
-                <img src="{{ asset('images/icons/Drink.svg') }}" alt="" class="w-10 h-10 brightness-0 invert">
+        {{-- Minuman Terlaris --}}
+        <div class="flex min-h-24 overflow-hidden rounded-xl border border-brand-gray-extralight bg-white shadow-sm sm:h-24">
+            <div class="w-20 bg-brand-dark flex items-center justify-center flex-shrink-0">
+                <img src="{{ asset('images/icons/Drink.svg') }}" alt="" class="w-8 h-8 brightness-0 invert">
             </div>
-            @if ($minumanTerlaris?->gambar_menu)
-                @php
-                    $imgSrcMn = str_starts_with($minumanTerlaris->gambar_menu, 'http')
-                        ? $minumanTerlaris->gambar_menu
-                        : asset('images/drink/' . $minumanTerlaris->gambar_menu);
-                @endphp
-                <div class="w-full h-44 sm:w-[120px] sm:h-[120px] shrink-0 overflow-hidden">
-                    <img src="{{ $imgSrcMn }}" alt="" class="w-full h-full object-cover">
+            <div class="flex min-w-0 flex-1 items-center gap-3 px-3 py-3 sm:gap-4 sm:px-4">
+                @if ($minumanTerlaris?->gambar_menu)
+                    @php
+                        $imgSrcMn = str_starts_with($minumanTerlaris->gambar_menu, 'http')
+                            ? $minumanTerlaris->gambar_menu
+                            : asset("images/drink/{$minumanTerlaris->gambar_menu}");
+                    @endphp
+                    <img src="{{ $imgSrcMn }}"
+                         alt="{{ $minumanTerlaris->nama_menu }}"
+                         loading="lazy" decoding="async"
+                         class="w-16 h-16 object-cover rounded-full flex-shrink-0 border border-brand-gray-extralight">
+                @else
+                    <div class="w-16 h-16 rounded-full bg-brand-light flex items-center justify-center flex-shrink-0">
+                        <img src="{{ asset('images/icons/Drink.svg') }}" alt="" class="w-8 h-8 opacity-20">
+                    </div>
+                @endif
+                <div class="min-w-0">
+                    <p class="text-[10px] text-brand-red font-bold uppercase tracking-wider mb-1">Minuman Terlaris</p>
+                    <p class="mb-1 truncate text-lg font-bold leading-tight text-brand-black">{{ $minumanTerlaris?->nama_menu ?? '—' }}</p>
+                    @if ($minumanTerlaris)
+                        <p class="text-[10px] text-brand-gray font-medium">{{ $minumanTerlaris->total_terjual }} Terjual Hari Ini</p>
+                    @else
+                        <p class="text-[10px] text-brand-gray font-medium">Belum ada data</p>
+                    @endif
                 </div>
-            @endif
-            <div class="min-w-0 flex-1 px-4 py-4 sm:py-3 sm:px-6">
-                <p class="text-[14px] text-brand-red font-bold uppercase tracking-[0.6px] mb-2">Minuman Terlaris</p>
-                <p class="truncate text-[24px] font-bold leading-[32px] text-black mb-2">
-                    {{ $minumanTerlaris?->nama_menu ?? '—' }}
-                </p>
-                <p class="text-[14px] text-brand-gray font-bold">
-                    {{ $minumanTerlaris->total_terjual ?? 0 }} Terjual Hari ini
-                </p>
             </div>
         </div>
     </div>

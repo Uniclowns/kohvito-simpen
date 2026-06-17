@@ -237,7 +237,7 @@
                 </svg>
             </button>
             <div class="flex flex-col items-center text-center">
-                <img src="{{ asset('images/illustration/print success.svg') }}" alt="" class="mb-5 h-[170px] w-[180px] object-contain sm:mb-7 sm:h-[250px] sm:w-[240px]">
+                <img src="{{ file_exists(public_path('images/gif/success.gif')) ? asset('images/gif/success.gif') : asset('images/illustration/print success.svg') }}" alt="" aria-hidden="true" class="mb-5 h-[170px] w-auto object-contain sm:mb-7 sm:h-[250px]">
                 <p id="histori-print-success-title" class="max-w-[440px] text-[21px] font-bold leading-[29px] tracking-[1.1px] text-[#460001] sm:text-[26px] sm:leading-[32px]">
                     Berhasil Mencetak Histori Pesanan
                 </p>

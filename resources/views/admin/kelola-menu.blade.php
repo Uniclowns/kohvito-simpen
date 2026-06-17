@@ -165,7 +165,7 @@
         $menuErrorKey  = session('menu_action_error');
     @endphp
     @if ($menuActionKey && isset($menuActionHeadings[$menuActionKey]))
-        <x-popup-success id="popup-menu-action" :heading="$menuActionHeadings[$menuActionKey]" />
+        <x-popup-success id="popup-menu-action" :heading="$menuActionHeadings[$menuActionKey]" gif="success.gif" />
         <script>
             document.addEventListener('DOMContentLoaded', () => {
                 setTimeout(() => window.openAppModal && window.openAppModal('popup-menu-action'), 120);
@@ -177,6 +177,7 @@
             id="popup-menu-error"
             :heading="$menuErrorHeadings[$menuErrorKey]"
             description="Terjadi gangguan pada sistem. Silahkan coba beberapa saat lagi."
+            gif="failed.gif"
             illustration="error.svg" />
         <script>
             document.addEventListener('DOMContentLoaded', () => {
