@@ -10,7 +10,7 @@
     @php
         $mejaNo = session('id_meja_no');
         $keranjang = session('keranjang', []);
-        $cartCount = array_sum(array_column($keranjang, 'jumlah'));
+        $cartCount = count($keranjang);
 
         // Chip status pesanan (Figma: pill kuning #FFE62F untuk "Pesanan Diproses").
         $statusPesananChip = [
