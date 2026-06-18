@@ -22,9 +22,11 @@ return new class extends Migration
         $roleId = $existingRole->id_role ?? null;
 
         if (! $roleId) {
+            // Arg ke-2 'id_role' wajib agar Postgres menghasilkan RETURNING "id_role"
+            // (default-nya "id" yang tidak ada di tabel ini). MySQL mengabaikan arg ini.
             $roleId = DB::table('role')->insertGetId([
                 'nama_role' => 'Super Admin',
-            ]);
+            ], 'id_role');
         }
 
         // 2. Insert user superadmin default jika username belum dipakai
