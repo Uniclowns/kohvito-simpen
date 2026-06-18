@@ -35,10 +35,11 @@ class PesananSeeder extends Seeder
             return;
         }
 
-        DB::statement('SET FOREIGN_KEY_CHECKS=0');
-        DetailPesanan::truncate();
-        Pesanan::truncate();
-        DB::statement('SET FOREIGN_KEY_CHECKS=1');
+        // Bersihkan data lama: hapus child (detail_pesanan) dulu, lalu parent (pesanan)
+        // agar FK terpenuhi. Portable lintas MySQL & Postgres — hindari truncate +
+        // SET FOREIGN_KEY_CHECKS yang khas MySQL dan gagal di Postgres.
+        DetailPesanan::query()->delete();
+        Pesanan::query()->delete();
 
         $distributions = [];
 
