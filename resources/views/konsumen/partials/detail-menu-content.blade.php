@@ -193,11 +193,6 @@
                     </fieldset>
                 @endif
 
-                <div class="flex flex-col gap-2">
-                    <label for="dm-note-input" class="text-[14px] leading-5 font-bold tracking-[0.5px] text-brand-black">Catatan Tambahan</label>
-                    <textarea id="dm-note-input" class="dm-note" placeholder="Tulis catatan untuk barista/koki..."
-                              maxlength="200"></textarea>
-                </div>
             </section>
         </form>
     </main>
@@ -332,9 +327,6 @@
                     const selected = group.querySelector('.opt-chip[data-selected="true"]');
                     if (label && selected) parts.push(`${label}: ${selected.dataset.value}`);
                 });
-                const noteEl = root.querySelector('#dm-note-input');
-                const userNote = noteEl ? noteEl.value.trim() : '';
-                if (userNote) parts.push(`Catatan: ${userNote}`);
                 const catInput = root.querySelector('#catatan-input');
                 if (catInput) catInput.value = parts.join(' | ').slice(0, 255);
             });

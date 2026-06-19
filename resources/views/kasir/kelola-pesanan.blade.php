@@ -340,7 +340,11 @@
                 </svg>
             </button>
             <div class="flex flex-col items-center text-center">
-                <img src="{{ file_exists(public_path('images/gif/success.gif')) ? asset('images/gif/success.gif') : asset('images/illustration/print success.svg') }}"
+                {{-- Gif animasi; onerror jatuh ke svg statis. Tidak pakai
+                     file_exists(public_path()) karena public/images/** di-exclude
+                     dari bundle function Vercel (selalu false di sana). --}}
+                <img src="{{ asset('images/gif/success.gif') }}"
+                    onerror="this.onerror=null; this.src='{{ asset('images/illustration/print success.svg') }}';"
                     alt="" aria-hidden="true"
                     class="mb-5 h-[170px] w-auto object-contain sm:mb-7 sm:h-[250px]">
                 <p id="kasir-order-success-title"
