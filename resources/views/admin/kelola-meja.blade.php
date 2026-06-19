@@ -44,7 +44,7 @@
         <div class="rounded-2xl bg-white p-5 shadow-[0_4px_24px_rgba(0,0,0,0.06)] sm:col-span-2">
             <div class="text-xs font-medium uppercase tracking-wide text-brand-gray">Base URL QR Code</div>
             <div class="mt-2 truncate font-mono text-sm text-brand-dark">
-                {{ rtrim(config('app.qr_meja_base_url'), '/') }}/<span class="text-brand-red">[no_meja]</span>
+                https://kohvito-simpen.vercel.app/<span class="text-brand-red">[no_meja]</span>
             </div>
             <p class="mt-1 text-xs text-brand-gray">Customer scan QR → otomatis buka halaman menu meja tersebut.</p>
         </div>
