@@ -26,5 +26,33 @@ foreach ($writableDirs as $dir) {
     }
 }
 
+/*
+ * Arahkan compiled Blade view & cache bootstrap Laravel ke /tmp.
+ *
+ * `npm run build` tidak menjalankan `view:cache`, jadi Blade dikompilasi
+ * saat runtime. Tanpa pengalihan ini Laravel mencoba menulis ke
+ * storage/framework/views & bootstrap/cache yang read-only di Vercel,
+ * sehingga setiap request menghasilkan HTTP 500.
+ *
+ * Hanya di-set bila belum didefinisikan, supaya Environment Variables di
+ * dashboard Vercel tetap diprioritaskan.
+ */
+$runtimeEnv = [
+    'VIEW_COMPILED_PATH' => '/tmp/storage/framework/views',
+    'APP_CONFIG_CACHE'   => '/tmp/bootstrap/cache/config.php',
+    'APP_EVENTS_CACHE'   => '/tmp/bootstrap/cache/events.php',
+    'APP_PACKAGES_CACHE' => '/tmp/bootstrap/cache/packages.php',
+    'APP_ROUTES_CACHE'   => '/tmp/bootstrap/cache/routes.php',
+    'APP_SERVICES_CACHE' => '/tmp/bootstrap/cache/services.php',
+];
+
+foreach ($runtimeEnv as $key => $value) {
+    if (getenv($key) === false && ! isset($_ENV[$key]) && ! isset($_SERVER[$key])) {
+        putenv("{$key}={$value}");
+        $_ENV[$key]    = $value;
+        $_SERVER[$key] = $value;
+    }
+}
+
 // Serahkan request ke front controller Laravel.
 require __DIR__ . '/../public/index.php';
