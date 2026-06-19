@@ -32,17 +32,16 @@
             </button>
         </div>
 
-        {{-- Illustration --}}
+        {{-- Illustration.
+             Render langsung lewat asset() — JANGAN pakai file_exists(public_path()).
+             Di Vercel public/images/** di-exclude dari bundle function (lihat
+             excludeFiles di vercel.json), jadi file_exists() selalu false meski
+             gambarnya tetap disajikan statis lewat CDN. onerror menyembunyikan
+             elemen bila aset benar-benar gagal dimuat. --}}
         <div class="flex items-center justify-center py-[12px]">
-            @if (file_exists(public_path('images/illustration/' . $illustration)))
-                <img src="{{ asset('images/illustration/' . $illustration) }}" alt=""
-                     class="h-[120px] w-auto object-contain">
-            @else
-                {{-- Fallback placeholder until the matching illustration asset is added --}}
-                <div class="flex h-[120px] w-full max-w-[210px] items-center justify-center rounded bg-gray-100 text-[10px] uppercase tracking-wide text-brand-gray">
-                    illustration missing
-                </div>
-            @endif
+            <img src="{{ asset('images/illustration/' . $illustration) }}" alt=""
+                 class="h-[120px] w-auto object-contain"
+                 onerror="this.style.display='none'">
         </div>
 
         {{-- Footer: Kembali button --}}
