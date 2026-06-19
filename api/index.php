@@ -54,5 +54,15 @@ foreach ($runtimeEnv as $key => $value) {
     }
 }
 
+/*
+ * Vercel menerminasi TLS di edge lalu meneruskan request ke function lewat
+ * HTTP, padahal URL publik selalu HTTPS. Paksa Laravel mengenali koneksi
+ * sebagai secure agar @vite / asset() / url() menghasilkan tautan https://.
+ * Tanpa ini, stylesheet ter-link sebagai http:// dan diblokir browser sebagai
+ * mixed content, sehingga TailwindCSS tidak termuat.
+ */
+$_SERVER['HTTPS'] = 'on';
+$_SERVER['HTTP_X_FORWARDED_PROTO'] = 'https';
+
 // Serahkan request ke front controller Laravel.
 require __DIR__ . '/../public/index.php';
