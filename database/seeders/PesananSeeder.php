@@ -2,184 +2,118 @@
 
 namespace Database\Seeders;
 
-use App\Models\DetailPesanan;
-use App\Models\Meja;
-use App\Models\Menu;
-use App\Models\Pesanan;
-use App\Models\User;
-use Carbon\Carbon;
-use Faker\Factory;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class PesananSeeder extends Seeder
 {
     public function run(): void
     {
-        if (app()->environment('production') && ! env('SEED_PESANAN_FORCE')) {
-            $this->command->warn('PesananSeeder di-skip karena environment production. Set SEED_PESANAN_FORCE=true untuk override.');
-
-            return;
-        }
-
-        $faker = Factory::create('id_ID');
-
-        $kasirIds = User::where('id_role', 2)->pluck('id_users')->toArray();
-        $mejaIds = Meja::pluck('id_meja')->toArray();
-        $menus = Menu::select('id_menu', 'harga')->get();
-
-        if ($menus->isEmpty() || empty($mejaIds)) {
-            $this->command->warn('Tidak ada data menu atau meja. Jalankan seeder lain terlebih dahulu.');
-
-            return;
-        }
-
-        // Bersihkan data lama: hapus child (detail_pesanan) dulu, lalu parent (pesanan)
-        // agar FK terpenuhi. Portable lintas MySQL & Postgres — hindari truncate +
-        // SET FOREIGN_KEY_CHECKS yang khas MySQL dan gagal di Postgres.
-        DetailPesanan::query()->delete();
-        Pesanan::query()->delete();
-
-        $distributions = [];
-
-        $todayStatuses = $this->statusQueue(['selesai' => 5, 'diproses' => 2, 'menunggu konfirmasi' => 1]);
-        for ($i = 0; $i < 8; $i++) {
-            $distributions[] = [
-                'date' => Carbon::now()->setTime(8 + $i, rand(0, 59), rand(0, 59)),
-                'status' => $todayStatuses[$i],
-            ];
-        }
-
-        $weekStatuses = $this->statusQueue(['selesai' => 18, 'diproses' => 2, 'menunggu konfirmasi' => 2]);
-        for ($i = 0; $i < 22; $i++) {
-            $daysAgo = rand(1, 6);
-            $distributions[] = [
-                'date' => Carbon::now()->subDays($daysAgo)->setTime(rand(8, 21), rand(0, 59), rand(0, 59)),
-                'status' => $weekStatuses[$i],
-            ];
-        }
-
-        for ($i = 0; $i < 70; $i++) {
-            $daysAgo = rand(7, 29);
-            $distributions[] = [
-                'date' => Carbon::now()->subDays($daysAgo)->setTime(rand(8, 21), rand(0, 59), rand(0, 59)),
-                'status' => ['status_pesanan' => 'selesai', 'status_pembayaran' => 'lunas'],
-            ];
-        }
-
-        $notes = [
-            null, null, null, null,
-            'Tidak pedas',
-            'Less sugar',
-            'Extra cheese',
-            'No onion',
-            'Tambah es batu',
-            'Take away',
+        $rows = [
+            ['no_pesanan' => 'HIST-DEMO-001', 'id_user' => 4, 'id_meja' => 1, 'nama_konsumen' => 'Violetta', 'total_harga' => 254004, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => 'Pesanan dine-in, semua minuman dibuat setelah makanan siap.', 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-19 09:15:00'],
+            ['no_pesanan' => 'HIST-DEMO-002', 'id_user' => 4, 'id_meja' => 2, 'nama_konsumen' => 'Raka Pratama', 'total_harga' => 57000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-19 10:40:00'],
+            ['no_pesanan' => 'HIST-DEMO-003', 'id_user' => 4, 'id_meja' => 3, 'nama_konsumen' => 'Sari Wulandari', 'total_harga' => 175002, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => 'Split bill, struk tetap satu.', 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-19 12:05:00'],
+            ['no_pesanan' => 'HIST-DEMO-004', 'id_user' => 4, 'id_meja' => 4, 'nama_konsumen' => 'Dion Saputra', 'total_harga' => 397002, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => 'Take away, pisahkan makanan dan minuman.', 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-19 14:20:00'],
+            ['no_pesanan' => 'HIST-DEMO-005', 'id_user' => 4, 'id_meja' => 5, 'nama_konsumen' => 'Maya Putri', 'total_harga' => 113004, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-19 16:45:00'],
+            ['no_pesanan' => 'HIST-DEMO-006', 'id_user' => 4, 'id_meja' => 6, 'nama_konsumen' => 'Kevin Anggara', 'total_harga' => 208004, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => 'Meja minta tambahan tisu dan sendok kecil.', 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-19 19:10:00'],
+            ['no_pesanan' => 'PS-20260419085134-5MHM', 'id_user' => 4, 'id_meja' => 10, 'nama_konsumen' => 'Elvin Wahyudin', 'total_harga' => 93000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => 'Tolong makanannya jangan terlalu pedas, ada anak kecil.', 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-04-19 08:51:34'],
+            ['no_pesanan' => 'PS-20260419115724-FJXC', 'id_user' => 4, 'id_meja' => 10, 'nama_konsumen' => 'Mustofa Luis Budiman S.Kom', 'total_harga' => 423006, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-04-19 11:57:24'],
+            ['no_pesanan' => 'PS-20260419130031-CGKA', 'id_user' => 4, 'id_meja' => 4, 'nama_konsumen' => 'Mustofa Sinaga', 'total_harga' => 140000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-04-19 13:00:31'],
+            ['no_pesanan' => 'PS-20260419154110-8VIF', 'id_user' => 4, 'id_meja' => 7, 'nama_konsumen' => 'Humaira Pudjiastuti', 'total_harga' => 288000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-04-19 15:41:10'],
+            ['no_pesanan' => 'PS-20260419192817-1C0J', 'id_user' => 4, 'id_meja' => 1, 'nama_konsumen' => 'Zelaya Cici Nurdiyanti', 'total_harga' => 115000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => 'Tolong makanannya jangan terlalu pedas, ada anak kecil.', 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-04-19 19:28:17'],
+            ['no_pesanan' => 'PS-20260419204238-N4A2', 'id_user' => 4, 'id_meja' => 7, 'nama_konsumen' => 'Jessica Rahayu S.Farm', 'total_harga' => 28000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-04-19 20:42:38'],
+            ['no_pesanan' => 'PS-20260420134817-SNUA', 'id_user' => 4, 'id_meja' => 4, 'nama_konsumen' => 'Cemplunk Habibi', 'total_harga' => 56000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-04-20 13:48:17'],
+            ['no_pesanan' => 'PS-20260420175344-CVHV', 'id_user' => 4, 'id_meja' => 10, 'nama_konsumen' => 'Murti Lutfan Nababan S.E.', 'total_harga' => 189000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-04-20 17:53:44'],
+            ['no_pesanan' => 'PS-20260420213926-YNIH', 'id_user' => 4, 'id_meja' => 10, 'nama_konsumen' => 'Darsirah Wahyudin', 'total_harga' => 26000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-04-20 21:39:26'],
+            ['no_pesanan' => 'PS-20260421151837-FCGN', 'id_user' => 4, 'id_meja' => 7, 'nama_konsumen' => 'Jasmin Safitri', 'total_harga' => 224000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-04-21 15:18:37'],
+            ['no_pesanan' => 'PS-20260421153527-THGQ', 'id_user' => 4, 'id_meja' => 2, 'nama_konsumen' => 'Rini Zalindra Nuraini', 'total_harga' => 210000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-04-21 15:35:27'],
+            ['no_pesanan' => 'PS-20260421175837-0KU7', 'id_user' => 4, 'id_meja' => 6, 'nama_konsumen' => 'Balidin Wibowo', 'total_harga' => 324000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-04-21 17:58:37'],
+            ['no_pesanan' => 'PS-20260421213415-QRTX', 'id_user' => 4, 'id_meja' => 7, 'nama_konsumen' => 'Febi Salsabila Hariyah', 'total_harga' => 388000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => 'Tambah es batu di semua minuman.', 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-04-21 21:34:15'],
+            ['no_pesanan' => 'PS-20260422213227-3GKY', 'id_user' => 4, 'id_meja' => 9, 'nama_konsumen' => 'Hani Winarsih', 'total_harga' => 262000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-04-22 21:32:27'],
+            ['no_pesanan' => 'PS-20260423122518-8MKO', 'id_user' => 4, 'id_meja' => 4, 'nama_konsumen' => 'Cakrajiya Permadi', 'total_harga' => 323002, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-04-23 12:25:18'],
+            ['no_pesanan' => 'PS-20260423131959-WCHS', 'id_user' => 4, 'id_meja' => 2, 'nama_konsumen' => 'Leo Mansur', 'total_harga' => 206000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-04-23 13:19:59'],
+            ['no_pesanan' => 'PS-20260423161926-LZKZ', 'id_user' => 4, 'id_meja' => 7, 'nama_konsumen' => 'Dalima Lailasari M.Ak', 'total_harga' => 163000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-04-23 16:19:26'],
+            ['no_pesanan' => 'PS-20260423191614-PEBU', 'id_user' => 4, 'id_meja' => 8, 'nama_konsumen' => 'Hilda Julia Laksmiwati M.Ak', 'total_harga' => 78000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-04-23 19:16:14'],
+            ['no_pesanan' => 'PS-20260424090322-8KR2', 'id_user' => 4, 'id_meja' => 6, 'nama_konsumen' => 'Anita Oktaviani', 'total_harga' => 263006, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-04-24 09:03:22'],
+            ['no_pesanan' => 'PS-20260424094525-CK8Z', 'id_user' => 4, 'id_meja' => 9, 'nama_konsumen' => 'Ganda Widodo', 'total_harga' => 285002, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-04-24 09:45:25'],
+            ['no_pesanan' => 'PS-20260424101016-XKFU', 'id_user' => 4, 'id_meja' => 2, 'nama_konsumen' => 'Carub Utama S.E.I', 'total_harga' => 210000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-04-24 10:10:16'],
+            ['no_pesanan' => 'PS-20260424204835-3TMP', 'id_user' => 4, 'id_meja' => 5, 'nama_konsumen' => 'Kasiyah Pertiwi', 'total_harga' => 247000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-04-24 20:48:35'],
+            ['no_pesanan' => 'PS-20260425130053-LWGD', 'id_user' => 4, 'id_meja' => 10, 'nama_konsumen' => 'Tania Cinthia Wulandari M.Kom.', 'total_harga' => 184000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => 'Packaging dipisah untuk masing-masing menu, makanannya di takeaway ya kak, minta plastik dan sendok tambahan.', 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-04-25 13:00:53'],
+            ['no_pesanan' => 'PS-20260426094524-TAQS', 'id_user' => 4, 'id_meja' => 4, 'nama_konsumen' => 'Gading Simbolon', 'total_harga' => 275000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-04-26 09:45:24'],
+            ['no_pesanan' => 'PS-20260426152014-8KCA', 'id_user' => 4, 'id_meja' => 2, 'nama_konsumen' => 'Kairav Mulyono Simanjuntak S.IP', 'total_harga' => 54000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => 'Bayar pakai QRIS ya.', 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-04-26 15:20:14'],
+            ['no_pesanan' => 'PS-20260427115950-1LVW', 'id_user' => 4, 'id_meja' => 7, 'nama_konsumen' => 'Jarwa Adriansyah', 'total_harga' => 122000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-04-27 11:59:50'],
+            ['no_pesanan' => 'PS-20260427123057-JXKH', 'id_user' => 4, 'id_meja' => 2, 'nama_konsumen' => 'Harjasa Budiyanto', 'total_harga' => 208000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-04-27 12:30:57'],
+            ['no_pesanan' => 'PS-20260427162409-WKDP', 'id_user' => 4, 'id_meja' => 6, 'nama_konsumen' => 'Titi Nasyidah', 'total_harga' => 91000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => 'Tolong makanannya jangan terlalu pedas, ada anak kecil.', 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-04-27 16:24:09'],
+            ['no_pesanan' => 'PS-20260428104750-HDVW', 'id_user' => 4, 'id_meja' => 2, 'nama_konsumen' => 'Jono Santoso', 'total_harga' => 166000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-04-28 10:47:50'],
+            ['no_pesanan' => 'PS-20260429080256-WEQ7', 'id_user' => 4, 'id_meja' => 8, 'nama_konsumen' => 'Raisa Usamah S.Kom', 'total_harga' => 81002, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-04-29 08:02:56'],
+            ['no_pesanan' => 'PS-20260429153730-95TG', 'id_user' => 4, 'id_meja' => 3, 'nama_konsumen' => 'Martani Gamani Prayoga M.M.', 'total_harga' => 290000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-04-29 15:37:30'],
+            ['no_pesanan' => 'PS-20260429195744-VCZJ', 'id_user' => 4, 'id_meja' => 2, 'nama_konsumen' => 'Cindy Pertiwi', 'total_harga' => 114000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-04-29 19:57:44'],
+            ['no_pesanan' => 'PS-20260430084031-FXDV', 'id_user' => 4, 'id_meja' => 3, 'nama_konsumen' => 'Heru Wahyudin', 'total_harga' => 299000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-04-30 08:40:31'],
+            ['no_pesanan' => 'PS-20260430165118-RZ69', 'id_user' => 4, 'id_meja' => 3, 'nama_konsumen' => 'Maya Aryani S.Kom', 'total_harga' => 264000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-04-30 16:51:18'],
+            ['no_pesanan' => 'PS-20260501093956-AWV3', 'id_user' => 4, 'id_meja' => 9, 'nama_konsumen' => 'Maida Safitri', 'total_harga' => 35000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-01 09:39:56'],
+            ['no_pesanan' => 'PS-20260501103434-IV7M', 'id_user' => 4, 'id_meja' => 1, 'nama_konsumen' => 'Maida Maryati', 'total_harga' => 96000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-01 10:34:34'],
+            ['no_pesanan' => 'PS-20260501163104-ZLJV', 'id_user' => 4, 'id_meja' => 3, 'nama_konsumen' => 'Virman Wasita', 'total_harga' => 327000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-01 16:31:04'],
+            ['no_pesanan' => 'PS-20260501193307-WJRF', 'id_user' => 4, 'id_meja' => 8, 'nama_konsumen' => 'Edi Wahyudin S.Ked', 'total_harga' => 271000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => 'Bayar pakai QRIS ya.', 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-01 19:33:07'],
+            ['no_pesanan' => 'PS-20260502144840-DBWC', 'id_user' => 4, 'id_meja' => 9, 'nama_konsumen' => 'Zulfa Agustina', 'total_harga' => 98000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-02 14:48:40'],
+            ['no_pesanan' => 'PS-20260503094557-T7UW', 'id_user' => 4, 'id_meja' => 1, 'nama_konsumen' => 'Daruna Nashiruddin', 'total_harga' => 78000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-03 09:45:57'],
+            ['no_pesanan' => 'PS-20260503105128-76TK', 'id_user' => 4, 'id_meja' => 8, 'nama_konsumen' => 'Bakidin Prakasa', 'total_harga' => 251000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => 'Mohon segera diantar, terima kasih.', 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-03 10:51:28'],
+            ['no_pesanan' => 'PS-20260503112558-S0QR', 'id_user' => 4, 'id_meja' => 5, 'nama_konsumen' => 'Ulya Handayani', 'total_harga' => 194000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-03 11:25:58'],
+            ['no_pesanan' => 'PS-20260503120657-EIVB', 'id_user' => 4, 'id_meja' => 10, 'nama_konsumen' => 'Hendra Adinata Irawan', 'total_harga' => 266000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-03 12:06:57'],
+            ['no_pesanan' => 'PS-20260503132507-KRAL', 'id_user' => 4, 'id_meja' => 10, 'nama_konsumen' => 'Gawati Yunita Wulandari', 'total_harga' => 573000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-03 13:25:07'],
+            ['no_pesanan' => 'PS-20260503150939-QTFF', 'id_user' => 4, 'id_meja' => 4, 'nama_konsumen' => 'Rangga Setiawan', 'total_harga' => 250000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-03 15:09:39'],
+            ['no_pesanan' => 'PS-20260503164831-ZPXA', 'id_user' => 4, 'id_meja' => 10, 'nama_konsumen' => 'Winda Usada S.Pt', 'total_harga' => 185000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => 'Bayar pakai QRIS ya.', 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-03 16:48:31'],
+            ['no_pesanan' => 'PS-20260503191611-IYU4', 'id_user' => 4, 'id_meja' => 10, 'nama_konsumen' => 'Uda Wibowo', 'total_harga' => 183000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-03 19:16:11'],
+            ['no_pesanan' => 'PS-20260504120027-EJE6', 'id_user' => 4, 'id_meja' => 3, 'nama_konsumen' => 'Edward Manullang', 'total_harga' => 312000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => 'Tambah es batu di semua minuman.', 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-04 12:00:27'],
+            ['no_pesanan' => 'PS-20260504141238-ZMKC', 'id_user' => 4, 'id_meja' => 2, 'nama_konsumen' => 'Ade Riyanti', 'total_harga' => 151000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-04 14:12:38'],
+            ['no_pesanan' => 'PS-20260504153302-DBGD', 'id_user' => 4, 'id_meja' => 2, 'nama_konsumen' => 'Omar Firmansyah', 'total_harga' => 337000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => 'Tambah es batu di semua minuman.', 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-04 15:33:02'],
+            ['no_pesanan' => 'PS-20260504170650-ZABQ', 'id_user' => 4, 'id_meja' => 8, 'nama_konsumen' => 'Carub Luluh Manullang S.IP', 'total_harga' => 146000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-04 17:06:50'],
+            ['no_pesanan' => 'PS-20260504171659-PCFA', 'id_user' => 4, 'id_meja' => 1, 'nama_konsumen' => 'Kenari Permadi', 'total_harga' => 27000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-04 17:16:59'],
+            ['no_pesanan' => 'PS-20260505090257-2IE4', 'id_user' => 4, 'id_meja' => 6, 'nama_konsumen' => 'Rosman Irawan', 'total_harga' => 338000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-05 09:02:57'],
+            ['no_pesanan' => 'PS-20260505173723-DCJ0', 'id_user' => 4, 'id_meja' => 3, 'nama_konsumen' => 'Xanana Ramadan M.M.', 'total_harga' => 109000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-05 17:37:23'],
+            ['no_pesanan' => 'PS-20260506100537-EW07', 'id_user' => 4, 'id_meja' => 5, 'nama_konsumen' => 'Cakrawala Garda Wibisono', 'total_harga' => 126000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-06 10:05:37'],
+            ['no_pesanan' => 'PS-20260506132904-FUES', 'id_user' => 4, 'id_meja' => 3, 'nama_konsumen' => 'Sari Hastuti', 'total_harga' => 70000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-06 13:29:04'],
+            ['no_pesanan' => 'PS-20260506135505-4RFU', 'id_user' => 4, 'id_meja' => 10, 'nama_konsumen' => 'Humaira Purwanti', 'total_harga' => 129000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-06 13:55:05'],
+            ['no_pesanan' => 'PS-20260507154211-7EJY', 'id_user' => 4, 'id_meja' => 10, 'nama_konsumen' => 'Zulfa Yuliarti', 'total_harga' => 131000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-07 15:42:11'],
+            ['no_pesanan' => 'PS-20260507192822-DNGX', 'id_user' => 4, 'id_meja' => 4, 'nama_konsumen' => 'Tina Pertiwi', 'total_harga' => 91000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-07 19:28:22'],
+            ['no_pesanan' => 'PS-20260508101211-DZZQ', 'id_user' => 4, 'id_meja' => 7, 'nama_konsumen' => 'Gabriella Melani', 'total_harga' => 262002, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => 'Bayar pakai QRIS ya.', 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-08 10:12:11'],
+            ['no_pesanan' => 'PS-20260508111430-3LRJ', 'id_user' => 4, 'id_meja' => 4, 'nama_konsumen' => 'Malika Puspita', 'total_harga' => 485000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-08 11:14:30'],
+            ['no_pesanan' => 'PS-20260508151040-IVJQ', 'id_user' => 4, 'id_meja' => 2, 'nama_konsumen' => 'Jane Yuliarti', 'total_harga' => 252000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-08 15:10:40'],
+            ['no_pesanan' => 'PS-20260508193035-DAYV', 'id_user' => 4, 'id_meja' => 7, 'nama_konsumen' => 'Yulia Mila Permata', 'total_harga' => 136000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => 'Bayar pakai QRIS ya.', 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-08 19:30:35'],
+            ['no_pesanan' => 'PS-20260509151340-E7CS', 'id_user' => 4, 'id_meja' => 10, 'nama_konsumen' => 'Kenzie Kuswoyo S.H.', 'total_harga' => 126000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-09 15:13:40'],
+            ['no_pesanan' => 'PS-20260509194750-SQ1U', 'id_user' => 4, 'id_meja' => 3, 'nama_konsumen' => 'Zalindra Puspasari', 'total_harga' => 462000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => 'Bayar pakai QRIS ya.', 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-09 19:47:50'],
+            ['no_pesanan' => 'PS-20260510153212-8TSZ', 'id_user' => 4, 'id_meja' => 4, 'nama_konsumen' => 'Melinda Purnawati', 'total_harga' => 63000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => 'Mohon segera diantar, terima kasih.', 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-10 15:32:12'],
+            ['no_pesanan' => 'PS-20260510190626-Y9UV', 'id_user' => 4, 'id_meja' => 1, 'nama_konsumen' => 'Yani Karimah Puspasari', 'total_harga' => 70000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => 'Packaging dipisah untuk masing-masing menu, makanannya di takeaway ya kak, minta plastik dan sendok tambahan.', 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-10 19:06:26'],
+            ['no_pesanan' => 'PS-20260510203203-5XJR', 'id_user' => 4, 'id_meja' => 1, 'nama_konsumen' => 'Harjaya Saragih', 'total_harga' => 231000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-10 20:32:03'],
+            ['no_pesanan' => 'PS-20260511105719-YXPE', 'id_user' => 4, 'id_meja' => 10, 'nama_konsumen' => 'Titin Wahyuni', 'total_harga' => 548000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-11 10:57:19'],
+            ['no_pesanan' => 'PS-20260511212632-YZ2N', 'id_user' => 4, 'id_meja' => 10, 'nama_konsumen' => 'Tantri Rahimah M.TI.', 'total_harga' => 84000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => 'Packaging dipisah untuk masing-masing menu, makanannya di takeaway ya kak, minta plastik dan sendok tambahan.', 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-11 21:26:32'],
+            ['no_pesanan' => 'PS-20260512191342-SE5B', 'id_user' => 4, 'id_meja' => 7, 'nama_konsumen' => 'Tirta Irawan', 'total_harga' => 117000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => 'Mohon segera diantar, terima kasih.', 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-12 19:13:42'],
+            ['no_pesanan' => 'PS-20260512214432-OOSS', 'id_user' => 4, 'id_meja' => 10, 'nama_konsumen' => 'Ratna Laksmiwati', 'total_harga' => 222006, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-12 21:44:32'],
+            ['no_pesanan' => 'PS-20260512215330-X0LT', 'id_user' => 4, 'id_meja' => 8, 'nama_konsumen' => 'Cinthia Paulin Agustina', 'total_harga' => 150000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-12 21:53:30'],
+            ['no_pesanan' => 'PS-20260513115055-NDVE', 'id_user' => 4, 'id_meja' => 7, 'nama_konsumen' => 'Luis Dasa Simbolon S.Pd', 'total_harga' => 194000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-13 11:50:55'],
+            ['no_pesanan' => 'PS-20260513145556-RCEG', 'id_user' => 4, 'id_meja' => 5, 'nama_konsumen' => 'Calista Fujiati', 'total_harga' => 454000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-13 14:55:56'],
+            ['no_pesanan' => 'PS-20260514144635-AUCP', 'id_user' => 4, 'id_meja' => 6, 'nama_konsumen' => 'Galuh Kairav Prasetya S.Gz', 'total_harga' => 78000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => 'Tolong makanannya jangan terlalu pedas, ada anak kecil.', 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-14 14:46:35'],
+            ['no_pesanan' => 'PS-20260514160745-SBVR', 'id_user' => 4, 'id_meja' => 1, 'nama_konsumen' => 'Tirta Saefullah', 'total_harga' => 409000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-14 16:07:45'],
+            ['no_pesanan' => 'PS-20260514183930-LRPV', 'id_user' => 4, 'id_meja' => 4, 'nama_konsumen' => 'Radit Lazuardi', 'total_harga' => 248000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => 'Bayar pakai QRIS ya.', 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-14 18:39:30'],
+            ['no_pesanan' => 'PS-20260514201830-BLLV', 'id_user' => 4, 'id_meja' => 9, 'nama_konsumen' => 'Hardi Gamblang Wahyudin', 'total_harga' => 72000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-14 20:18:30'],
+            ['no_pesanan' => 'PS-20260515171706-ETBR', 'id_user' => 4, 'id_meja' => 9, 'nama_konsumen' => 'Harsanto Uwais', 'total_harga' => 56000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-15 17:17:06'],
+            ['no_pesanan' => 'PS-20260515183349-7QNF', 'id_user' => 4, 'id_meja' => 10, 'nama_konsumen' => 'Maman Damar Pratama S.E.I', 'total_harga' => 161000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => 'Tolong makanannya jangan terlalu pedas, ada anak kecil.', 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-15 18:33:49'],
+            ['no_pesanan' => 'PS-20260515190209-WC6Q', 'id_user' => 4, 'id_meja' => 4, 'nama_konsumen' => 'Luis Marpaung', 'total_harga' => 174000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-15 19:02:09'],
+            ['no_pesanan' => 'PS-20260516142501-SSKM', 'id_user' => 4, 'id_meja' => 5, 'nama_konsumen' => 'Hamzah Hakim', 'total_harga' => 138000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-16 14:25:01'],
+            ['no_pesanan' => 'PS-20260516200733-QO5Z', 'id_user' => 4, 'id_meja' => 8, 'nama_konsumen' => 'Leo Santoso', 'total_harga' => 259000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-16 20:07:33'],
+            ['no_pesanan' => 'PS-20260517092545-HRSL', 'id_user' => 4, 'id_meja' => 7, 'nama_konsumen' => 'Kairav Situmorang', 'total_harga' => 222000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-17 09:25:45'],
+            ['no_pesanan' => 'PS-20260517114208-4GZ5', 'id_user' => 4, 'id_meja' => 1, 'nama_konsumen' => 'Murti Kuswoyo', 'total_harga' => 84000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => 'Packaging dipisah untuk masing-masing menu, makanannya di takeaway ya kak, minta plastik dan sendok tambahan.', 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-17 11:42:08'],
+            ['no_pesanan' => 'PS-20260517150305-TC8Z', 'id_user' => 4, 'id_meja' => 10, 'nama_konsumen' => 'Gamanto Hidayanto', 'total_harga' => 232000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-17 15:03:05'],
+            ['no_pesanan' => 'PS-20260517185122-PGM8', 'id_user' => 4, 'id_meja' => 4, 'nama_konsumen' => 'Waluyo Cemeti Zulkarnain', 'total_harga' => 82000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => 'Tolong makanannya jangan terlalu pedas, ada anak kecil.', 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-17 18:51:22'],
+            ['no_pesanan' => 'PS-20260518081616-QMWB', 'id_user' => 4, 'id_meja' => 10, 'nama_konsumen' => 'Janet Mandasari', 'total_harga' => 420004, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => 'Mohon segera diantar, terima kasih.', 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-18 08:16:16'],
+            ['no_pesanan' => 'PS-20260518125422-1YBB', 'id_user' => 4, 'id_meja' => 3, 'nama_konsumen' => 'Kani Calista Padmasari M.Kom.', 'total_harga' => 261000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => 'Tambah es batu di semua minuman.', 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-18 12:54:22'],
+            ['no_pesanan' => 'PS-20260518133605-OORR', 'id_user' => 4, 'id_meja' => 7, 'nama_konsumen' => 'Sakura Prastuti', 'total_harga' => 376000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-18 13:36:05'],
+            ['no_pesanan' => 'PS-20260518140608-ZJAD', 'id_user' => 4, 'id_meja' => 4, 'nama_konsumen' => 'Qori Novitasari', 'total_harga' => 26000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-18 14:06:08'],
+            ['no_pesanan' => 'PS-20260518153611-M5YY', 'id_user' => 4, 'id_meja' => 2, 'nama_konsumen' => 'Lurhur Ikin Saragih S.Psi', 'total_harga' => 37000, 'status_pembayaran' => 'lunas', 'status_pesanan' => 'selesai', 'catatan_pesanan' => null, 'midtrans_transaction_id' => null, 'qr_url' => null, 'tgl_pembayaran' => '2026-05-18 15:36:11'],
         ];
 
-        $catatanPool = [
-            'Packaging dipisah untuk masing-masing menu, makanannya di takeaway ya kak, minta plastik dan sendok tambahan.',
-            'Tolong makanannya jangan terlalu pedas, ada anak kecil.',
-            'Bayar pakai QRIS ya.',
-            'Mohon segera diantar, terima kasih.',
-            'Tambah es batu di semua minuman.',
-        ];
-
-        $usedNoPesanan = [];
-        $activeLargeOrders = 0;
-        $activeNotes = 0;
-
-        foreach ($distributions as $index => $entry) {
-            $date = $entry['date'];
-            $status = $entry['status'];
-            $isActive = in_array($status['status_pesanan'], ['menunggu konfirmasi', 'diproses'], true);
-
-            do {
-                $noPesanan = 'PS-'.$date->format('YmdHis').'-'.strtoupper(Str::random(4));
-            } while (in_array($noPesanan, $usedNoPesanan));
-
-            $usedNoPesanan[] = $noPesanan;
-
-            if ($isActive && $activeLargeOrders < 3) {
-                $itemCount = rand(5, 7);
-                $activeLargeOrders++;
-            } else {
-                $itemCount = $index % 5 === 0 ? rand(5, 7) : rand(1, 4);
-            }
-
-            $catatanPesanan = null;
-            if (($isActive && $activeNotes < 2) || $index % 4 === 0) {
-                $catatanPesanan = $catatanPool[array_rand($catatanPool)];
-                $activeNotes += $isActive ? 1 : 0;
-            }
-
-            $selectedMenus = $menus->random(min($itemCount, $menus->count()));
-            $totalHarga = 0;
-            $detailItems = [];
-
-            foreach ($selectedMenus as $menu) {
-                $jumlah = rand(1, 3);
-                $subtotal = $menu->harga * $jumlah;
-                $totalHarga += $subtotal;
-                $detailItems[] = [
-                    'id_menu' => $menu->id_menu,
-                    'jumlah' => $jumlah,
-                    'catatan' => $notes[array_rand($notes)],
-                    'subtotal' => $subtotal,
-                ];
-            }
-
-            Pesanan::create([
-                'no_pesanan' => $noPesanan,
-                'id_user' => $kasirIds ? $kasirIds[array_rand($kasirIds)] : null,
-                'id_meja' => $mejaIds[array_rand($mejaIds)],
-                'nama_konsumen' => $faker->name(),
-                'total_harga' => $totalHarga,
-                'status_pembayaran' => $status['status_pembayaran'],
-                'status_pesanan' => $status['status_pesanan'],
-                'catatan_pesanan' => $catatanPesanan,
-                'tgl_pembayaran' => $date,
-            ]);
-
-            foreach ($detailItems as $item) {
-                DetailPesanan::create(array_merge(['no_pesanan' => $noPesanan], $item));
-            }
+        foreach (array_chunk($rows, 200) as $chunk) {
+            DB::table('pesanan')->upsert($chunk, ['no_pesanan'], ['id_user', 'id_meja', 'nama_konsumen', 'total_harga', 'status_pembayaran', 'status_pesanan', 'catatan_pesanan', 'midtrans_transaction_id', 'qr_url', 'tgl_pembayaran']);
         }
 
-        $totalCreated = count($distributions);
-        $this->command->info("OK {$totalCreated} pesanan dummy dibuat (8 hari ini, 22 minggu ini, 70 retro).");
-    }
-
-    private function statusQueue(array $weights): array
-    {
-        $bucket = [];
-        foreach ($weights as $status => $weight) {
-            for ($i = 0; $i < $weight; $i++) {
-                $bucket[] = $this->statusFor($status);
-            }
-        }
-
-        shuffle($bucket);
-
-        return $bucket;
-    }
-
-    private function statusFor(string $status): array
-    {
-        return match ($status) {
-            'selesai' => [
-                'status_pesanan' => 'selesai',
-                'status_pembayaran' => 'lunas',
-            ],
-            'diproses' => [
-                'status_pesanan' => 'diproses',
-                'status_pembayaran' => 'menunggu',
-            ],
-            'menunggu konfirmasi' => [
-                'status_pesanan' => 'menunggu konfirmasi',
-                'status_pembayaran' => 'menunggu',
-            ],
-        };
     }
 }
