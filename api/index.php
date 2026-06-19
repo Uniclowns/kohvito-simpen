@@ -38,9 +38,6 @@ foreach ($writableDirs as $dir) {
  * dashboard Vercel tetap diprioritaskan.
  */
 $runtimeEnv = [
-    // Log ke stderr (ditangkap Vercel) — driver 'single'/'stack' default
-    // menulis ke storage/logs yang read-only di Vercel sehingga error.
-    'LOG_CHANNEL'        => 'stderr',
     'VIEW_COMPILED_PATH' => '/tmp/storage/framework/views',
     'APP_CONFIG_CACHE'   => '/tmp/bootstrap/cache/config.php',
     'APP_EVENTS_CACHE'   => '/tmp/bootstrap/cache/events.php',
@@ -55,6 +52,18 @@ foreach ($runtimeEnv as $key => $value) {
         $_ENV[$key]    = $value;
         $_SERVER[$key] = $value;
     }
+}
+
+/*
+ * Logging WAJIB ke stderr di Vercel dan DI-PAKSA (mengabaikan nilai di
+ * dashboard): semua driver berbasis file (single/daily/stack) menulis ke
+ * storage/logs yang read-only sehingga selalu gagal. stderr ditangkap oleh
+ * Vercel function logs.
+ */
+foreach (['LOG_CHANNEL' => 'stderr', 'LOG_STACK' => 'stderr'] as $key => $value) {
+    putenv("{$key}={$value}");
+    $_ENV[$key]    = $value;
+    $_SERVER[$key] = $value;
 }
 
 /*
