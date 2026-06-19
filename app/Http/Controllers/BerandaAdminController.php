@@ -104,9 +104,9 @@ class BerandaAdminController extends Controller
 
         // 9. Chart Analitik A: Pola Kepadatan Pemesanan per Jam Hari Ini (08:00 - 22:00)
         $pesananPerJam = DB::table('pesanan')
-            ->select(DB::raw('HOUR(tgl_pembayaran) as jam'), DB::raw('COUNT(*) as total'))
+            ->select(DB::raw('EXTRACT(HOUR FROM tgl_pembayaran) as jam'), DB::raw('COUNT(*) as total'))
             ->whereDate('tgl_pembayaran', $today)
-            ->groupBy(DB::raw('HOUR(tgl_pembayaran)'))
+            ->groupBy(DB::raw('EXTRACT(HOUR FROM tgl_pembayaran)'))
             ->get()
             ->keyBy('jam');
 
@@ -120,10 +120,10 @@ class BerandaAdminController extends Controller
         // 10. Chart Analitik B: Grafik Pendapatan Mingguan Berjalan (Senin - Minggu)
         $startOfWeek   = Carbon::now()->startOfWeek(Carbon::MONDAY);
         $pendapatanRaw = DB::table('pesanan')
-            ->select(DB::raw('DATE(tgl_pembayaran) as tanggal'), DB::raw('SUM(total_harga) as total'))
+            ->select(DB::raw('CAST(tgl_pembayaran AS DATE) as tanggal'), DB::raw('SUM(total_harga) as total'))
             ->where('status_pembayaran', 'lunas')
             ->whereBetween('tgl_pembayaran', [$startOfWeek->toDateString(), Carbon::now()->endOfDay()])
-            ->groupBy(DB::raw('DATE(tgl_pembayaran)'))
+            ->groupBy(DB::raw('CAST(tgl_pembayaran AS DATE)'))
             ->get()
             ->keyBy('tanggal');
 
@@ -159,10 +159,10 @@ class BerandaAdminController extends Controller
     {
         // 1. Agregasi total tagihan per tanggal untuk transaksi yang lunas selama 30 hari ke belakang
         $data = DB::table('pesanan')
-            ->select(DB::raw('DATE(tgl_pembayaran) as tanggal'), DB::raw('SUM(total_harga) as total'))
+            ->select(DB::raw('CAST(tgl_pembayaran AS DATE) as tanggal'), DB::raw('SUM(total_harga) as total'))
             ->where('status_pembayaran', 'lunas')
-            ->where('tgl_pembayaran', '>=', DB::raw('NOW() - INTERVAL 30 DAY'))
-            ->groupBy(DB::raw('DATE(tgl_pembayaran)'))
+            ->where('tgl_pembayaran', '>=', Carbon::now()->subDays(30))
+            ->groupBy(DB::raw('CAST(tgl_pembayaran AS DATE)'))
             ->orderBy('tanggal', 'asc')
             ->get();
 
