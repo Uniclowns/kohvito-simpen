@@ -9,10 +9,9 @@
             "excludeFiles": "{node_modules/**,public/images/**,public/fonts/**,storage/logs/**,storage/app/**,storage/framework/cache/data/**,tests/**,docs/**,*.md,vendor.zip,ruvector.db,.git/**,.github/**,.gstack/**,.claude/**,.codex/**,.superpowers/**}"
         }
     },
-    "rewrites": [
-        {
-            "source": "/(.*)",
-            "destination": "/api/index.php"
-        }
+    "routes": [
+        { "src": "/", "dest": "/api/index.php" },
+        { "handle": "filesystem" },
+        { "src": "/(.*)", "dest": "/api/index.php" }
     ]
 }
