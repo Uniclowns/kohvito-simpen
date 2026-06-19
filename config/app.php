@@ -61,13 +61,13 @@ return [
     |
     | Base URL yang di-encode ke QR Code setiap meja. Customer scan QR di meja
     | → URL ini + nomor meja membuka halaman menu konsumen. QR dicetak untuk
-    | meja FISIK, jadi harus selalu menunjuk ke domain produksi yang publik —
-    | bukan APP_URL lokal (http://localhost). Default ke domain Vercel; override
-    | lewat env QR_MEJA_BASE_URL bila pakai custom domain.
+    | meja FISIK, jadi di-hardcode langsung ke domain produksi publik dan TIDAK
+    | diambil dari environment variable, supaya QR cetak selalu konsisten
+    | menunjuk ke domain Vercel di environment mana pun.
     |
     */
 
-    'qr_meja_base_url' => env('QR_MEJA_BASE_URL', 'https://kohvito-simpen.vercel.app'),
+    'qr_meja_base_url' => 'https://kohvito-simpen.vercel.app',
 
     /*
     |--------------------------------------------------------------------------
