@@ -13,7 +13,7 @@ class DatabaseSeeder extends Seeder
      * Seed the application's database.
      *
      * Urutan pemanggilan seeder mengikuti dependensi tabel:
-     * Role → User → Meja → KategoriMenu → Menu
+     * Role → User → Meja → KategoriMenu → Menu → MenuKategori → Pesanan → DetailPesanan
      */
     public function run(): void
     {
@@ -23,7 +23,9 @@ class DatabaseSeeder extends Seeder
             MejaSeeder::class,
             KategoriMenuSeeder::class,
             MenuSeeder::class,
+            MenuKategoriSeeder::class,
             PesananSeeder::class,
+            DetailPesananSeeder::class,
         ]);
     }
 }

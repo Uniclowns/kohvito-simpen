@@ -486,6 +486,6 @@
             passive: true
         });
 
-        // Detail menu sheet/modal logic lives in <x-menu-detail-sheet /> (shared component).
+        // Detail menu sheet/modal logic lives in the shared menu-detail-sheet component.
     </script>
 </x-layouts.konsumen>
