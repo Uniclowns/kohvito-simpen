@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class CheckOrderStatus
- * 
+ *
  * Middleware ini bertugas sebagai pelindung gerbang transaksi konsumen.
  * Berfungsi untuk memeriksa status operasional kafe (buka atau tutup) melalui
  * pencarian cepat pada sistem caching memori global (Laravel Cache).
@@ -17,17 +17,15 @@ use Symfony\Component\HttpFoundation\Response;
  * Jika status toko di-set 'tutup' oleh admin, middleware ini secara otomatis
  * memblokir pembuatan keranjang atau pemesanan menu dan mengalihkan konsumen
  * ke halaman khusus pemberitahuan tutup (`konsumen.order-tutup`).
- *
- * @package App\Http\Middleware
  */
 class CheckOrderStatus
 {
     /**
      * Menangani pemrosesan HTTP request yang masuk.
      *
-     * @param  \Illuminate\Http\Request  $request  Objek HTTP Request dari klien
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next  Callback Closure untuk melanjutkan request berikutnya
-     * @return \Symfony\Component\HttpFoundation\Response  Mengembalikan respon pengalihan (redirect) atau meloloskan request
+     * @param  Request  $request  Objek HTTP Request dari klien
+     * @param  Closure(Request): (Response)  $next  Callback Closure untuk melanjutkan request berikutnya
+     * @return Response Mengembalikan respon pengalihan (redirect) atau meloloskan request
      */
     public function handle(Request $request, Closure $next): Response
     {

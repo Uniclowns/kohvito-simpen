@@ -13,17 +13,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 /**
  * Class BerandaAdminController
- * 
+ *
  * Controller ini mengatur dashboard kontrol pusat bagi Administrator (Admin).
  * Bertugas menyediakan data analitik penjualan, rekapitulasi data master (menu, kasir),
  * status penerimaan pesanan global (buka/tutup toko), performa grafik penjualan berkala,
  * pencarian menu terlaris mingguan, hingga penarikan cetak laporan kasir berbasis PDF.
- *
- * @package App\Http\Controllers
  */
 class BerandaAdminController extends Controller
 {
@@ -31,8 +30,7 @@ class BerandaAdminController extends Controller
      * Tampilkan halaman utama dashboard Admin beserta visualisasi analitiknya.
      * Mendukung pemfilteran berbasis rentang tanggal (default: hari ini).
      *
-     * @param  \Illuminate\Http\Request  $request  Objek HTTP Request pembawa parameter filter tanggal
-     * @return \Illuminate\View\View
+     * @param  Request  $request  Objek HTTP Request pembawa parameter filter tanggal
      */
     public function index(Request $request): View
     {
@@ -60,13 +58,13 @@ class BerandaAdminController extends Controller
             ->sum('total_harga');
 
         // 4. Perhitungan statistik data master dan antrean aktif
-        $totalMenu       = Menu::count();
-        $totalKasir      = User::where('id_role', 2)->count(); // ID Role 2 mewakili peran Kasir
-        $totalTransaksi  = Pesanan::where('status_pembayaran', 'lunas')->count();
+        $totalMenu = Menu::count();
+        $totalKasir = User::where('id_role', 2)->count(); // ID Role 2 mewakili peran Kasir
+        $totalTransaksi = Pesanan::where('status_pembayaran', 'lunas')->count();
         $pesananDiproses = Pesanan::whereIn('status_pesanan', ['menunggu konfirmasi', 'diproses'])->count();
-        
+
         // 5. Cek status operasional pemesanan global dari cache sistem
-        $orderStatus     = Cache::get('order_status', 'buka');
+        $orderStatus = Cache::get('order_status', 'buka');
 
         // 6. Mencari menu kategori Makanan yang paling banyak dibeli (Best Seller Makanan)
         $makananTerlaris = DB::table('detail_pesanan')
@@ -101,14 +99,14 @@ class BerandaAdminController extends Controller
             ->keyBy('jam');
 
         $jamLabels = [];
-        $jamData   = [];
+        $jamData = [];
         for ($h = 8; $h <= 22; $h++) {
             $jamLabels[] = sprintf('%02d:00', $h);
-            $jamData[]   = (int) ($pesananPerJam[$h]->total ?? 0);
+            $jamData[] = (int) ($pesananPerJam[$h]->total ?? 0);
         }
 
         // 10. Chart Analitik B: Grafik Pendapatan Mingguan Berjalan (Senin - Minggu)
-        $startOfWeek   = Carbon::now()->startOfWeek(Carbon::MONDAY);
+        $startOfWeek = Carbon::now()->startOfWeek(Carbon::MONDAY);
         $pendapatanRaw = DB::table('pesanan')
             ->select(DB::raw('DATE(tgl_pembayaran) as tanggal'), DB::raw('SUM(total_harga) as total'))
             ->where('status_pembayaran', 'lunas')
@@ -117,12 +115,12 @@ class BerandaAdminController extends Controller
             ->get()
             ->keyBy('tanggal');
 
-        $hariNama       = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
-        $hariLabels     = [];
+        $hariNama = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+        $hariLabels = [];
         $pendapatanData = [];
         for ($i = 0; $i < 7; $i++) {
-            $date             = $startOfWeek->copy()->addDays($i);
-            $hariLabels[]     = $hariNama[$i];
+            $date = $startOfWeek->copy()->addDays($i);
+            $hariLabels[] = $hariNama[$i];
             $pendapatanData[] = (int) ($pendapatanRaw[$date->format('Y-m-d')]->total ?? 0);
         }
 
@@ -141,8 +139,7 @@ class BerandaAdminController extends Controller
      * Endpoint API JSON: Menyediakan data histori tren omzet omzet penjualan selama 30 hari terakhir.
      * Berguna untuk rendering diagram/chart interaktif eksternal.
      *
-     * @param  \Illuminate\Http\Request  $request  Objek HTTP Request
-     * @return \Illuminate\Http\JsonResponse
+     * @param  Request  $request  Objek HTTP Request
      */
     public function getData(Request $request): JsonResponse
     {
@@ -161,16 +158,14 @@ class BerandaAdminController extends Controller
     /**
      * Mengubah status pemesanan global (Buka/Tutup Toko) secara instan.
      * Menggunakan caching permanen agar langsung terbaca oleh seluruh middleware konsumen.
-     *
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function toggleOrderStatus(): RedirectResponse
     {
         // 1. Membaca status toko saat ini, fallback ke default 'buka'
         $current = Cache::get('order_status', 'buka');
         // 2. Membalikkan state status
-        $new     = $current === 'buka' ? 'tutup' : 'buka';
-        
+        $new = $current === 'buka' ? 'tutup' : 'buka';
+
         // 3. Simpan state baru secara permanen di cache server
         Cache::forever('order_status', $new);
 
@@ -185,8 +180,8 @@ class BerandaAdminController extends Controller
     /**
      * Membuat dokumen cetak laporan penutupan kasir dalam format PDF.
      *
-     * @param  \Illuminate\Http\Request  $request  Objek data form filter cetak laporan
-     * @return \Symfony\Component\HttpFoundation\Response  Pengunduhan berkas PDF laporan kasir
+     * @param  Request  $request  Objek data form filter cetak laporan
+     * @return Response Pengunduhan berkas PDF laporan kasir
      */
     public function cetakLaporanKasir(Request $request): HttpResponse
     {

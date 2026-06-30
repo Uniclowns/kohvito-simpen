@@ -18,8 +18,6 @@ use Illuminate\View\View;
  * QR Code di-generate on-the-fly via accessor model Meja::qr_svg
  * sehingga tidak perlu disimpan sebagai file (lebih ringan & gampang
  * di-reprint kalau base URL berubah).
- *
- * @package App\Http\Controllers
  */
 class KelolaMejaController extends Controller
 {
@@ -27,8 +25,7 @@ class KelolaMejaController extends Controller
      * Tampilkan daftar seluruh meja beserta QR Code thumbnail-nya.
      * Mendukung pencarian berdasarkan nomor meja.
      *
-     * @param  \Illuminate\Http\Request  $request  Pembawa parameter ?search=
-     * @return \Illuminate\View\View
+     * @param  Request  $request  Pembawa parameter ?search=
      */
     public function index(Request $request): View
     {
@@ -45,8 +42,6 @@ class KelolaMejaController extends Controller
     /**
      * Halaman cetak A4 berisi grid semua QR Code meja, siap di-print
      * dan ditempel/dilaminasi di setiap meja fisik café.
-     *
-     * @return \Illuminate\View\View
      */
     public function cetakQr(): View
     {
@@ -59,8 +54,7 @@ class KelolaMejaController extends Controller
      * Validasi dan simpan meja baru. Kolom qr_code diisi otomatis dengan
      * URL scan-nya (cached snapshot, sumber of truth tetap accessor).
      *
-     * @param  \Illuminate\Http\Request  $request  Pembawa form no_meja baru
-     * @return \Illuminate\Http\RedirectResponse
+     * @param  Request  $request  Pembawa form no_meja baru
      */
     public function storeMeja(Request $request): RedirectResponse
     {
@@ -68,8 +62,8 @@ class KelolaMejaController extends Controller
             'no_meja' => 'required|string|max:10|unique:meja,no_meja',
         ], [
             'no_meja.required' => 'Nomor meja wajib diisi',
-            'no_meja.max'      => 'Nomor meja maksimal 10 karakter',
-            'no_meja.unique'   => 'Nomor meja sudah dipakai, silakan pilih nomor lain',
+            'no_meja.max' => 'Nomor meja maksimal 10 karakter',
+            'no_meja.unique' => 'Nomor meja sudah dipakai, silakan pilih nomor lain',
         ]);
 
         // 1. Buat instance dulu (belum disimpan) supaya accessor scan_url bisa dipakai
@@ -85,9 +79,8 @@ class KelolaMejaController extends Controller
      * Validasi dan perbarui nomor meja. Saat nomor berubah, kolom qr_code
      * ikut di-refresh agar QR baru menunjuk ke URL yang benar.
      *
-     * @param  \Illuminate\Http\Request  $request  Pembawa nomor meja baru
+     * @param  Request  $request  Pembawa nomor meja baru
      * @param  string  $id  ID Meja target perubahan
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function updateMeja(Request $request, string $id): RedirectResponse
     {
@@ -95,11 +88,11 @@ class KelolaMejaController extends Controller
 
         $request->validate([
             // Unique tetapi abaikan record diri sendiri (cek primary key id_meja)
-            'no_meja' => 'required|string|max:10|unique:meja,no_meja,' . $id . ',id_meja',
+            'no_meja' => 'required|string|max:10|unique:meja,no_meja,'.$id.',id_meja',
         ], [
             'no_meja.required' => 'Nomor meja wajib diisi',
-            'no_meja.max'      => 'Nomor meja maksimal 10 karakter',
-            'no_meja.unique'   => 'Nomor meja sudah dipakai, silakan pilih nomor lain',
+            'no_meja.max' => 'Nomor meja maksimal 10 karakter',
+            'no_meja.unique' => 'Nomor meja sudah dipakai, silakan pilih nomor lain',
         ]);
 
         $meja->no_meja = $request->no_meja;
@@ -116,7 +109,6 @@ class KelolaMejaController extends Controller
      * production (atau set onDelete('set null') di migration pesanan).
      *
      * @param  string  $id  ID Meja target penghapusan
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function destroyMeja(string $id): RedirectResponse
     {

@@ -7,12 +7,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Class DetailPesanan
- * 
+ *
  * Model ini merepresentasikan entitas detail pesanan di database (tabel `detail_pesanan`).
  * Detail pesanan mencatat relasi banyak-ke-banyak (many-to-many) antara Pesanan dan Menu
  * beserta atribut transaksional tambahan seperti jumlah, catatan khusus, dan subtotal harga.
  *
- * @package App\Models
  * @property int $id_detail ID Unik Auto-increment Detail Pesanan
  * @property string $no_pesanan Kode Transaksi Referensi (Foreign Key dari `pesanan`)
  * @property int $id_menu ID Menu Referensi (Foreign Key dari `menu`)
@@ -77,18 +76,16 @@ class DetailPesanan extends Model
     protected function casts(): array
     {
         return [
-            'id_detail'  => 'integer', // Konversi eksplisit ID Detail ke integer
-            'id_menu'    => 'integer', // Konversi eksplisit ID Menu ke integer
-            'jumlah'     => 'integer', // Konversi jumlah kuantitas ke integer
-            'subtotal'   => 'integer', // Konversi nominal subtotal harga ke integer
+            'id_detail' => 'integer', // Konversi eksplisit ID Detail ke integer
+            'id_menu' => 'integer', // Konversi eksplisit ID Menu ke integer
+            'jumlah' => 'integer', // Konversi jumlah kuantitas ke integer
+            'subtotal' => 'integer', // Konversi nominal subtotal harga ke integer
         ];
     }
 
     /**
      * Mendefinisikan relasi Many-to-One (BelongsTo) ke model Pesanan.
      * Menghubungkan kolom `no_pesanan` di tabel detail ke kolom `no_pesanan` utama.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function pesanan(): BelongsTo
     {
@@ -102,8 +99,6 @@ class DetailPesanan extends Model
     /**
      * Mendefinisikan relasi Many-to-One (BelongsTo) ke model Menu.
      * Menghubungkan setiap baris detail pesanan dengan produk menu yang bersangkutan.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function menu(): BelongsTo
     {

@@ -6,31 +6,30 @@ use App\Models\Pesanan;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Response;
 use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
+use Midtrans\Config;
+use Midtrans\Transaction;
 
 /**
  * Class PesananController
- * 
+ *
  * Controller ini mengatur manajemen histori pemesanan, pelacakan proses pembuatan hidangan,
  * pembatalan pesanan yang belum terkonfirmasi, cetak kuitansi PDF mandiri,
  * serta polling sinkronisasi status transaksi di antarmuka konsumen.
  *
  * Memanfaatkan riwayat nomor transaksi berbasis session array (`riwayat_pesanan`) agar
  * pembeli tetap dapat melacak histori transaksinya meski browser ditutup/sesi belanja di-reset.
- *
- * @package App\Http\Controllers
  */
 class PesananController extends Controller
 {
     /**
      * Tampilkan seluruh daftar pesanan konsumen dalam sesi aktif saat ini.
      * Jika kosong, sistem menyajikan antarmuka empty-state yang elegan.
-     *
-     * @return \Illuminate\View\View
      */
     public function index(): View
     {
@@ -44,7 +43,6 @@ class PesananController extends Controller
      * Tampilkan halaman pelacakan status timeline progres dapur untuk pesanan tertentu.
      *
      * @param  string  $noPesanan  Nomor transaksi pesanan referensi
-     * @return \Illuminate\View\View
      */
     public function lacak(string $noPesanan): View
     {
@@ -62,8 +60,6 @@ class PesananController extends Controller
      * Tampilkan halaman pelacakan untuk pesanan terbaru yang aktif.
      * Prioritaskan melacak pesanan berjalan (belum selesai/batal) dari session.
      * Fallback ke pesanan terlama jika tidak ada pesanan aktif berjalan.
-     *
-     * @return \Illuminate\View\View
      */
     public function lacakLatest(): View
     {
@@ -82,7 +78,7 @@ class PesananController extends Controller
      * Memperoleh seluruh data pesanan milik konsumen dari session browser.
      * Menjamin urutan data kronologis terbalik (transaksi terbaru diposisikan paling atas).
      *
-     * @return \Illuminate\Support\Collection  Koleksi data model Pesanan
+     * @return Collection Koleksi data model Pesanan
      */
     private function pesananSesi(): Collection
     {
@@ -118,7 +114,6 @@ class PesananController extends Controller
      * Melakukan sinkronisasi pull-based status ke Midtrans jika transaksi dinilai belum lunas.
      *
      * @param  string  $noPesanan  Nomor transaksi pesanan referensi
-     * @return \Illuminate\Http\JsonResponse
      */
     public function status(string $noPesanan): JsonResponse
     {
@@ -132,37 +127,37 @@ class PesananController extends Controller
         if ($pesanan->status_pembayaran !== 'lunas'
             && config('services.bayar.driver') === 'midtrans'
             && $pesanan->midtrans_transaction_id
-            && class_exists(\Midtrans\Transaction::class)
+            && class_exists(Transaction::class)
         ) {
             try {
                 // Set konfigurasi server key Midtrans
-                \Midtrans\Config::$serverKey    = config('services.midtrans.server_key');
-                \Midtrans\Config::$isProduction = (bool) config('services.midtrans.is_production');
+                Config::$serverKey = config('services.midtrans.server_key');
+                Config::$isProduction = (bool) config('services.midtrans.is_production');
 
-                $remote = \Midtrans\Transaction::status($pesanan->no_pesanan);
+                $remote = Transaction::status($pesanan->no_pesanan);
                 $remoteStatus = is_object($remote) ? ($remote->transaction_status ?? null) : ($remote['transaction_status'] ?? null);
 
                 // Ubah lunas jika remote lunas
                 if (in_array($remoteStatus, ['capture', 'settlement'], true)) {
                     $pesanan->update([
                         'status_pembayaran' => 'lunas',
-                        'tgl_pembayaran'    => now(),
+                        'tgl_pembayaran' => now(),
                     ]);
                 }
             } catch (\Throwable $e) {
                 Log::warning('Midtrans status sync failed (pesanan view)', [
                     'pesanan' => $pesanan->no_pesanan,
-                    'error'   => $e->getMessage(),
+                    'error' => $e->getMessage(),
                 ]);
             }
         }
 
         // 2. Kembalikan detail status terupdate ke JavaScript client
         return response()->json([
-            'no_pesanan'        => $pesanan->no_pesanan,
-            'status_pesanan'    => $pesanan->status_pesanan,
+            'no_pesanan' => $pesanan->no_pesanan,
+            'status_pesanan' => $pesanan->status_pesanan,
             'status_pembayaran' => $pesanan->status_pembayaran,
-            'tgl_pembayaran'    => optional($pesanan->tgl_pembayaran)->toIso8601String(),
+            'tgl_pembayaran' => optional($pesanan->tgl_pembayaran)->toIso8601String(),
         ]);
     }
 
@@ -171,7 +166,7 @@ class PesananController extends Controller
      * Hanya diijinkan setelah status pembayaran dinyatakan LUNAS.
      *
      * @param  string  $noPesanan  Nomor transaksi pesanan referensi
-     * @return \Illuminate\Http\Response  File unduhan PDF kuitansi (Format A5 portrait)
+     * @return Response File unduhan PDF kuitansi (Format A5 portrait)
      */
     public function kuitansi(string $noPesanan): HttpResponse
     {
@@ -190,7 +185,7 @@ class PesananController extends Controller
         $pdf = Pdf::loadView('konsumen.kuitansi', compact('pesanan'))
             ->setPaper('a5', 'portrait');
 
-        return $pdf->download('kuitansi-' . $pesanan->no_pesanan . '.pdf');
+        return $pdf->download('kuitansi-'.$pesanan->no_pesanan.'.pdf');
     }
 
     /**
@@ -198,7 +193,6 @@ class PesananController extends Controller
      * Hanya diizinkan jika pesanan belum lunas DAN belum terkonfirmasi/sedang diproses dapur.
      *
      * @param  string  $noPesanan  Nomor transaksi pesanan referensi
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function batal(string $noPesanan): RedirectResponse
     {

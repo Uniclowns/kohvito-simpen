@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Storage;
 
 /**
  * Class AdminApiController
- * 
+ *
  * Controller API ini melayani modul administrasi panel kontrol eksternal (RESTful API).
  * Mengelompokkan fungsionalitas menjadi 5 pilar utama:
  * 1. **Dashboard & Analitik**: Ringkasan finansial harian dan bulanan.
@@ -25,8 +25,6 @@ use Illuminate\Support\Facades\Storage;
  * 3. **Manajemen Menu**: CRUD menu beserta upload/hashing gambar menu.
  * 4. **Manajemen Kategori**: CRUD pengelompokan menu dengan pencegahan restricted delete.
  * 5. **Manajemen Kasir**: Registrasi akun staf kasir terenkripsi.
- *
- * @package App\Http\Controllers\Api
  */
 class AdminApiController extends Controller
 {
@@ -39,7 +37,7 @@ class AdminApiController extends Controller
     /**
      * Menyediakan data ringkasan eksekutif keuangan dan kuantitas transaksi hari ini.
      *
-     * @return \Illuminate\Http\JsonResponse Respon sukses berisikan ringkasan data finansial
+     * @return JsonResponse Respon sukses berisikan ringkasan data finansial
      */
     public function dashboard(): JsonResponse
     {
@@ -60,8 +58,8 @@ class AdminApiController extends Controller
         $totalPesananHariIni = Pesanan::whereDate('tgl_pembayaran', $today)->count();
 
         return $this->successResponse([
-            'omzetHariIni'        => (int) $omzetHariIni,
-            'omzetBulanIni'       => (int) $omzetBulanIni,
+            'omzetHariIni' => (int) $omzetHariIni,
+            'omzetBulanIni' => (int) $omzetBulanIni,
             'totalPesananHariIni' => (int) $totalPesananHariIni,
         ]);
     }
@@ -73,7 +71,7 @@ class AdminApiController extends Controller
     /**
      * Mendapatkan status operasional penerimaan pesanan kafe saat ini dari cache global.
      *
-     * @return \Illuminate\Http\JsonResponse Respon sukses berisi status ('buka' atau 'tutup')
+     * @return JsonResponse Respon sukses berisi status ('buka' atau 'tutup')
      */
     public function getOrderStatus(): JsonResponse
     {
@@ -85,13 +83,13 @@ class AdminApiController extends Controller
     /**
      * Mengubah status operasional toko secara instan (Toggle Buka ↔ Tutup).
      *
-     * @return \Illuminate\Http\JsonResponse Respon sukses berisi status baru hasil pembaruan
+     * @return JsonResponse Respon sukses berisi status baru hasil pembaruan
      */
     public function toggleOrderStatus(): JsonResponse
     {
         $current = Cache::get('order_status', 'buka');
-        $new     = $current === 'buka' ? 'tutup' : 'buka';
-        
+        $new = $current === 'buka' ? 'tutup' : 'buka';
+
         // Simpan state baru secara permanen di cache
         Cache::forever('order_status', $new);
 
@@ -107,7 +105,7 @@ class AdminApiController extends Controller
     /**
      * Menampilkan daftar menu berpaginasi (10 menu per halaman) beserta kategori terikatnya.
      *
-     * @return \Illuminate\Http\JsonResponse Respon sukses paginasi data menu
+     * @return JsonResponse Respon sukses paginasi data menu
      */
     public function indexMenu(): JsonResponse
     {
@@ -115,50 +113,49 @@ class AdminApiController extends Controller
 
         return $this->successResponse([
             'current_page' => $menus->currentPage(),
-            'data'         => $menus->items(),
-            'total'        => $menus->total(),
-            'per_page'     => $menus->perPage(),
+            'data' => $menus->items(),
+            'total' => $menus->total(),
+            'per_page' => $menus->perPage(),
         ]);
     }
 
     /**
      * Validasi dan simpan menu baru beserta unggah berkas gambar menu (opsional).
      *
-     * @param  \Illuminate\Http\Request  $request  Objek HTTP Request pembawa formulir menu baru
-     * @return \Illuminate\Http\JsonResponse
+     * @param  Request  $request  Objek HTTP Request pembawa formulir menu baru
      */
     public function storeMenu(Request $request): JsonResponse
     {
         // 1. Validasi tipe data dan kriteria wajib isian form menu baru
         $request->validate([
-            'nama_menu'           => ['required', 'string', 'max:255'],
-            'id_kategori'         => ['nullable', 'array'],
-            'id_kategori.*'       => ['exists:kategori_menu,id_kategori'],
-            'deskripsi'           => ['nullable', 'string'],
-            'harga'               => ['required', 'integer', 'min:0'],
+            'nama_menu' => ['required', 'string', 'max:255'],
+            'id_kategori' => ['nullable', 'array'],
+            'id_kategori.*' => ['exists:kategori_menu,id_kategori'],
+            'deskripsi' => ['nullable', 'string'],
+            'harga' => ['required', 'integer', 'min:0'],
             'status_ketersediaan' => ['required', 'in:tersedia,habis'],
-            'gambar_menu'         => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'gambar_menu' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ]);
 
         // 2. Pemrosesan unggah gambar jika dilampirkan
         $gambarFilename = null;
         if ($request->hasFile('gambar_menu')) {
-            $stored         = $request->file('gambar_menu')->store('menu-images', 'public');
+            $stored = $request->file('gambar_menu')->store('menu-images', 'public');
             $gambarFilename = basename($stored);
         }
 
         // 3. Simpan baris data menu baru ke database
         $menu = Menu::create([
-            'nama_menu'           => $request->nama_menu,
-            'deskripsi'           => $request->deskripsi,
-            'harga'               => $request->harga,
-            'gambar_menu'         => $gambarFilename,
+            'nama_menu' => $request->nama_menu,
+            'deskripsi' => $request->deskripsi,
+            'harga' => $request->harga,
+            'gambar_menu' => $gambarFilename,
             'status_ketersediaan' => $request->status_ketersediaan,
         ]);
 
         // 4. Hubungkan menu dengan kategori-kategori master jika ditentukan
         $kategoriIds = $request->input('id_kategori', []);
-        if (!empty($kategoriIds)) {
+        if (! empty($kategoriIds)) {
             $menu->kategoris()->sync($kategoriIds);
         }
 
@@ -169,9 +166,8 @@ class AdminApiController extends Controller
      * Validasi dan perbarui data produk menu terpilih di database.
      * Mengapus gambar lama secara bersih dari sistem penyimpanan jika melampirkan gambar baru.
      *
-     * @param  \Illuminate\Http\Request  $request  Objek HTTP request pembawa data edit menu
+     * @param  Request  $request  Objek HTTP request pembawa data edit menu
      * @param  string  $id  ID menu target perubahan
-     * @return \Illuminate\Http\JsonResponse
      */
     public function updateMenu(Request $request, string $id): JsonResponse
     {
@@ -179,22 +175,22 @@ class AdminApiController extends Controller
 
         // 1. Validasi isian formulir perubahan menu (menggunakan parameter kondisional 'sometimes')
         $request->validate([
-            'nama_menu'           => ['sometimes', 'required', 'string', 'max:255'],
-            'id_kategori'         => ['sometimes', 'array'],
-            'id_kategori.*'       => ['exists:kategori_menu,id_kategori'],
-            'deskripsi'           => ['nullable', 'string'],
-            'harga'               => ['sometimes', 'required', 'integer', 'min:0'],
+            'nama_menu' => ['sometimes', 'required', 'string', 'max:255'],
+            'id_kategori' => ['sometimes', 'array'],
+            'id_kategori.*' => ['exists:kategori_menu,id_kategori'],
+            'deskripsi' => ['nullable', 'string'],
+            'harga' => ['sometimes', 'required', 'integer', 'min:0'],
             'status_ketersediaan' => ['sometimes', 'required', 'in:tersedia,habis'],
-            'gambar_menu'         => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'gambar_menu' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ]);
 
         // 2. Pemrosesan penggantian gambar baru
         if ($request->hasFile('gambar_menu')) {
             // Hapus gambar lama agar tidak meninggalkan sampah file di folder publik
             if ($menu->gambar_menu) {
-                Storage::disk('public')->delete('menu-images/' . $menu->gambar_menu);
+                Storage::disk('public')->delete('menu-images/'.$menu->gambar_menu);
             }
-            $stored            = $request->file('gambar_menu')->store('menu-images', 'public');
+            $stored = $request->file('gambar_menu')->store('menu-images', 'public');
             $menu->gambar_menu = basename($stored);
         }
 
@@ -216,7 +212,6 @@ class AdminApiController extends Controller
      * Hapus permanen produk menu beserta berkas gambarnya dari database.
      *
      * @param  string  $id  ID menu target penghapusan
-     * @return \Illuminate\Http\JsonResponse
      */
     public function destroyMenu(string $id): JsonResponse
     {
@@ -224,7 +219,7 @@ class AdminApiController extends Controller
 
         // 1. Hapus berkas gambar menu jika ada
         if ($menu->gambar_menu) {
-            Storage::disk('public')->delete('menu-images/' . $menu->gambar_menu);
+            Storage::disk('public')->delete('menu-images/'.$menu->gambar_menu);
         }
 
         // 2. Hapus data menu dari database
@@ -239,8 +234,6 @@ class AdminApiController extends Controller
 
     /**
      * Menampilkan daftar seluruh kategori menu beserta hitungan porsi menu terkait.
-     *
-     * @return \Illuminate\Http\JsonResponse
      */
     public function indexKategori(): JsonResponse
     {
@@ -252,8 +245,7 @@ class AdminApiController extends Controller
     /**
      * Simpan kategori menu baru ke database.
      *
-     * @param  \Illuminate\Http\Request  $request  Objek HTTP Request pembawa nama kategori
-     * @return \Illuminate\Http\JsonResponse
+     * @param  Request  $request  Objek HTTP Request pembawa nama kategori
      */
     public function storeKategori(Request $request): JsonResponse
     {
@@ -273,7 +265,6 @@ class AdminApiController extends Controller
      * Mengamankan data: Kategori yang memiliki menu tidak boleh dihapus.
      *
      * @param  string  $id  ID kategori target penghapusan
-     * @return \Illuminate\Http\JsonResponse
      */
     public function destroyKategori(string $id): JsonResponse
     {
@@ -295,8 +286,6 @@ class AdminApiController extends Controller
 
     /**
      * Menampilkan seluruh staf kasir (tanpa menyertakan kolom password).
-     *
-     * @return \Illuminate\Http\JsonResponse
      */
     public function indexKasir(): JsonResponse
     {
@@ -304,9 +293,9 @@ class AdminApiController extends Controller
         $kasirs = User::whereHas('role', function ($q) {
             $q->where('nama_role', 'Kasir');
         })
-        ->with('role')
-        ->get()
-        ->makeHidden('password'); // Keamanan: Sembunyikan kolom password
+            ->with('role')
+            ->get()
+            ->makeHidden('password'); // Keamanan: Sembunyikan kolom password
 
         return $this->successResponse($kasirs);
     }
@@ -314,15 +303,14 @@ class AdminApiController extends Controller
     /**
      * Buat akun Kasir staf baru.
      *
-     * @param  \Illuminate\Http\Request  $request  Objek HTTP Request pembawa data kasir baru
-     * @return \Illuminate\Http\JsonResponse
+     * @param  Request  $request  Objek HTTP Request pembawa data kasir baru
      */
     public function storeKasir(Request $request): JsonResponse
     {
         $request->validate([
             'nama_lengkap' => ['required', 'string', 'max:255'],
-            'username'     => ['required', 'string', 'max:255', 'unique:users,username'],
-            'password'     => ['required', 'string', 'min:6'],
+            'username' => ['required', 'string', 'max:255', 'unique:users,username'],
+            'password' => ['required', 'string', 'min:6'],
         ]);
 
         // 1. Tarik model role Kasir untuk mendapatkan id_role dinamis
@@ -330,10 +318,10 @@ class AdminApiController extends Controller
 
         // 2. Simpan kasir baru ke database (password dihash secara implisit menggunakan casts bcrypt model User)
         $user = User::create([
-            'id_role'      => $roleKasir->id_role,
+            'id_role' => $roleKasir->id_role,
             'nama_lengkap' => $request->nama_lengkap,
-            'username'     => $request->username,
-            'password'     => $request->password, // Otomatis hashing berkat casts: password => hashed di model
+            'username' => $request->username,
+            'password' => $request->password, // Otomatis hashing berkat casts: password => hashed di model
         ]);
 
         return $this->successResponse($user->makeHidden('password'), 'Akun kasir berhasil ditambahkan', 201);
@@ -343,7 +331,6 @@ class AdminApiController extends Controller
      * Hapus akun Kasir staf dari database.
      *
      * @param  string  $id  ID Kasir target penghapusan
-     * @return \Illuminate\Http\JsonResponse
      */
     public function destroyKasir(string $id): JsonResponse
     {
@@ -366,8 +353,7 @@ class AdminApiController extends Controller
     /**
      * Menyediakan data agregasi laporan keuangan detail (lunas) berbasis filter rentang tanggal.
      *
-     * @param  \Illuminate\Http\Request  $request  Objek HTTP request pembawa filter tanggal
-     * @return \Illuminate\Http\JsonResponse
+     * @param  Request  $request  Objek HTTP request pembawa filter tanggal
      */
     public function indexLaporan(Request $request): JsonResponse
     {
@@ -387,14 +373,14 @@ class AdminApiController extends Controller
             ->get();
 
         // 3. Hitung omzet tagihan bersih dan hitungan transaksi
-        $totalOmzet     = $pesanans->sum('total_harga');
+        $totalOmzet = $pesanans->sum('total_harga');
         $totalTransaksi = $pesanans->count();
 
         return $this->successResponse([
-            'pesanans'       => $pesanans,
-            'totalOmzet'     => (int) $totalOmzet,
+            'pesanans' => $pesanans,
+            'totalOmzet' => (int) $totalOmzet,
             'totalTransaksi' => $totalTransaksi,
-            'tanggalMulai'   => $tanggalMulai->toDateString(),
+            'tanggalMulai' => $tanggalMulai->toDateString(),
             'tanggalSelesai' => $tanggalSelesai->toDateString(),
         ]);
     }

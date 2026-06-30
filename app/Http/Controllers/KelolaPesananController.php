@@ -6,26 +6,23 @@ use App\Models\Pesanan;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Http\Response as HttpResponse;
 use Illuminate\View\View;
 
 /**
  * Class KelolaPesananController
- * 
+ *
  * Controller ini mengatur manajemen antrean pesanan aktif di dapur kafe (Panel Kasir).
  * Bertugas menarik antrean berjalan (antrean berstatus 'menunggu konfirmasi' dan 'diproses'),
  * melihat spesifikasi rincian pesanan, mencetak struk pemesanan PDF, serta mengamankan alur transisi
  * status pengerjaan makanan/minuman menggunakan pola State Machine (Mesin State terproteksi).
- *
- * @package App\Http\Controllers
  */
 class KelolaPesananController extends Controller
 {
     /**
      * Tampilkan antrean pesanan aktif yang harus dikerjakan dapur.
      * Diurutkan dari waktu masuk yang terlama (FIFO - First In First Out) agar adil.
-     *
-     * @return \Illuminate\View\View
      */
     public function index(): View
     {
@@ -42,7 +39,6 @@ class KelolaPesananController extends Controller
      * Tampilkan detail pesanan yang sedang aktif di antrean.
      *
      * @param  string  $noPesanan  Nomor transaksi pesanan referensi
-     * @return \Illuminate\View\View
      */
     public function detail(string $noPesanan): View
     {
@@ -59,9 +55,8 @@ class KelolaPesananController extends Controller
      * Mengubah status pengerjaan pesanan menggunakan pola State Machine (transisi berurutan).
      * Mencegah lompatan status (misal dari menunggu konfirmasi langsung selesai) demi konsistensi.
      *
-     * @param  \Illuminate\Http\Request  $request  Objek HTTP request
+     * @param  Request  $request  Objek HTTP request
      * @param  string  $noPesanan  Nomor transaksi pesanan referensi
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function updateStatus(Request $request, string $noPesanan): RedirectResponse
     {
@@ -71,7 +66,7 @@ class KelolaPesananController extends Controller
         //    Menjamin status hanya boleh melangkah maju satu demi satu tingkatan
         $transitions = [
             'menunggu konfirmasi' => 'diproses',
-            'diproses'            => 'selesai',
+            'diproses' => 'selesai',
         ];
 
         // 2. Tentukan status selanjutnya berdasarkan status pesanan saat ini
@@ -88,7 +83,7 @@ class KelolaPesananController extends Controller
 
         // 5. Tentukan label pesan notifikasi interaktif untuk dilemparkan ke client
         $isAccepted = $nextStatus === 'diproses';
-        $message    = $isAccepted
+        $message = $isAccepted
             ? 'Pesanan diterima dan sedang diproses.'
             : 'Pesanan telah selesai.';
 
@@ -103,7 +98,7 @@ class KelolaPesananController extends Controller
      * Disajikan dalam bentuk stream (preview) PDF di browser.
      *
      * @param  string  $noPesanan  Nomor transaksi pesanan referensi
-     * @return \Illuminate\Http\Response  Objek file stream PDF kuitansi/struk
+     * @return Response Objek file stream PDF kuitansi/struk
      */
     public function cetakPesanan(string $noPesanan): HttpResponse
     {

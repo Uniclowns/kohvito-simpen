@@ -10,20 +10,16 @@ use Illuminate\View\View;
 
 /**
  * Class KelolaKategoriMenuController
- * 
+ *
  * Controller ini mengatur manajemen (CRUD) kategori menu di panel Administrator.
  * Menyediakan pengelompokan menu, validasi duplikasi kategori yang aman (tanpa case-sensitive conflict),
  * integrasi feedback UI modal kegagalan kustom, serta proteksi penghapusan kategori yang masih
  * memiliki ketergantungan relasi menu aktif (Restricted Delete Protection).
- *
- * @package App\Http\Controllers
  */
 class KelolaKategoriMenuController extends Controller
 {
     /**
      * Tampilkan daftar seluruh kategori menu beserta jumlah menu yang terkait di dalamnya.
-     *
-     * @return \Illuminate\View\View
      */
     public function index(): View
     {
@@ -37,8 +33,7 @@ class KelolaKategoriMenuController extends Controller
      * Validasi dan simpan kategori menu baru ke database.
      * Mencegah duplikasi nama kategori menggunakan validasi manual dan sistem integrasi Modal Error.
      *
-     * @param  \Illuminate\Http\Request  $request  Objek HTTP request pembawa data kategori
-     * @return \Illuminate\Http\RedirectResponse
+     * @param  Request  $request  Objek HTTP request pembawa data kategori
      */
     public function storeKategoriMenu(Request $request): RedirectResponse
     {
@@ -54,11 +49,11 @@ class KelolaKategoriMenuController extends Controller
                 ->back()
                 ->withInput()
                 ->with('status_modal', [
-                    'id'          => 'modal-gagal-tambah-kategori',
-                    'title'       => 'Gagal Menambah Kategori Menu',
-                    'message'     => 'Nama kategori yang Anda masukkan sudah digunakan. Silakan gunakan nama kategori lain.',
+                    'id' => 'modal-gagal-tambah-kategori',
+                    'title' => 'Gagal Menambah Kategori Menu',
+                    'message' => 'Nama kategori yang Anda masukkan sudah digunakan. Silakan gunakan nama kategori lain.',
                     'buttonLabel' => 'Tutup',
-                    'variant'     => 'error',
+                    'variant' => 'error',
                 ]);
         }
 
@@ -84,9 +79,8 @@ class KelolaKategoriMenuController extends Controller
      * Memperbarui nama kategori menu terpilih.
      * Mengabaikan ID kategori saat ini (ignore self) ketika memvalidasi keunikan nama kategori.
      *
-     * @param  \Illuminate\Http\Request  $request  Objek HTTP request
+     * @param  Request  $request  Objek HTTP request
      * @param  string  $id  ID kategori target perubahan
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function updateKategoriMenu(Request $request, string $id): RedirectResponse
     {
@@ -105,11 +99,11 @@ class KelolaKategoriMenuController extends Controller
                 ->back()
                 ->withInput()
                 ->with('status_modal', [
-                    'id'          => 'modal-gagal-update-kategori',
-                    'title'       => 'Gagal Memperbarui Kategori Menu',
-                    'message'     => 'Nama kategori yang Anda masukkan sudah digunakan. Silakan gunakan nama kategori lain.',
+                    'id' => 'modal-gagal-update-kategori',
+                    'title' => 'Gagal Memperbarui Kategori Menu',
+                    'message' => 'Nama kategori yang Anda masukkan sudah digunakan. Silakan gunakan nama kategori lain.',
                     'buttonLabel' => 'Tutup',
-                    'variant'     => 'error',
+                    'variant' => 'error',
                 ]);
         }
 
@@ -136,7 +130,6 @@ class KelolaKategoriMenuController extends Controller
      * Melindungi integritas data: Kategori yang memiliki keterikatan menu tidak boleh dihapus.
      *
      * @param  string  $id  ID kategori target penghapusan
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function destroyKategoriMenu(string $id): RedirectResponse
     {

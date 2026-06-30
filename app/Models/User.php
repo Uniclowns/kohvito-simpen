@@ -10,12 +10,11 @@ use Laravel\Sanctum\HasApiTokens;
 
 /**
  * Class User
- * 
+ *
  * Model ini mewakili entitas pengguna (staf kafe) di database (tabel `users`).
  * Digunakan untuk menangani proses autentikasi dashboard admin, panel kasir,
  * serta verifikasi token otentikasi API via Laravel Sanctum untuk aplikasi eksternal.
  *
- * @package App\Models
  * @property int $id_users ID Unik Pengguna (Primary Key)
  * @property int $id_role ID Hak Akses Otoritas (Foreign Key dari `role`)
  * @property string $nama_lengkap Nama lengkap staf pengguna
@@ -24,7 +23,7 @@ use Laravel\Sanctum\HasApiTokens;
  */
 class User extends Authenticatable
 {
-    use HasFactory, HasApiTokens;
+    use HasApiTokens, HasFactory;
 
     /**
      * Nama tabel database yang dikaitkan dengan model User.
@@ -78,7 +77,7 @@ class User extends Authenticatable
     {
         return [
             'id_users' => 'integer', // Pastikan ID dibaca integer
-            'id_role'  => 'integer', // Pastikan ID Role dibaca integer
+            'id_role' => 'integer', // Pastikan ID Role dibaca integer
             'password' => 'hashed',  // Enkripsi otomatis/hashing sandi saat disimpan
         ];
     }
@@ -86,8 +85,6 @@ class User extends Authenticatable
     /**
      * Hubungan Banyak-ke-Satu (Many-to-One / BelongsTo) ke model Role.
      * Mengaitkan pengguna dengan hak akses otoritas perannya (Admin / Kasir).
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function role(): BelongsTo
     {
@@ -101,8 +98,6 @@ class User extends Authenticatable
     /**
      * Hubungan Satu-ke-Banyak (One-to-Many / HasMany) ke model Pesanan.
      * Menghubungkan staf kasir/pengguna ini dengan pesanan-pesanan yang pernah dikonfirmasi/diproses olehnya.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function pesanan(): HasMany
     {

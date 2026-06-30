@@ -32,10 +32,10 @@ return new class extends Migration
 
         if (! $existingUser) {
             DB::table('users')->insert([
-                'id_role'      => $roleId,
+                'id_role' => $roleId,
                 'nama_lengkap' => 'Super Administrator',
-                'username'     => 'superadmin',
-                'password'     => Hash::make('superadmin123'),
+                'username' => 'superadmin',
+                'password' => Hash::make('superadmin123'),
             ]);
         }
     }

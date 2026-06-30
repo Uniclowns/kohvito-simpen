@@ -9,20 +9,16 @@ use Illuminate\View\View;
 
 /**
  * Class BerandaKasirController
- * 
+ *
  * Controller ini melayani beranda panel kendali untuk Kasir (Staff Dapur/Kasir).
  * Menyajikan statistik waktu-nyata mengenai antrean pesanan hari ini yang dikelompokkan
  * berdasarkan status pengerjaan (menunggu konfirmasi, diproses, selesai), metrik rata-rata belanja,
  * data terlaris harian untuk makanan dan minuman, serta diagram kepopuleran jam sibuk pemesanan.
- *
- * @package App\Http\Controllers
  */
 class BerandaKasirController extends Controller
 {
     /**
      * Tampilkan halaman utama dashboard Kasir dengan agregasi metrik antrean harian.
-     *
-     * @return \Illuminate\View\View
      */
     public function index(): View
     {
@@ -62,10 +58,10 @@ class BerandaKasirController extends Controller
 
         // 6. Total transaksi lunas dan total omzet kotor sepanjang masa untuk perhitungan rata-rata belanja
         $totalTransaksi = Pesanan::where('status_pembayaran', 'lunas')->count();
-        $omzetTotal     = (int) Pesanan::where('status_pembayaran', 'lunas')->sum('total_harga');
-        
+        $omzetTotal = (int) Pesanan::where('status_pembayaran', 'lunas')->sum('total_harga');
+
         // Perhitungan rata-rata nilai pembelian (basket size) per transaksi (menghindari division by zero)
-        $rataPembelian  = $totalTransaksi > 0 ? (int) round($omzetTotal / $totalTransaksi) : 0;
+        $rataPembelian = $totalTransaksi > 0 ? (int) round($omzetTotal / $totalTransaksi) : 0;
 
         // 7. Agregasi Makanan terlaris yang dipesan khusus hari ini
         $makananTerlaris = DB::table('detail_pesanan')
@@ -98,14 +94,14 @@ class BerandaKasirController extends Controller
             ->keyBy('jam');
 
         $jamLabels = [];
-        $jamData   = [];
+        $jamData = [];
         for ($h = 8; $h <= 17; $h++) {
             $jamLabels[] = sprintf('%02d:00', $h);
-            $jamData[]   = (int) ($pesananPerJam[$h]->total ?? 0);
+            $jamData[] = (int) ($pesananPerJam[$h]->total ?? 0);
         }
 
         // 10. Chart Analitik B: Pendapatan Harian Minggu Ini (Senin s.d. Minggu)
-        $startOfWeek   = Carbon::now()->startOfWeek(Carbon::MONDAY);
+        $startOfWeek = Carbon::now()->startOfWeek(Carbon::MONDAY);
         $pendapatanRaw = DB::table('pesanan')
             ->select(DB::raw('DATE(tgl_pembayaran) as tanggal'), DB::raw('SUM(total_harga) as total'))
             ->where('status_pembayaran', 'lunas')
@@ -114,12 +110,12 @@ class BerandaKasirController extends Controller
             ->get()
             ->keyBy('tanggal');
 
-        $hariNama       = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
-        $hariLabels     = [];
+        $hariNama = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+        $hariLabels = [];
         $pendapatanData = [];
         for ($i = 0; $i < 7; $i++) {
-            $date             = $startOfWeek->copy()->addDays($i);
-            $hariLabels[]     = $hariNama[$i];
+            $date = $startOfWeek->copy()->addDays($i);
+            $hariLabels[] = $hariNama[$i];
             $pendapatanData[] = (int) ($pendapatanRaw[$date->format('Y-m-d')]->total ?? 0);
         }
 

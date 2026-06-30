@@ -7,12 +7,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Class Role
- * 
+ *
  * Model ini merepresentasikan entitas peran pengguna di database (tabel `role`).
  * Menentukan tingkat otoritas pengguna (seperti 'Admin' atau 'Kasir') yang kemudian digunakan
  * oleh sistem otentikasi & middleware untuk melindungi akses dashboard masing-masing.
  *
- * @package App\Models
  * @property int $id_role ID Unik Hak Akses Peran (Primary Key)
  * @property string $nama_role Nama Peran (misal: "Admin", "Kasir")
  */
@@ -63,7 +62,7 @@ class Role extends Model
     protected function casts(): array
     {
         return [
-            'id_role'   => 'integer', // Pastikan ID Role dibaca sebagai integer
+            'id_role' => 'integer', // Pastikan ID Role dibaca sebagai integer
             'nama_role' => 'string',  // Pastikan Nama Role dibaca sebagai string
         ];
     }
@@ -71,8 +70,6 @@ class Role extends Model
     /**
      * Hubungan Satu-ke-Banyak (One-to-Many / HasMany) ke model User.
      * Menghubungkan satu jenis hak akses peran ke daftar akun pengguna yang memiliki peran tersebut.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function users(): HasMany
     {

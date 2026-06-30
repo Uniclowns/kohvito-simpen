@@ -5,15 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * Class Pesanan
- * 
+ *
  * Model ini mewakili header transaksi pemesanan di database (tabel `pesanan`).
  * Merupakan pusat kendali alur pesanan dari konsumen, penanganan integrasi pembayaran
  * gateway (Xendit/Midtrans), pencatatan nominal belanja, serta koordinasi status penyajian dapur.
  *
- * @package App\Models
  * @property string $no_pesanan ID Unik Pesanan bertipe String/Kode Kustom (Primary Key)
  * @property int|null $id_user ID Kasir yang memproses/mengonfirmasi pesanan (Foreign Key dari `users`)
  * @property int $id_meja ID Meja fisik tempat pemesanan dilakukan (Foreign Key dari `meja`)
@@ -25,7 +25,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $midtrans_transaction_id ID transaksi eksternal dari sistem Midtrans
  * @property string|null $qr_code Konten string gambar QR untuk scan bayar
  * @property string|null $qr_url Tautan URL QR Code pembayaran instan dari Midtrans/Xendit
- * @property \Illuminate\Support\Carbon|null $tgl_pembayaran Tanggal dan waktu pelunasan transaksi dilakukan
+ * @property Carbon|null $tgl_pembayaran Tanggal dan waktu pelunasan transaksi dilakukan
  */
 class Pesanan extends Model
 {
@@ -94,10 +94,10 @@ class Pesanan extends Model
     protected function casts(): array
     {
         return [
-            'no_pesanan'     => 'string',   // Kode dibaca string
-            'id_user'        => 'integer',  // ID Kasir dibaca integer
-            'id_meja'        => 'integer',  // ID Meja dibaca integer
-            'total_harga'    => 'integer',  // Nominal harga dibaca integer
+            'no_pesanan' => 'string',   // Kode dibaca string
+            'id_user' => 'integer',  // ID Kasir dibaca integer
+            'id_meja' => 'integer',  // ID Meja dibaca integer
+            'total_harga' => 'integer',  // Nominal harga dibaca integer
             'tgl_pembayaran' => 'datetime', // Tanggal pelunasan cast ke Carbon Instance
         ];
     }
@@ -106,8 +106,6 @@ class Pesanan extends Model
      * Hubungan Banyak-ke-Satu (Many-to-One / BelongsTo) ke model User.
      * Mengaitkan pesanan ini dengan kasir pelayan transaksi di kasir.
      * Relasi ini bersifat opsional (nullable) karena saat checkout konsumen belum ditangani kasir.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function user(): BelongsTo
     {
@@ -121,8 +119,6 @@ class Pesanan extends Model
     /**
      * Hubungan Banyak-ke-Satu (Many-to-One / BelongsTo) ke model Meja.
      * Menghubungkan pesanan ke meja asal pemesan.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function meja(): BelongsTo
     {
@@ -136,8 +132,6 @@ class Pesanan extends Model
     /**
      * Hubungan Satu-ke-Banyak (One-to-Many / HasMany) ke model DetailPesanan.
      * Menghubungkan pesanan induk ke rincian makanan/minuman yang dibeli di dalamnya.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function detailPesanan(): HasMany
     {

@@ -9,21 +9,18 @@ use Illuminate\View\View;
 
 /**
  * Class KelolaPenggunaKasirController
- * 
+ *
  * Controller ini bertugas mengatur manajemen (CRUD) akun staf Kasir di panel Administrator.
  * Meliputi filter pencarian akun, pendaftaran akun baru dengan hashing password otomatis,
  * pembaruan kredensial staf secara fleksibel (password bersifat opsional saat edit),
  * serta proteksi keamanan yang menolak manipulasi akun Administrator lewat endpoint kasir.
- *
- * @package App\Http\Controllers
  */
 class KelolaPenggunaKasirController extends Controller
 {
     /**
      * Tampilkan daftar seluruh staf Kasir (id_role = 2) dengan dukungan pencarian nama / username.
      *
-     * @param  \Illuminate\Http\Request  $request  Objek HTTP request pembawa parameter filter pencarian
-     * @return \Illuminate\View\View
+     * @param  Request  $request  Objek HTTP request pembawa parameter filter pencarian
      */
     public function index(Request $request): View
     {
@@ -36,7 +33,7 @@ class KelolaPenggunaKasirController extends Controller
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($q) use ($search) {
                     $q->where('nama_lengkap', 'like', "%{$search}%")
-                      ->orWhere('username', 'like', "%{$search}%");
+                        ->orWhere('username', 'like', "%{$search}%");
                 });
             })
             ->orderBy('id_users')
@@ -48,32 +45,31 @@ class KelolaPenggunaKasirController extends Controller
     /**
      * Memvalidasi dan menyimpan akun Kasir baru ke database dengan password terhashing otomatis.
      *
-     * @param  \Illuminate\Http\Request  $request  Objek HTTP request pembawa form isian kasir baru
-     * @return \Illuminate\Http\RedirectResponse
+     * @param  Request  $request  Objek HTTP request pembawa form isian kasir baru
      */
     public function storePenggunaKasir(Request $request): RedirectResponse
     {
         // 1. Validasi formal isian kasir baru beserta pesan kesalahan lokal
         $request->validate([
             'nama_lengkap' => 'required|string|max:255',
-            'username'     => 'required|string|min:6|max:255|unique:users,username',
-            'password'     => 'required|string|min:9',
+            'username' => 'required|string|min:6|max:255|unique:users,username',
+            'password' => 'required|string|min:9',
         ], [
             'nama_lengkap.required' => 'Nama lengkap pengguna wajib diisi',
-            'username.required'     => 'Username pengguna wajib diisi',
-            'username.min'          => 'Username minimal 6 karakter',
-            'username.unique'       => 'Username sudah digunakan, silakan pilih yang lain',
-            'password.required'     => 'Password wajib diisi',
-            'password.min'          => 'Password harus lebih dari 8 karakter',
+            'username.required' => 'Username pengguna wajib diisi',
+            'username.min' => 'Username minimal 6 karakter',
+            'username.unique' => 'Username sudah digunakan, silakan pilih yang lain',
+            'password.required' => 'Password wajib diisi',
+            'password.min' => 'Password harus lebih dari 8 karakter',
         ]);
 
         // 2. Simpan kasir baru ke database
         //    Laravel secara otomatis menghash password dengan bcrypt lewat setter casts atau manual hashing
         User::create([
-            'id_role'      => 2, // ID Role 2 diatur mutlak mewakili peran Kasir
+            'id_role' => 2, // ID Role 2 diatur mutlak mewakili peran Kasir
             'nama_lengkap' => $request->nama_lengkap,
-            'username'     => $request->username,
-            'password'     => bcrypt($request->password), // Enkripsi hash satu arah (one-way hashing)
+            'username' => $request->username,
+            'password' => bcrypt($request->password), // Enkripsi hash satu arah (one-way hashing)
         ]);
 
         return redirect()->route('admin.pengguna-kasir.index')
@@ -84,9 +80,8 @@ class KelolaPenggunaKasirController extends Controller
      * Memvalidasi dan memperbarui data akun Kasir terpilih.
      * Menerapkan password opsional (hanya di-update dan di-hash jika diisi oleh Administrator).
      *
-     * @param  \Illuminate\Http\Request  $request  Objek HTTP request
+     * @param  Request  $request  Objek HTTP request
      * @param  string  $id  ID Kasir target perubahan
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function updatePenggunaKasir(Request $request, string $id): RedirectResponse
     {
@@ -100,7 +95,7 @@ class KelolaPenggunaKasirController extends Controller
         // 2. Tentukan aturan validasi standar untuk nama dan keunikan username (mengabaikan ID diri sendiri)
         $rules = [
             'nama_lengkap' => 'required|string|max:255',
-            'username'     => 'required|string|min:6|max:255|unique:users,username,' . $id . ',id_users',
+            'username' => 'required|string|min:6|max:255|unique:users,username,'.$id.',id_users',
         ];
 
         // 3. Tambahkan aturan validasi sandi hanya jika Administrator mengisi kolom sandi baru
@@ -110,16 +105,16 @@ class KelolaPenggunaKasirController extends Controller
 
         $request->validate($rules, [
             'nama_lengkap.required' => 'Nama lengkap pengguna wajib diisi',
-            'username.required'     => 'Username pengguna wajib diisi',
-            'username.min'          => 'Username minimal 6 karakter',
-            'username.unique'       => 'Username sudah digunakan, silakan pilih yang lain',
-            'password.min'          => 'Password harus lebih dari 8 karakter',
+            'username.required' => 'Username pengguna wajib diisi',
+            'username.min' => 'Username minimal 6 karakter',
+            'username.unique' => 'Username sudah digunakan, silakan pilih yang lain',
+            'password.min' => 'Password harus lebih dari 8 karakter',
         ]);
 
         // 4. Susun struktur array data yang akan diperbarui
         $data = [
             'nama_lengkap' => $request->nama_lengkap,
-            'username'     => $request->username,
+            'username' => $request->username,
         ];
 
         // 5. Masukkan password terhashing ke dalam array data jika diisi
@@ -139,7 +134,6 @@ class KelolaPenggunaKasirController extends Controller
      * Mencegah penghapusan akun Administrator (id_role = 1) untuk perlindungan keamanan level sistem.
      *
      * @param  string  $id  ID Kasir target penghapusan
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function destroyPenggunaKasir(string $id): RedirectResponse
     {

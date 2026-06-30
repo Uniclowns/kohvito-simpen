@@ -11,15 +11,13 @@ use Illuminate\Http\Request;
 
 /**
  * Class KasirApiController
- * 
+ *
  * Controller API ini melayani modul antrean dapur dan transaksi Kasir (RESTful API).
  * Mengelompokkan fungsionalitas menjadi 4 pilar utama:
  * 1. **Dashboard & Antrean**: Menghitung kuantitas antrean pesanan aktif harian.
  * 2. **Daftar Pesanan Dapur**: Menarik daftar pesanan aktif ('menunggu konfirmasi', 'diproses').
  * 3. **Kontrol Status**: Pembaruan status progres pengerjaan menu dapur.
  * 4. **Histori & Pencarian**: Riwayat pesanan selesai hari ini beserta detail histori transaksional.
- *
- * @package App\Http\Controllers\Api
  */
 class KasirApiController extends Controller
 {
@@ -28,7 +26,7 @@ class KasirApiController extends Controller
     /**
      * Menyediakan data ringkasan kuantitas antrean pesanan hari ini berdasarkan statusnya.
      *
-     * @return \Illuminate\Http\JsonResponse Respon sukses berisikan ringkasan data antrean
+     * @return JsonResponse Respon sukses berisikan ringkasan data antrean
      */
     public function dashboard(): JsonResponse
     {
@@ -45,21 +43,21 @@ class KasirApiController extends Controller
             ->count();
 
         // 3. Hitung jumlah pesanan selesai saji hari ini
-        $selesai  = Pesanan::whereDate('tgl_pembayaran', $today)
+        $selesai = Pesanan::whereDate('tgl_pembayaran', $today)
             ->where('status_pesanan', 'selesai')
             ->count();
 
         return $this->successResponse([
             'menunggu' => $menunggu,
             'diproses' => $diproses,
-            'selesai'  => $selesai,
+            'selesai' => $selesai,
         ]);
     }
 
     /**
      * Menampilkan daftar pesanan yang sedang aktif berjalan di antrean (menunggu konfirmasi & diproses).
      *
-     * @return \Illuminate\Http\JsonResponse Respon sukses berisi list pesanan aktif
+     * @return JsonResponse Respon sukses berisi list pesanan aktif
      */
     public function indexPesanan(): JsonResponse
     {
@@ -76,7 +74,7 @@ class KasirApiController extends Controller
      * Tampilkan detail rincian satu transaksi pesanan aktif berdasarkan nomor uniknya.
      *
      * @param  string  $noPesanan  Nomor transaksi pesanan referensi
-     * @return \Illuminate\Http\JsonResponse Respon berisi data pesanan, atau 404 jika tidak ditemukan
+     * @return JsonResponse Respon berisi data pesanan, atau 404 jika tidak ditemukan
      */
     public function detailPesanan(string $noPesanan): JsonResponse
     {
@@ -95,9 +93,8 @@ class KasirApiController extends Controller
     /**
      * Memperbarui status progres pengerjaan menu dapur secara dinamis.
      *
-     * @param  \Illuminate\Http\Request  $request  Objek HTTP request pembawa status baru
+     * @param  Request  $request  Objek HTTP request pembawa status baru
      * @param  string  $noPesanan  Nomor transaksi pesanan target
-     * @return \Illuminate\Http\JsonResponse
      */
     public function updateStatusPesanan(Request $request, string $noPesanan): JsonResponse
     {
@@ -117,7 +114,7 @@ class KasirApiController extends Controller
         $pesanan->save();
 
         return $this->successResponse([
-            'status_pesanan' => $pesanan->status_pesanan
+            'status_pesanan' => $pesanan->status_pesanan,
         ], 'Status pesanan berhasil diupdate');
     }
 
@@ -125,8 +122,7 @@ class KasirApiController extends Controller
      * Menampilkan riwayat (histori) transaksi yang selesai hari ini beserta kalkulasi omzet.
      * Mendukung pemfilteran dinamis berbasis kata kunci pencarian.
      *
-     * @param  \Illuminate\Http\Request  $request  Objek HTTP request pembawa parameter search
-     * @return \Illuminate\Http\JsonResponse
+     * @param  Request  $request  Objek HTTP request pembawa parameter search
      */
     public function indexHistori(Request $request): JsonResponse
     {
@@ -141,16 +137,16 @@ class KasirApiController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('no_pesanan', 'like', '%' . $search . '%')
-                  ->orWhere('nama_konsumen', 'like', '%' . $search . '%');
+                $q->where('no_pesanan', 'like', '%'.$search.'%')
+                    ->orWhere('nama_konsumen', 'like', '%'.$search.'%');
             });
         }
 
-        $pesanans   = $query->get();
+        $pesanans = $query->get();
         $totalOmzet = $pesanans->sum('total_harga');
 
         return $this->successResponse([
-            'pesanans'   => $pesanans,
+            'pesanans' => $pesanans,
             'totalOmzet' => (int) $totalOmzet,
         ]);
     }
@@ -159,7 +155,6 @@ class KasirApiController extends Controller
      * Tampilkan detail rincian satu transaksi pesanan selesai.
      *
      * @param  string  $noPesanan  Nomor transaksi pesanan referensi
-     * @return \Illuminate\Http\JsonResponse
      */
     public function detailHistori(string $noPesanan): JsonResponse
     {

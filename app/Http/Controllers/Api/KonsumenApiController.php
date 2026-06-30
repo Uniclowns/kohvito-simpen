@@ -18,7 +18,7 @@ use Xendit\Xendit;
 
 /**
  * Class KonsumenApiController
- * 
+ *
  * Controller API ini melayani antarmuka Konsumen secara RESTful (RESTful API).
  * Mengelompokkan fungsionalitas menjadi 5 pilar utama:
  * 1. **Beranda & Meja**: Scan QR meja untuk mendaftarkan session meja.
@@ -26,8 +26,6 @@ use Xendit\Xendit;
  * 3. **Keranjang Belanja**: CRUD keranjang belanja berbasis sesi API.
  * 4. **Finalisasi Checkout**: Membuat record pesanan dan relasi detail pesanan secara aman (DB transaction).
  * 5. **Pembayaran Gateway**: Pembuatan invoice Xendit dan pelacakan status pembayaran dinamis.
- *
- * @package App\Http\Controllers\Api
  */
 class KonsumenApiController extends Controller
 {
@@ -38,7 +36,7 @@ class KonsumenApiController extends Controller
      * Mengunci ID Meja ke dalam session server dan mengembalikan detail meja serta katalog menu.
      *
      * @param  string  $noMeja  Nomor identifikasi meja hasil scan QR
-     * @return \Illuminate\Http\JsonResponse Respon berisi data meja dan katalog menu
+     * @return JsonResponse Respon berisi data meja dan katalog menu
      */
     public function beranda(string $noMeja): JsonResponse
     {
@@ -58,7 +56,7 @@ class KonsumenApiController extends Controller
         }])->get();
 
         return $this->successResponse([
-            'meja'      => $meja,
+            'meja' => $meja,
             'kategoris' => $kategoris,
         ]);
     }
@@ -66,8 +64,7 @@ class KonsumenApiController extends Controller
     /**
      * Menampilkan daftar menu berstatus 'tersedia' dengan penyaringan opsional by id_kategori.
      *
-     * @param  \Illuminate\Http\Request  $request  Objek HTTP request pembawa parameter filter id_kategori
-     * @return \Illuminate\Http\JsonResponse
+     * @param  Request  $request  Objek HTTP request pembawa parameter filter id_kategori
      */
     public function getMenu(Request $request): JsonResponse
     {
@@ -97,7 +94,6 @@ class KonsumenApiController extends Controller
      * Tampilkan detail rincian produk menu tertentu berdasarkan ID.
      *
      * @param  string  $id  ID menu target pencarian
-     * @return \Illuminate\Http\JsonResponse
      */
     public function detailMenu(string $id): JsonResponse
     {
@@ -113,16 +109,14 @@ class KonsumenApiController extends Controller
 
     /**
      * Tampilkan isi keranjang belanja saat ini beserta akumulasi total harganya.
-     *
-     * @return \Illuminate\Http\JsonResponse
      */
     public function keranjang(): JsonResponse
     {
-        $keranjang  = session('keranjang', []);
+        $keranjang = session('keranjang', []);
         $totalHarga = array_sum(array_column($keranjang, 'subtotal'));
 
         return $this->successResponse([
-            'keranjang'  => $keranjang,
+            'keranjang' => $keranjang,
             'totalHarga' => (int) $totalHarga,
         ]);
     }
@@ -130,37 +124,36 @@ class KonsumenApiController extends Controller
     /**
      * Tambahkan item menu ke dalam keranjang belanja session API.
      *
-     * @param  \Illuminate\Http\Request  $request  Objek HTTP request pembawa id_menu, jumlah porsi, dan catatan
-     * @return \Illuminate\Http\JsonResponse
+     * @param  Request  $request  Objek HTTP request pembawa id_menu, jumlah porsi, dan catatan
      */
     public function tambahKeranjang(Request $request): JsonResponse
     {
         // 1. Validasi tipe data isian item baru
         $request->validate([
             'id_menu' => ['required', 'integer', 'exists:menu,id_menu'],
-            'jumlah'  => ['required', 'integer', 'min:1', 'max:99'],
+            'jumlah' => ['required', 'integer', 'min:1', 'max:99'],
             'catatan' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $menu      = Menu::findOrFail($request->id_menu);
+        $menu = Menu::findOrFail($request->id_menu);
         $keranjang = session('keranjang', []);
-        
-        $idMenu    = (int) $request->id_menu;
-        $jumlah    = (int) $request->jumlah;
+
+        $idMenu = (int) $request->id_menu;
+        $jumlah = (int) $request->jumlah;
 
         // 2. Akumulasikan kuantitas porsi jika item menu sudah ada di keranjang
         if (isset($keranjang[$idMenu])) {
-            $keranjang[$idMenu]['jumlah']  += $jumlah;
+            $keranjang[$idMenu]['jumlah'] += $jumlah;
             $keranjang[$idMenu]['subtotal'] = $keranjang[$idMenu]['harga'] * $keranjang[$idMenu]['jumlah'];
         } else {
             // 3. Masukkan item baru jika belum ada
             $keranjang[$idMenu] = [
-                'id_menu'   => $idMenu,
+                'id_menu' => $idMenu,
                 'nama_menu' => $menu->nama_menu,
-                'harga'     => $menu->harga,
-                'jumlah'    => $jumlah,
-                'catatan'   => $request->catatan,
-                'subtotal'  => $menu->harga * $jumlah,
+                'harga' => $menu->harga,
+                'jumlah' => $jumlah,
+                'catatan' => $request->catatan,
+                'subtotal' => $menu->harga * $jumlah,
             ];
         }
 
@@ -170,7 +163,7 @@ class KonsumenApiController extends Controller
         $totalHarga = array_sum(array_column($keranjang, 'subtotal'));
 
         return $this->successResponse([
-            'keranjang'  => $keranjang,
+            'keranjang' => $keranjang,
             'totalHarga' => (int) $totalHarga,
         ], 'Item ditambahkan ke keranjang');
     }
@@ -179,18 +172,17 @@ class KonsumenApiController extends Controller
      * Memperbarui kuantitas (jumlah porsi) item di keranjang belanja API.
      * Item akan dihapus otomatis dari list keranjang jika jumlah porsi disetel ke angka 0.
      *
-     * @param  \Illuminate\Http\Request  $request  Objek HTTP request pembawa id_menu dan jumlah porsi baru
-     * @return \Illuminate\Http\JsonResponse
+     * @param  Request  $request  Objek HTTP request pembawa id_menu dan jumlah porsi baru
      */
     public function updateKeranjang(Request $request): JsonResponse
     {
         $request->validate([
             'id_menu' => ['required', 'integer'],
-            'jumlah'  => ['required', 'integer', 'min:0', 'max:99'],
+            'jumlah' => ['required', 'integer', 'min:0', 'max:99'],
         ]);
 
         $keranjang = session('keranjang', []);
-        $idMenu    = (int) $request->id_menu;
+        $idMenu = (int) $request->id_menu;
 
         if (! isset($keranjang[$idMenu])) {
             return $this->errorResponse('Item tidak ditemukan di keranjang', 404);
@@ -201,7 +193,7 @@ class KonsumenApiController extends Controller
             unset($keranjang[$idMenu]);
         } else {
             // 2. Perbarui kuantitas dan hitung ulang subtotal
-            $keranjang[$idMenu]['jumlah']  = (int) $request->jumlah;
+            $keranjang[$idMenu]['jumlah'] = (int) $request->jumlah;
             $keranjang[$idMenu]['subtotal'] = $keranjang[$idMenu]['harga'] * $keranjang[$idMenu]['jumlah'];
         }
 
@@ -210,7 +202,7 @@ class KonsumenApiController extends Controller
         $totalHarga = array_sum(array_column($keranjang, 'subtotal'));
 
         return $this->successResponse([
-            'keranjang'  => $keranjang,
+            'keranjang' => $keranjang,
             'totalHarga' => (int) $totalHarga,
         ], 'Keranjang berhasil diupdate');
     }
@@ -218,8 +210,7 @@ class KonsumenApiController extends Controller
     /**
      * Memperbarui instruksi/catatan khusus (notes) per item di keranjang belanja API.
      *
-     * @param  \Illuminate\Http\Request  $request  Objek HTTP request pembawa id_menu dan string catatan
-     * @return \Illuminate\Http\JsonResponse
+     * @param  Request  $request  Objek HTTP request pembawa id_menu dan string catatan
      */
     public function updateNotes(Request $request): JsonResponse
     {
@@ -229,7 +220,7 @@ class KonsumenApiController extends Controller
         ]);
 
         $keranjang = session('keranjang', []);
-        $idMenu    = (int) $request->id_menu;
+        $idMenu = (int) $request->id_menu;
 
         if (! isset($keranjang[$idMenu])) {
             return $this->errorResponse('Item tidak ditemukan di keranjang', 404);
@@ -242,7 +233,7 @@ class KonsumenApiController extends Controller
         $totalHarga = array_sum(array_column($keranjang, 'subtotal'));
 
         return $this->successResponse([
-            'keranjang'  => $keranjang,
+            'keranjang' => $keranjang,
             'totalHarga' => (int) $totalHarga,
         ], 'Catatan berhasil disimpan');
     }
@@ -251,8 +242,7 @@ class KonsumenApiController extends Controller
      * Finalisasi pesanan (Checkout API): Menulis data pesanan dan rincian ke database.
      * Mengamankan data dengan memproses query di dalam transaksi database atomik (DB::transaction).
      *
-     * @param  \Illuminate\Http\Request  $request  Objek HTTP request pembawa nama_konsumen
-     * @return \Illuminate\Http\JsonResponse
+     * @param  Request  $request  Objek HTTP request pembawa nama_konsumen
      */
     public function storePesan(Request $request): JsonResponse
     {
@@ -273,7 +263,7 @@ class KonsumenApiController extends Controller
         ]);
 
         // 3. Generasi nomor unik pesanan kustom
-        $noPesanan  = 'PS-' . date('YmdHis') . '-' . strtoupper(Str::random(4));
+        $noPesanan = 'PS-'.date('YmdHis').'-'.strtoupper(Str::random(4));
         $totalHarga = array_sum(array_column($keranjang, 'subtotal'));
 
         try {
@@ -281,23 +271,23 @@ class KonsumenApiController extends Controller
             DB::transaction(function () use ($noPesanan, $totalHarga, $keranjang, $request) {
                 // A. Buat header transaksi
                 Pesanan::create([
-                    'no_pesanan'        => $noPesanan,
-                    'id_user'           => null,
-                    'id_meja'           => session('id_meja'),
-                    'nama_konsumen'     => $request->nama_konsumen,
-                    'total_harga'       => $totalHarga,
+                    'no_pesanan' => $noPesanan,
+                    'id_user' => null,
+                    'id_meja' => session('id_meja'),
+                    'nama_konsumen' => $request->nama_konsumen,
+                    'total_harga' => $totalHarga,
                     'status_pembayaran' => 'belum bayar', // State awal sebelum dialihkan ke payment gateway
-                    'status_pesanan'    => 'menunggu konfirmasi',
+                    'status_pesanan' => 'menunggu konfirmasi',
                 ]);
 
                 // B. Buat detail item belanjaan
                 foreach ($keranjang as $item) {
                     DetailPesanan::create([
                         'no_pesanan' => $noPesanan,
-                        'id_menu'    => $item['id_menu'],
-                        'jumlah'     => $item['jumlah'],
-                        'catatan'    => $item['catatan'],
-                        'subtotal'   => $item['subtotal'],
+                        'id_menu' => $item['id_menu'],
+                        'jumlah' => $item['jumlah'],
+                        'catatan' => $item['catatan'],
+                        'subtotal' => $item['subtotal'],
                     ]);
                 }
             });
@@ -309,7 +299,7 @@ class KonsumenApiController extends Controller
         session()->forget('keranjang');
 
         return $this->successResponse([
-            'no_pesanan'  => $noPesanan,
+            'no_pesanan' => $noPesanan,
             'total_harga' => (int) $totalHarga,
         ], 'Pesanan berhasil dibuat', 201);
     }
@@ -318,7 +308,6 @@ class KonsumenApiController extends Controller
      * Cek status terbaru pesanan konsumen berdasarkan no_pesanan.
      *
      * @param  string  $noPesanan  Nomor transaksi pesanan referensi
-     * @return \Illuminate\Http\JsonResponse
      */
     public function statusPesanan(string $noPesanan): JsonResponse
     {
@@ -330,18 +319,18 @@ class KonsumenApiController extends Controller
         }
 
         return $this->successResponse([
-            'no_pesanan'        => $pesanan->no_pesanan,
-            'status_pesanan'    => $pesanan->status_pesanan,
+            'no_pesanan' => $pesanan->no_pesanan,
+            'status_pesanan' => $pesanan->status_pesanan,
             'status_pembayaran' => $pesanan->status_pembayaran,
-            'tgl_pembayaran'    => $pesanan->tgl_pembayaran,
+            'tgl_pembayaran' => $pesanan->tgl_pembayaran,
         ]);
     }
 
     /**
      * Membuat Invoice instan di platform payment gateway Xendit untuk transaksi terkait.
      *
-     * @param  \Illuminate\Http\Request  $request  Objek HTTP request pembawa no_pesanan target
-     * @return \Illuminate\Http\JsonResponse Respon berisi tautan checkout payment link
+     * @param  Request  $request  Objek HTTP request pembawa no_pesanan target
+     * @return JsonResponse Respon berisi tautan checkout payment link
      */
     public function bayar(Request $request): JsonResponse
     {
@@ -366,20 +355,20 @@ class KonsumenApiController extends Controller
 
             // 3. Buat remote invoice link di platform Xendit
             $invoice = Invoice::create([
-                'external_id'          => $pesanan->no_pesanan,
-                'amount'               => $pesanan->total_harga,
-                'payer_email'          => 'konsumen@kohvito.com',
-                'description'          => 'Pembayaran #' . $pesanan->no_pesanan,
-                'invoice_duration'     => 86400, // Aktif selama 24 jam
-                'currency'             => 'IDR',
-                'customer'             => ['given_names' => $pesanan->nama_konsumen],
+                'external_id' => $pesanan->no_pesanan,
+                'amount' => $pesanan->total_harga,
+                'payer_email' => 'konsumen@kohvito.com',
+                'description' => 'Pembayaran #'.$pesanan->no_pesanan,
+                'invoice_duration' => 86400, // Aktif selama 24 jam
+                'currency' => 'IDR',
+                'customer' => ['given_names' => $pesanan->nama_konsumen],
             ]);
 
             return $this->successResponse([
                 'invoice_url' => $invoice['invoice_url'],
             ], 'Invoice berhasil dibuat');
         } catch (\Throwable $e) {
-            return $this->errorResponse('Gagal membuat invoice pembayaran: ' . $e->getMessage(), 500);
+            return $this->errorResponse('Gagal membuat invoice pembayaran: '.$e->getMessage(), 500);
         }
     }
 }

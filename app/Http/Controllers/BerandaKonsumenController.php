@@ -13,14 +13,12 @@ use Illuminate\View\View;
 
 /**
  * Class BerandaKonsumenController
- * 
+ *
  * Controller ini bertindak sebagai gerbang masuk utama antarmuka Konsumen.
  * Mengelola logic pencocokan sesi unik per meja kafe setelah pemindaian kode QR (*scan QR*),
  * standardisasi session-scoping konsumen baru/pindah meja, penyediaan data katalog menu,
  * serta menyajikan fragment HTML detail hidangan untuk disisipkan ke dalam slide-up drawer mobile
  * atau dialog centered box pada desktop.
- *
- * @package App\Http\Controllers
  */
 class BerandaKonsumenController extends Controller
 {
@@ -30,8 +28,8 @@ class BerandaKonsumenController extends Controller
      * Mencegah tumpang tindih keranjang antar user yang memindai meja sama atau saat berpindah meja fisik.
      *
      * @param  string  $noMeja  Nomor identitas meja asal scan QR
-     * @param  \Illuminate\Http\Request  $request  Objek HTTP request aktif
-     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+     * @param  Request  $request  Objek HTTP request aktif
+     * @return View|RedirectResponse
      */
     public function index(string $noMeja, Request $request)
     {
@@ -43,7 +41,7 @@ class BerandaKonsumenController extends Controller
         }
 
         // 2. Membaca scope unik token dari query parameter dan session saat ini
-        $urlScope     = $request->query('u');
+        $urlScope = $request->query('u');
         $sessionScope = session('konsumen_scope_id');
         $sessionMejaNo = session('id_meja_no');
 
@@ -67,17 +65,17 @@ class BerandaKonsumenController extends Controller
             // 6. Tulis ulang penampung informasi meja fisik dan identitas scope di session server
             session([
                 'konsumen_scope_id' => $newScope,
-                'id_meja'           => $meja->id_meja,
-                'id_meja_no'        => $meja->no_meja,
+                'id_meja' => $meja->id_meja,
+                'id_meja_no' => $meja->no_meja,
             ]);
 
             // 7. Lakukan pengalihan URL dengan menambahkan parameter query scope unik baru tersebut
-            return redirect()->to(route('konsumen.beranda', $meja->no_meja) . '?u=' . $newScope);
+            return redirect()->to(route('konsumen.beranda', $meja->no_meja).'?u='.$newScope);
         }
 
         // 8. Pastikan data meja terkunci kembali di dalam session jika scope valid terdeteksi
         session([
-            'id_meja'    => $meja->id_meja,
+            'id_meja' => $meja->id_meja,
             'id_meja_no' => $meja->no_meja,
         ]);
 
@@ -94,14 +92,13 @@ class BerandaKonsumenController extends Controller
      * Endpoint API JSON: Memperoleh daftar katalog menu berstatus 'Tersedia' untuk keperluan filtering instan.
      * Mendukung pemfilteran opsional berbasis id_kategori.
      *
-     * @param  \Illuminate\Http\Request  $request  Objek HTTP request pembawa filter kategori
-     * @return \Illuminate\Http\JsonResponse
+     * @param  Request  $request  Objek HTTP request pembawa filter kategori
      */
     public function getData(Request $request): JsonResponse
     {
         // 1. Validasi opsional parameter kategori jika disertakan
         $request->validate([
-            'id_kategori' => 'sometimes|integer|exists:kategori_menu,id_kategori'
+            'id_kategori' => 'sometimes|integer|exists:kategori_menu,id_kategori',
         ]);
 
         // 2. Susun query pencarian menu yang berstatus aktif/tersedia
@@ -128,9 +125,8 @@ class BerandaKonsumenController extends Controller
      *    mengembalikan potongan HTML saja untuk di-inject ke sheet slide-up / modal centered dialog.
      * 2. **Full Page**: Permintaan penelusuran URL biasa, menyajikan halaman penuh mandiri.
      *
-     * @param  \Illuminate\Http\Request  $request  Objek HTTP request
+     * @param  Request  $request  Objek HTTP request
      * @param  string  $id  ID Unik menu yang dicari detailnya
-     * @return \Illuminate\View\View
      */
     public function detail(Request $request, string $id): View
     {

@@ -17,8 +17,8 @@ class MejaSeeder extends Seeder
 
         for ($i = 1; $i <= 10; $i++) {
             $mejaData[] = [
-                'no_meja' => 'M' . str_pad($i, 2, '0', STR_PAD_LEFT),
-                'qr_code' => 'qrcodes/meja-' . str_pad($i, 2, '0', STR_PAD_LEFT) . '.png',
+                'no_meja' => 'M'.str_pad($i, 2, '0', STR_PAD_LEFT),
+                'qr_code' => 'qrcodes/meja-'.str_pad($i, 2, '0', STR_PAD_LEFT).'.png',
             ];
         }
 

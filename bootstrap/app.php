@@ -15,7 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'role'         => CheckRole::class,
+            'role' => CheckRole::class,
             'order.status' => CheckOrderStatus::class,
         ]);
         $middleware->validateCsrfTokens(except: [
