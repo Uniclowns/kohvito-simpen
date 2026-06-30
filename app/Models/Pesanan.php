@@ -19,8 +19,8 @@ use Illuminate\Support\Carbon;
  * @property int $id_meja ID Meja fisik tempat pemesanan dilakukan (Foreign Key dari `meja`)
  * @property string $nama_konsumen Nama pemesan/konsumen
  * @property int $total_harga Akumulasi total harga seluruh item dalam pesanan ini
- * @property string $status_pembayaran Status bayar ('belum bayar', 'menunggu', 'lunas', 'gagal')
- * @property string $status_pesanan Status progres ('menunggu konfirmasi', 'diproses', 'selesai', 'dibatalkan')
+ * @property string $status_pembayaran Status bayar ('menunggu', 'lunas') — sesuai enum migrasi
+ * @property string $status_pesanan Status progres ('menunggu konfirmasi', 'diproses', 'selesai') — sesuai enum migrasi
  * @property string|null $catatan_pesanan Catatan umum global untuk pesanan
  * @property string|null $midtrans_transaction_id ID transaksi eksternal dari sistem Midtrans
  * @property string|null $qr_code Konten string gambar QR untuk scan bayar
@@ -77,8 +77,8 @@ class Pesanan extends Model
         'id_meja',                 // Referensi meja fisik pelanggan
         'nama_konsumen',           // Nama pelanggan
         'total_harga',             // Nilai tagihan bruto transaksi
-        'status_pembayaran',       // Enum: belum bayar, menunggu, lunas, gagal
-        'status_pesanan',          // Enum: menunggu konfirmasi, diproses, selesai, dibatalkan
+        'status_pembayaran',       // Enum: menunggu, lunas
+        'status_pesanan',          // Enum: menunggu konfirmasi, diproses, selesai
         'catatan_pesanan',         // Catatan khusus/request pelanggan secara global
         'midtrans_transaction_id', // ID Transaksi Midtrans (nullable)
         'qr_url',                  // Tautan QR Code dari gateway (nullable)
@@ -140,5 +140,22 @@ class Pesanan extends Model
             'no_pesanan',         // Foreign key di tabel detail_pesanan
             'no_pesanan'          // Local key di tabel pesanan
         );
+    }
+
+    /**
+     * Tandai pesanan sebagai lunas setelah pembayaran dikonfirmasi gateway.
+     *
+     * Transisi status pembayaran-sukses yang terpusat: menetapkan pembayaran
+     * 'lunas', mengantrekan pesanan ke dapur ('menunggu konfirmasi'), dan
+     * mencatat waktu pelunasan. Dipakai oleh seluruh jalur konfirmasi bayar
+     * langsung (webhook callback Xendit/Midtrans, polling status, simulator).
+     */
+    public function markAsPaid(): void
+    {
+        $this->update([
+            'status_pembayaran' => 'lunas',
+            'status_pesanan' => 'menunggu konfirmasi',
+            'tgl_pembayaran' => now(),
+        ]);
     }
 }

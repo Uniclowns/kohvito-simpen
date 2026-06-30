@@ -133,11 +133,7 @@ class BayarController extends Controller
                 // 4. Jika status bernilai 'capture' atau 'settlement' (berhasil lunas)
                 if (in_array($remoteStatus, ['capture', 'settlement'], true)) {
                     // 5. Perbarui database lokal ke status lunas secara atomik
-                    $pesanan->update([
-                        'status_pembayaran' => 'lunas',
-                        'status_pesanan' => 'menunggu konfirmasi',
-                        'tgl_pembayaran' => now(),
-                    ]);
+                    $pesanan->markAsPaid();
                 }
             } catch (\Throwable $e) {
                 // 6. Catat log kegagalan penarikan status agar sistem tidak terhenti
@@ -241,11 +237,7 @@ class BayarController extends Controller
 
         // 2. Jika disimulasikan lunas
         if ($hasil === 'lunas') {
-            $pesanan->update([
-                'status_pembayaran' => 'lunas',
-                'status_pesanan' => 'menunggu konfirmasi',
-                'tgl_pembayaran' => now(),
-            ]);
+            $pesanan->markAsPaid();
 
             // Kembali ke halaman tunggu bayar agar script polling di frontend menangkap perubahan lunas
             return redirect()->route('konsumen.pembayaran', $pesanan->no_pesanan);
@@ -429,11 +421,7 @@ class BayarController extends Controller
         }
 
         // 3. Ubah status transaksi lokal menjadi Lunas secara instan
-        $pesanan->update([
-            'status_pembayaran' => 'lunas',
-            'status_pesanan' => 'menunggu konfirmasi',
-            'tgl_pembayaran' => now(),
-        ]);
+        $pesanan->markAsPaid();
 
         return response()->json(['status' => 'ok']);
     }
@@ -476,11 +464,7 @@ class BayarController extends Controller
         }
 
         // 3. Tandai pesanan lunas di sistem internal
-        $pesanan->update([
-            'status_pembayaran' => 'lunas',
-            'status_pesanan' => 'menunggu konfirmasi',
-            'tgl_pembayaran' => now(),
-        ]);
+        $pesanan->markAsPaid();
 
         return response()->json(['status' => 'ok']);
     }
