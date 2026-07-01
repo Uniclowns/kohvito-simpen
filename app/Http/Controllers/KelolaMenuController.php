@@ -65,43 +65,14 @@ class KelolaMenuController extends Controller
      */
     public function storeMenu(SaveMenuRequest $request): RedirectResponse
     {
-        // 1. Ambil input ID kategori dari form, fallback ke default kategori jika kosong
-        //    (Makanan -> Kategori 3, Minuman -> Kategori 1)
-        $kategoriIds = $request->input('id_kategori', []);
-        if (empty($kategoriIds)) {
-            $kategoriIds = [$request->jenis_menu === 'Makanan' ? 3 : 1];
-        }
+        $kategoriIds = $this->resolveKategoriIds($request);
 
-        // 2. Tentukan status ketersediaan awal secara cerdas berdasarkan input kuantitas stok
-        $status = $request->stock > 0 ? 'Tersedia' : 'Tidak Tersedia';
+        // Gambar wajib saat create (lihat SaveMenuRequest); simpan hasil resize WebP-nya
+        $gambarFilename = $request->hasFile('gambar_menu')
+            ? $this->saveMenuImage($request->file('gambar_menu'))
+            : null;
 
-        // 3. Set kategori makanan pedas jika jenis menu adalah Makanan
-        $kategoriMakanan = null;
-        if ($request->jenis_menu === 'Makanan') {
-            $kategoriMakanan = $request->has('is_pedas') ? 'Pedas' : 'Tidak Pedas';
-        }
-
-        // 4. Pemrosesan unggah berkas gambar baru jika dilampirkan
-        $gambarFilename = null;
-        if ($request->hasFile('gambar_menu')) {
-            $gambarFilename = $this->saveMenuImage($request->file('gambar_menu'));
-        }
-
-        // 5. Simpan baris data menu baru ke database
-        $menu = Menu::create([
-            'nama_menu' => $request->nama_menu,
-            'deskripsi' => $request->deskripsi,
-            'komposisi' => $request->komposisi,
-            'harga' => $request->harga,
-            'stock' => $request->stock,
-            'gambar_menu' => $gambarFilename,
-            'status_ketersediaan' => $status,
-            'jenis_menu' => $request->jenis_menu,
-            'kategori_makanan' => $kategoriMakanan,
-            'tipe_minuman' => $request->jenis_menu === 'Minuman' ? $request->tipe_minuman : null,
-        ]);
-
-        // 6. Sinkronisasikan tabel pivot `menu_kategori` secara instan
+        $menu = Menu::create($this->buildMenuAttributes($request, $gambarFilename));
         $menu->kategoris()->sync($kategoriIds);
 
         return redirect()->route('admin.menu.index')
@@ -119,47 +90,19 @@ class KelolaMenuController extends Controller
     public function updateMenu(SaveMenuRequest $request, string $id): RedirectResponse
     {
         $menu = Menu::findOrFail($id);
+        $kategoriIds = $this->resolveKategoriIds($request);
 
-        // 1. Tentukan kategori default jika kosong
-        $kategoriIds = $request->input('id_kategori', []);
-        if (empty($kategoriIds)) {
-            $kategoriIds = [$request->jenis_menu === 'Makanan' ? 3 : 1];
-        }
-
-        // 2. Set status ketersediaan awal berbasis stok baru
-        $status = $request->stock > 0 ? 'Tersedia' : 'Tidak Tersedia';
-
-        // 3. Set kategori pedas untuk jenis makanan
-        $kategoriMakanan = null;
-        if ($request->jenis_menu === 'Makanan') {
-            $kategoriMakanan = $request->has('is_pedas') ? 'Pedas' : 'Tidak Pedas';
-        }
-
-        // 4. Pemrosesan penggantian gambar
+        // Pertahankan gambar lama; bila ada unggahan baru, hapus berkas lama lalu simpan yang baru
         $gambarFilename = $menu->gambar_menu;
         if ($request->hasFile('gambar_menu')) {
-            // Hapus gambar lama dari public storage untuk menghemat ruang penyimpanan server
             if ($gambarFilename) {
                 Storage::disk('public')->delete('menu-images/'.$gambarFilename);
             }
-            // Simpan gambar baru hasil manipulasi resize WebP
             $gambarFilename = $this->saveMenuImage($request->file('gambar_menu'));
         }
 
-        // 5. Perbarui nilai atribut model menu
-        $menu->nama_menu = $request->nama_menu;
-        $menu->deskripsi = $request->deskripsi;
-        $menu->komposisi = $request->komposisi;
-        $menu->harga = $request->harga;
-        $menu->stock = $request->stock;
-        $menu->gambar_menu = $gambarFilename;
-        $menu->status_ketersediaan = $status;
-        $menu->jenis_menu = $request->jenis_menu;
-        $menu->kategori_makanan = $kategoriMakanan;
-        $menu->tipe_minuman = $request->jenis_menu === 'Minuman' ? $request->tipe_minuman : null;
-
         try {
-            $menu->save();
+            $menu->fill($this->buildMenuAttributes($request, $gambarFilename))->save();
             // Sinkronisasi ulang relasi pivot kategori
             $menu->kategoris()->sync($kategoriIds);
         } catch (\Throwable $e) {
@@ -171,6 +114,46 @@ class KelolaMenuController extends Controller
         return redirect()->route('admin.menu.index')
             ->with('success', 'Menu berhasil diperbarui.')
             ->with('menu_action_success', 'edit');
+    }
+
+    /**
+     * Susun atribut model menu dari input form. Dipakai bersama oleh proses tambah & ubah
+     * agar penurunan status ketersediaan (dari stok) serta kategori makanan/tipe minuman
+     * (dari jenis menu) konsisten di kedua jalur.
+     *
+     * @return array<string, mixed>
+     */
+    private function buildMenuAttributes(SaveMenuRequest $request, ?string $gambarFilename): array
+    {
+        return [
+            'nama_menu' => $request->nama_menu,
+            'deskripsi' => $request->deskripsi,
+            'komposisi' => $request->komposisi,
+            'harga' => $request->harga,
+            'stock' => $request->stock,
+            'gambar_menu' => $gambarFilename,
+            'status_ketersediaan' => $request->stock > 0 ? 'Tersedia' : 'Tidak Tersedia',
+            'jenis_menu' => $request->jenis_menu,
+            'kategori_makanan' => $request->jenis_menu === 'Makanan'
+                ? ($request->has('is_pedas') ? 'Pedas' : 'Tidak Pedas')
+                : null,
+            'tipe_minuman' => $request->jenis_menu === 'Minuman' ? $request->tipe_minuman : null,
+        ];
+    }
+
+    /**
+     * Tentukan ID kategori terpilih; fallback ke kategori default bila input kosong
+     * (Makanan → 3, Minuman → 1).
+     *
+     * @return array<int, mixed>
+     */
+    private function resolveKategoriIds(SaveMenuRequest $request): array
+    {
+        $kategoriIds = $request->input('id_kategori', []);
+
+        return empty($kategoriIds)
+            ? [$request->jenis_menu === 'Makanan' ? 3 : 1]
+            : $kategoriIds;
     }
 
     /**
