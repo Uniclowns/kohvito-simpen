@@ -155,33 +155,40 @@ trait CartSessionScope
     }
 
     /**
-     * Catat sebuah tracking_code ke riwayat session konsumen.
+     * Validasi format kode pelacakan publik ("KV-" + 5 alfanumerik kapital).
+     * Dipakai sebagai gerbang sebelum menyentuh database agar endpoint publik
+     * tidak bisa dipakai menebak/enumerasi nilai lain.
      */
-    protected function pushRiwayatSession(string $trackingCode): void
+    protected function isValidTrackingCode(string $kode): bool
     {
-        $riwayat = session('riwayat_pesanan', []);
+        return (bool) preg_match('/^KV-[A-Z0-9]{5}$/', $kode);
+    }
 
-        if (! in_array($trackingCode, $riwayat, true)) {
-            $riwayat[] = $trackingCode;
-        }
+    /**
+     * Catat satu atau banyak tracking_code ke riwayat session konsumen.
+     *
+     * @param  string|array<int, string>  $trackingCodes
+     */
+    protected function pushRiwayatSession(string|array $trackingCodes): void
+    {
+        $riwayat = array_merge(session('riwayat_pesanan', []), (array) $trackingCodes);
 
         session(['riwayat_pesanan' => array_values(array_unique($riwayat))]);
     }
 
     /**
-     * Bangun objek cookie riwayat pesanan yang sudah ditambahi tracking_code baru.
+     * Bangun objek cookie riwayat pesanan yang sudah ditambahi tracking_code baru
+     * (satu kode atau banyak sekaligus, mis. saat impor riwayat lintas-perangkat).
      *
      * Cookie berisi JSON array of tracking_code, dibatasi N kode terakhir.
      * Pemanggil bertanggung jawab menyertakan cookie ini ke response via
      * ->withCookie($cookie).
+     *
+     * @param  string|array<int, string>  $trackingCodes
      */
-    protected function buildRiwayatCookie(string $trackingCode): Cookie
+    protected function buildRiwayatCookie(string|array $trackingCodes): Cookie
     {
-        $riwayat = $this->decodeRiwayatCookie();
-
-        if (! in_array($trackingCode, $riwayat, true)) {
-            $riwayat[] = $trackingCode;
-        }
+        $riwayat = array_merge($this->decodeRiwayatCookie(), (array) $trackingCodes);
 
         // Batasi hanya N kode terakhir agar cookie tidak membengkak.
         $riwayat = array_slice(array_values(array_unique($riwayat)), -$this->riwayatCookieMax);

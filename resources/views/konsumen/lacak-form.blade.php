@@ -30,6 +30,12 @@
                 Masukkan kode pelacakan yang Anda terima setelah memesan (contoh: KV-7F3A9).
             </p>
 
+            @if (session('success'))
+                <div class="mt-3 rounded-[6px] bg-green-50 px-3 py-2 text-[12px] leading-4 text-green-700">
+                    {{ session('success') }}
+                </div>
+            @endif
+
             @if (session('error'))
                 <div class="mt-3 rounded-[6px] bg-red-50 px-3 py-2 text-[12px] leading-4 text-red-600">
                     {{ session('error') }}

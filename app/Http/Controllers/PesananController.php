@@ -11,8 +11,10 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Midtrans\Config;
 use Midtrans\Transaction;
@@ -30,6 +32,12 @@ use Midtrans\Transaction;
 class PesananController extends Controller
 {
     use CartSessionScope;
+
+    /**
+     * Umur token transfer riwayat lintas-perangkat (menit).
+     * Singkat agar tautan/QR yang terlanjur terlihat orang lain cepat mati.
+     */
+    private const TRANSFER_TTL_MENIT = 15;
 
     /**
      * Tampilkan seluruh daftar pesanan konsumen dalam sesi aktif saat ini.
@@ -73,6 +81,14 @@ class PesananController extends Controller
             $kode = 'KV-'.$kode;
         }
 
+        // Gerbang format sebelum menyentuh database: tracking_code adalah
+        // satu-satunya kunci publik, jadi input di luar pola KV-XXXXX ditolak dini.
+        if (! $this->isValidTrackingCode($kode)) {
+            return redirect()->route('konsumen.lacak.form')
+                ->withInput()
+                ->with('error', 'Pesanan dengan kode tersebut tidak ditemukan. Periksa kembali kode pelacakan Anda.');
+        }
+
         $pesanan = Pesanan::with(['detailPesanan.menu', 'meja'])
             ->where('tracking_code', $kode)
             ->first();
@@ -89,6 +105,83 @@ class PesananController extends Controller
 
         return response()
             ->view('konsumen.lacak', ['pesanan' => $pesanan, 'noMeja' => null])
+            ->withCookie($cookie);
+    }
+
+    /**
+     * Fitur "Buka riwayat di perangkat lain".
+     *
+     * Membuat token transfer acak yang memetakan daftar tracking_code milik
+     * browser INI ke cache dengan TTL singkat, lalu menampilkan URL + QR code
+     * yang dapat dipindai perangkat lain. Token tidak dapat ditebak (24 karakter
+     * acak) dan kedaluwarsa otomatis — tidak ada endpoint yang membeberkan
+     * riwayat tanpa memegang token/tracking_code.
+     */
+    public function transferRiwayat(): View|RedirectResponse
+    {
+        // Gabungkan riwayat cookie ke session dulu agar transfer memuat semuanya.
+        $this->restoreRiwayatDariCookie();
+
+        $riwayat = array_values(array_filter(
+            session('riwayat_pesanan', []),
+            fn ($kode) => is_string($kode) && $this->isValidTrackingCode($kode)
+        ));
+
+        if (empty($riwayat)) {
+            return redirect()->route('konsumen.lacak.form')
+                ->with('error', 'Belum ada riwayat pesanan di perangkat ini untuk dibagikan.');
+        }
+
+        $token = Str::random(24);
+        Cache::put('riwayat_transfer:'.$token, $riwayat, now()->addMinutes(self::TRANSFER_TTL_MENIT));
+
+        $url = route('konsumen.riwayat.terima', $token);
+
+        return view('konsumen.riwayat-transfer', [
+            'url' => $url,
+            'jumlah' => count($riwayat),
+            'ttlMenit' => self::TRANSFER_TTL_MENIT,
+        ]);
+    }
+
+    /**
+     * Sisi penerima transfer riwayat: dibuka di browser/perangkat BARU.
+     *
+     * Memvalidasi token dari cache, menyaring tracking_code yang benar-benar
+     * ada di database, lalu me-merge kode tersebut ke riwayat session + cookie
+     * browser aktif (tanpa duplikat) dan mengarahkan ke halaman riwayat.
+     */
+    public function terimaRiwayat(string $token): RedirectResponse
+    {
+        $riwayat = Cache::get('riwayat_transfer:'.$token);
+
+        if (! is_array($riwayat) || empty($riwayat)) {
+            return redirect()->route('konsumen.lacak.form')
+                ->with('error', 'Tautan riwayat tidak valid atau sudah kedaluwarsa. Buat tautan baru dari perangkat lama Anda.');
+        }
+
+        // Saring ulang: hanya kode berformat sah DAN benar-benar ada di database.
+        $kodeValid = Pesanan::whereIn(
+            'tracking_code',
+            array_values(array_filter($riwayat, fn ($k) => is_string($k) && $this->isValidTrackingCode($k)))
+        )->pluck('tracking_code')->all();
+
+        if (empty($kodeValid)) {
+            return redirect()->route('konsumen.lacak.form')
+                ->with('error', 'Tidak ada pesanan valid pada tautan riwayat ini.');
+        }
+
+        $this->pushRiwayatSession($kodeValid);
+        $cookie = $this->buildRiwayatCookie($kodeValid);
+
+        // Arahkan ke halaman riwayat bila konteks meja tersedia; jika belum
+        // scan QR meja di perangkat baru, form lacak menjadi beranda netral.
+        $tujuan = session('id_meja_no')
+            ? route('konsumen.pesanan', ['noMeja' => session('id_meja_no')])
+            : route('konsumen.lacak.form');
+
+        return redirect($tujuan)
+            ->with('success', count($kodeValid).' riwayat pesanan berhasil dipulihkan di perangkat ini.')
             ->withCookie($cookie);
     }
 
