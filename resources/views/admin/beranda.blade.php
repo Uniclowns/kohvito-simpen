@@ -175,7 +175,7 @@
         onConfirm="triggerPrintLaporan()" />
 
     {{-- ── Popup: Berhasil Mencetak Laporan Kasir (after Ya, Cetak) ── --}}
-    <x-popup-success id="popup-print-success" heading="Berhasil Mencetak Laporan Kasir" />
+    <x-popup-success id="popup-print-success" heading="Berhasil Mencetak Laporan Kasir" gif="success.gif" />
 
     {{-- ── Loading overlay (shown during toggle store form submit) ── --}}
     <x-loading-overlay />

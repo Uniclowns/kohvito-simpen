@@ -336,7 +336,7 @@
                 </svg>
             </button>
             <div class="flex flex-col items-center text-center">
-                <img src="{{ asset('images/illustration/print success.svg') }}" alt=""
+                <img src="{{ asset('images/gif/success.gif') }}" alt=""
                     class="mb-5 h-[170px] w-[180px] object-contain sm:mb-7 sm:h-[250px] sm:w-[240px]">
                 <p id="kasir-order-success-title"
                     class="max-w-[440px] text-[26px] font-bold leading-8 tracking-[1.1px] text-[#460001]">
