@@ -62,7 +62,7 @@
         </div>
 
         <div class="hero-headline absolute inset-x-0 top-[116px] px-[18px] sm:top-[124px] md:top-[104px]">
-            <div class="mx-auto max-w-md md:max-w-3xl lg:max-w-5xl">
+            <div class="mx-auto max-w-md md:max-w-3xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl">
                 <h1
                     class="text-mix-dodge text-[36px] font-bold leading-[40px] tracking-[1.8px] text-white/80 sm:text-[44px] sm:leading-[48px]">
                     Pesan Menu
@@ -120,7 +120,7 @@
          ║  MAIN CONTENT — Search + Category + Card Grid                   ║
          ╚══════════════════════════════════════════════════════════════════╝ --}}
     <main
-        class="relative z-10 mx-auto mt-[-60px] max-w-md px-[18px] pb-[140px] sm:max-w-xl md:max-w-3xl md:pb-12 lg:max-w-6xl">
+        class="relative z-10 mx-auto mt-[-60px] max-w-md px-[18px] pb-[140px] sm:max-w-xl md:max-w-3xl md:pb-12 lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl">
         <div class="contents">
 
             {{-- ╔══════════════════════════════════════════════════════════════════╗

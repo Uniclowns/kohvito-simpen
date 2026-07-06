@@ -22,7 +22,7 @@
     @endphp
 
     <header class="bg-brand-dark px-[18px] pt-[14px] pb-[12px] safe-top">
-        <div class="mx-auto flex max-w-[390px] md:max-w-4xl lg:max-w-5xl xl:max-w-6xl items-center justify-between">
+        <div class="mx-auto flex max-w-[390px] md:max-w-4xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl items-center justify-between">
             <p class="flex-1 text-[12px] font-bold leading-4 tracking-[0.6px] text-white">Pembayaran</p>
             <div class="flex h-8 w-8 shrink-0 items-center justify-center">
                 <img src="{{ asset('images/icons/MASCOOT WHITE.svg') }}" alt="Kohvito"
@@ -34,7 +34,7 @@
         </div>
     </header>
 
-    <main class="mx-auto max-w-[390px] md:max-w-4xl lg:max-w-5xl xl:max-w-6xl px-[18px] pb-6">
+    <main class="mx-auto max-w-[390px] md:max-w-4xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl px-[18px] pb-6">
         <div class="pt-3 pb-6">
             @if ($canCancel)
                 <button type="button"

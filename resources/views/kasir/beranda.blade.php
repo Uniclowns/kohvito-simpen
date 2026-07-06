@@ -87,7 +87,7 @@
     </div>
 
     {{-- ── 2 Terlaris Cards ── --}}
-    <div class="mb-10 grid grid-cols-1 gap-5 xl:grid-cols-2">
+    <div class="mb-10 grid grid-cols-1 gap-5 lg:grid-cols-2">
         <div
             class="flex flex-col sm:flex-row min-w-0 items-stretch sm:items-center overflow-hidden rounded-[9px] bg-white shadow-[2px_4px_4px_rgba(0,0,0,0.18)]">
             <div class="bg-[#681F1F] hidden sm:flex items-center justify-center px-6 shrink-0">
@@ -142,7 +142,7 @@
     </div>
 
     {{-- ── Charts ── --}}
-    <div class="grid grid-cols-1 gap-8 mb-8">
+    <div class="grid grid-cols-1 gap-8 mb-8 xl:grid-cols-2 xl:gap-6">
         <div class="rounded-[9px] bg-white px-4 pb-5 pt-5 shadow-sm sm:px-8 sm:pb-6 sm:pt-7">
             <p class="text-[24px] font-bold text-[#460001] tracking-[1px] mb-6">Pesanan Hari Ini</p>
             <div class="relative h-[260px] sm:h-[340px]">

@@ -12,7 +12,7 @@
 
     {{-- Top header bar --}}
     <header class="bg-brand-dark safe-top">
-        <div class="max-w-md md:max-w-3xl lg:max-w-5xl xl:max-w-6xl mx-auto px-[18px] pt-[14px] pb-3 flex items-center justify-between">
+        <div class="max-w-md md:max-w-2xl mx-auto px-[18px] pt-[14px] pb-3 flex items-center justify-between">
             <p class="flex-1 text-white text-[12px] leading-4 font-bold tracking-[0.6px] capitalize">Lacak Pesanan</p>
             <div class="w-8 h-8 flex items-center justify-center shrink-0">
                 <img src="{{ asset('images/icons/MASCOOT WHITE.svg') }}" alt="Kohvito" class="w-full h-full object-contain">
