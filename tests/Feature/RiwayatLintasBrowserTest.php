@@ -5,18 +5,15 @@ namespace Tests\Feature;
 use App\Models\Meja;
 use App\Models\Pesanan;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
 /**
- * Menguji pemulihan riwayat pesanan lintas-browser TANPA login:
- *
- *  Fitur A — impor riwayat via tracking_code di halaman /lacak-pesanan.
- *  Fitur B — transfer riwayat via tautan/QR bertoken cache ber-TTL.
+ * Menguji pemulihan riwayat pesanan lintas-browser TANPA login
+ * via tracking_code di halaman /lacak-pesanan.
  *
  * tracking_code adalah satu-satunya kunci publik; kode berformat salah
- * ditolak sebelum menyentuh database, token transfer acak & kedaluwarsa.
+ * ditolak sebelum menyentuh database.
  */
 class RiwayatLintasBrowserTest extends TestCase
 {
@@ -94,68 +91,5 @@ class RiwayatLintasBrowserTest extends TestCase
         $response->assertOk();
         $this->assertSame(['KV-AB2C3'], array_values(session('riwayat_pesanan')));
         $this->assertSame(['KV-AB2C3'], array_values($this->riwayatDariCookie($response)));
-    }
-
-    // ------------------------------------------------------------------
-    // Fitur B — transfer riwayat via tautan/QR bertoken
-    // ------------------------------------------------------------------
-
-    public function test_transfer_link_memulihkan_riwayat_di_browser_baru(): void
-    {
-        $this->buatPesanan('KV-AB2C3');
-        $this->buatPesanan('KV-DE4F5');
-
-        // Browser LAMA: buat tautan transfer dari riwayat session-nya.
-        $buat = $this->withSession(['riwayat_pesanan' => ['KV-AB2C3', 'KV-DE4F5', 'KODE-NGAWUR']])
-            ->post(route('konsumen.riwayat.transfer'));
-
-        $buat->assertOk();
-        $url = $buat->viewData('url');
-        $this->assertIsString($url);
-
-        // Browser BARU: session bersih, buka tautan transfer.
-        $this->flushSession();
-        $terima = $this->get($url);
-
-        $terima->assertRedirect(route('konsumen.lacak.form'));
-        $terima->assertSessionHas('success');
-        $this->assertEqualsCanonicalizing(['KV-AB2C3', 'KV-DE4F5'], session('riwayat_pesanan'));
-        $this->assertEqualsCanonicalizing(['KV-AB2C3', 'KV-DE4F5'], $this->riwayatDariCookie($terima));
-    }
-
-    public function test_token_salah_ditolak(): void
-    {
-        $response = $this->get(route('konsumen.riwayat.terima', Str::random(24)));
-
-        $response->assertRedirect(route('konsumen.lacak.form'));
-        $response->assertSessionHas('error');
-        $this->assertEmpty(session('riwayat_pesanan', []));
-    }
-
-    public function test_token_kedaluwarsa_ditolak(): void
-    {
-        $this->buatPesanan('KV-AB2C3');
-
-        $buat = $this->withSession(['riwayat_pesanan' => ['KV-AB2C3']])
-            ->post(route('konsumen.riwayat.transfer'));
-        $url = $buat->viewData('url');
-
-        // Simulasikan TTL habis: entri cache token dihapus.
-        Cache::flush();
-
-        $this->flushSession();
-        $terima = $this->get($url);
-
-        $terima->assertRedirect(route('konsumen.lacak.form'));
-        $terima->assertSessionHas('error');
-        $this->assertEmpty(session('riwayat_pesanan', []));
-    }
-
-    public function test_transfer_tanpa_riwayat_ditolak(): void
-    {
-        $response = $this->post(route('konsumen.riwayat.transfer'));
-
-        $response->assertRedirect(route('konsumen.lacak.form'));
-        $response->assertSessionHas('error');
     }
 }

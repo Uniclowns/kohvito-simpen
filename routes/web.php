@@ -144,17 +144,6 @@ Route::post('/lacak-pesanan', [PesananController::class, 'cari'])
     ->middleware('throttle:15,1')
     ->name('konsumen.lacak.cari');
 
-// Transfer riwayat lintas-perangkat via token cache ber-TTL (tanpa login).
-// POST membuat tautan+QR di perangkat lama; GET menerima & me-merge di perangkat baru.
-// Rate-limit ketat karena keduanya endpoint publik.
-Route::post('/riwayat/transfer', [PesananController::class, 'transferRiwayat'])
-    ->middleware('throttle:6,1')
-    ->name('konsumen.riwayat.transfer');
-Route::get('/riwayat/terima/{token}', [PesananController::class, 'terimaRiwayat'])
-    ->middleware('throttle:15,1')
-    ->where('token', '[A-Za-z0-9]{24}')
-    ->name('konsumen.riwayat.terima');
-
 // Aksi per-pesanan global (berbasis no_pesanan, tidak bergantung meja).
 Route::get('/pembayaran/{noPesanan}', [BayarController::class, 'qris'])->name('konsumen.pembayaran');
 Route::get('/pembayaran/{noPesanan}/qr', [BayarController::class, 'downloadQr'])->name('konsumen.bayar.qr');

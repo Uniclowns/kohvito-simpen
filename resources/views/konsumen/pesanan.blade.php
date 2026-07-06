@@ -58,19 +58,6 @@
                 </p>
             </div>
         @else
-            {{-- Transfer riwayat lintas-perangkat: buat tautan+QR bertoken (TTL singkat) --}}
-            <form method="POST" action="{{ route('konsumen.riwayat.transfer') }}" class="mb-4 flex justify-end">
-                @csrf
-                <button type="submit"
-                    class="inline-flex items-center gap-2 whitespace-nowrap rounded-[9px] bg-[#CCCCCC] px-3 py-1.5 text-[12px] leading-4 tracking-[0.6px] text-brand-red shadow-[2px_4px_2px_rgba(0,0,0,0.25)] active:scale-[0.98]">
-                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M8.684 13.342a3 3 0 100-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684zm0-9.316a3 3 0 105.368-2.684 3 3 0 00-5.368 2.684z" />
-                    </svg>
-                    Buka riwayat di perangkat lain
-                </button>
-            </form>
-
             <div class="grid grid-cols-1 gap-[18px] md:grid-cols-2 md:gap-6 lg:grid-cols-3" data-anim="stagger">
                 @foreach ($pesanans as $pesanan)
                     @php

@@ -165,30 +165,25 @@ trait CartSessionScope
     }
 
     /**
-     * Catat satu atau banyak tracking_code ke riwayat session konsumen.
-     *
-     * @param  string|array<int, string>  $trackingCodes
+     * Catat sebuah tracking_code ke riwayat session konsumen.
      */
-    protected function pushRiwayatSession(string|array $trackingCodes): void
+    protected function pushRiwayatSession(string $trackingCode): void
     {
-        $riwayat = array_merge(session('riwayat_pesanan', []), (array) $trackingCodes);
+        $riwayat = array_merge(session('riwayat_pesanan', []), [$trackingCode]);
 
         session(['riwayat_pesanan' => array_values(array_unique($riwayat))]);
     }
 
     /**
-     * Bangun objek cookie riwayat pesanan yang sudah ditambahi tracking_code baru
-     * (satu kode atau banyak sekaligus, mis. saat impor riwayat lintas-perangkat).
+     * Bangun objek cookie riwayat pesanan yang sudah ditambahi tracking_code baru.
      *
      * Cookie berisi JSON array of tracking_code, dibatasi N kode terakhir.
      * Pemanggil bertanggung jawab menyertakan cookie ini ke response via
      * ->withCookie($cookie).
-     *
-     * @param  string|array<int, string>  $trackingCodes
      */
-    protected function buildRiwayatCookie(string|array $trackingCodes): Cookie
+    protected function buildRiwayatCookie(string $trackingCode): Cookie
     {
-        $riwayat = array_merge($this->decodeRiwayatCookie(), (array) $trackingCodes);
+        $riwayat = array_merge($this->decodeRiwayatCookie(), [$trackingCode]);
 
         // Batasi hanya N kode terakhir agar cookie tidak membengkak.
         $riwayat = array_slice(array_values(array_unique($riwayat)), -$this->riwayatCookieMax);
