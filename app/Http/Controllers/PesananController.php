@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pesanan;
+use App\Traits\CartSessionScope;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Support\Collection;
@@ -27,16 +29,67 @@ use Midtrans\Transaction;
  */
 class PesananController extends Controller
 {
+    use CartSessionScope;
+
     /**
      * Tampilkan seluruh daftar pesanan konsumen dalam sesi aktif saat ini.
      * Jika kosong, sistem menyajikan antarmuka empty-state yang elegan.
      */
-    public function index(): View
+    public function index(?string $noMeja = null): View
     {
+        // 0. Pulihkan riwayat dari cookie backup (30 hari) bila session hilang/expired.
+        $this->restoreRiwayatDariCookie();
+
         // 1. Ambil koleksi histori pesanan dari session konsumen
         $pesanans = $this->pesananSesi();
 
-        return view('konsumen.pesanan', compact('pesanans'));
+        return view('konsumen.pesanan', compact('pesanans', 'noMeja'));
+    }
+
+    /**
+     * Halaman publik pelacakan pesanan via kode pelacakan (tracking_code).
+     * Menampilkan form input kode. Tidak butuh session/cookie — bisa diakses
+     * kapan saja oleh siapa pun yang memegang kode pelacakan pesanannya.
+     */
+    public function lacakForm(): View
+    {
+        return view('konsumen.lacak-form');
+    }
+
+    /**
+     * Proses pencarian pesanan berdasarkan tracking_code yang diinput konsumen.
+     * Bila ditemukan, sekaligus catat ulang kode ke riwayat session + cookie
+     * agar pesanan tersebut kembali muncul di daftar riwayat konsumen.
+     */
+    public function cari(Request $request): RedirectResponse|Response
+    {
+        $validated = $request->validate([
+            'tracking_code' => ['required', 'string', 'max:20'],
+        ]);
+
+        // Normalisasi input: buang spasi, huruf besar, toleran bila user lupa prefix "KV-".
+        $kode = strtoupper(trim($validated['tracking_code']));
+        if (! str_starts_with($kode, 'KV-') && ! str_contains($kode, '-')) {
+            $kode = 'KV-'.$kode;
+        }
+
+        $pesanan = Pesanan::with(['detailPesanan.menu', 'meja'])
+            ->where('tracking_code', $kode)
+            ->first();
+
+        if (! $pesanan) {
+            return redirect()->route('konsumen.lacak.form')
+                ->withInput()
+                ->with('error', 'Pesanan dengan kode tersebut tidak ditemukan. Periksa kembali kode pelacakan Anda.');
+        }
+
+        // Pesanan ketemu → catat ke riwayat session + cookie backup, lalu tampilkan timeline.
+        $this->pushRiwayatSession($pesanan->tracking_code);
+        $cookie = $this->buildRiwayatCookie($pesanan->tracking_code);
+
+        return response()
+            ->view('konsumen.lacak', ['pesanan' => $pesanan, 'noMeja' => null])
+            ->withCookie($cookie);
     }
 
     /**
@@ -44,7 +97,7 @@ class PesananController extends Controller
      *
      * @param  string  $noPesanan  Nomor transaksi pesanan referensi
      */
-    public function lacak(string $noPesanan): View
+    public function lacak(string $noMeja, string $noPesanan): View
     {
         // 1. Ambil data pesanan beserta relasi item hidangan dan meja
         $pesanan = Pesanan::with(['detailPesanan.menu', 'meja'])->find($noPesanan);
@@ -53,7 +106,7 @@ class PesananController extends Controller
             abort(404);
         }
 
-        return view('konsumen.lacak', compact('pesanan'));
+        return view('konsumen.lacak', compact('pesanan', 'noMeja'));
     }
 
     /**
@@ -61,8 +114,11 @@ class PesananController extends Controller
      * Prioritaskan melacak pesanan berjalan (belum selesai/batal) dari session.
      * Fallback ke pesanan terlama jika tidak ada pesanan aktif berjalan.
      */
-    public function lacakLatest(): View
+    public function lacakLatest(?string $noMeja = null): View
     {
+        // 0. Pulihkan riwayat dari cookie backup bila session hilang.
+        $this->restoreRiwayatDariCookie();
+
         // 1. Tarik list pesanan sesi
         $pesanans = $this->pesananSesi();
 
@@ -71,18 +127,21 @@ class PesananController extends Controller
             return ! in_array($p->status_pesanan, ['selesai', 'dibatalkan'], true);
         }) ?? $pesanans->first(); // Fallback ke transaksi terakhir jika tidak ada yang berjalan
 
-        return view('konsumen.lacak', compact('pesanan'));
+        return view('konsumen.lacak', compact('pesanan', 'noMeja'));
     }
 
     /**
      * Memperoleh seluruh data pesanan milik konsumen dari session browser.
      * Menjamin urutan data kronologis terbalik (transaksi terbaru diposisikan paling atas).
      *
+     * Riwayat kini disimpan sebagai daftar tracking_code (device-independent).
+     * Untuk backward-compatibility, nilai lama yang berupa no_pesanan tetap dicocokkan.
+     *
      * @return Collection Koleksi data model Pesanan
      */
     private function pesananSesi(): Collection
     {
-        // 1. Dapatkan daftar ID pesanan unik dari session riwayat pesanan pembeli
+        // 1. Dapatkan daftar kode unik dari session riwayat pesanan pembeli
         $ids = array_values(array_unique(session('riwayat_pesanan', [])));
 
         // 2. Dukungan backward-compatibility (fallback) jika sesi lama menggunakan model single string
@@ -94,18 +153,27 @@ class PesananController extends Controller
             return collect();
         }
 
-        // 3. Tarik seluruh baris pesanan yang tercocokkan dengan ID sesi dari database
-        $map = Pesanan::with(['detailPesanan.menu', 'meja'])
-            ->whereIn('no_pesanan', $ids)
-            ->get()
-            ->keyBy('no_pesanan');
+        // 3. Tarik seluruh baris pesanan yang tercocokkan dengan kode sesi dari database.
+        //    Cocokkan baik terhadap tracking_code (format baru) maupun no_pesanan (format lama).
+        $rows = Pesanan::with(['detailPesanan.menu', 'meja'])
+            ->whereIn('tracking_code', $ids)
+            ->orWhereIn('no_pesanan', $ids)
+            ->get();
 
-        // 4. Susun ulang koleksi agar tetap mempertahankan urutan kronologis terbaru di atas (reverse order)
+        // 4. Bangun peta lookup berdasar kedua kunci agar urutan bisa dipertahankan.
+        $map = collect();
+        foreach ($rows as $row) {
+            if ($row->tracking_code) {
+                $map->put($row->tracking_code, $row);
+            }
+            $map->put($row->no_pesanan, $row);
+        }
+
+        // 5. Susun ulang koleksi agar tetap mempertahankan urutan kronologis terbaru di atas (reverse order)
         return collect(array_reverse($ids))
-            ->map(function ($id) use ($map) {
-                return $map->get($id);
-            })
-            ->filter() // Bersihkan jika ada nilai kosong/pesanan terhapus
+            ->map(fn ($id) => $map->get($id))
+            ->filter()   // Bersihkan jika ada nilai kosong/pesanan terhapus
+            ->unique('no_pesanan')
             ->values();
     }
 
@@ -204,8 +272,7 @@ class PesananController extends Controller
 
         // 1. Kebijakan Keamanan: Tolak pembatalan sepihak jika pesanan sudah dibayar lunas atau sudah mulai dikerjakan dapur
         if ($pesanan->status_pembayaran === 'lunas' || $pesanan->status_pesanan !== 'menunggu konfirmasi') {
-            return redirect()
-                ->route('konsumen.lacak.detail', $pesanan->no_pesanan)
+            return redirect($pesanan->lacakUrl())
                 ->withErrors(['batal' => 'Pesanan tidak dapat dibatalkan karena sudah dibayar atau sedang diproses.']);
         }
 

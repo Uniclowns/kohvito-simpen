@@ -87,7 +87,7 @@ class BayarController extends Controller
 
         // 2. Apabila status pesanan sudah lunas, langsung arahkan ke pelacakan status
         if ($pesanan->status_pembayaran === 'lunas') {
-            return redirect()->route('konsumen.lacak.detail', $pesanan->no_pesanan);
+            return redirect($pesanan->lacakUrl());
         }
 
         // 3. Mengambil jenis driver pembayaran aktif saat ini
@@ -97,7 +97,7 @@ class BayarController extends Controller
         return match ($driver) {
             'xendit' => $this->bayarXendit($pesanan),
             'midtrans' => redirect()->route('konsumen.pembayaran', $pesanan->no_pesanan),
-            default => redirect()->route('konsumen.bayar.simulator', $pesanan->no_pesanan),
+            default => redirect()->route('konsumen.bayar.simulator', ['noMeja' => $pesanan->meja->no_meja, 'noPesanan' => $pesanan->no_pesanan]),
         };
     }
 
@@ -150,7 +150,7 @@ class BayarController extends Controller
             'status_pembayaran' => $pesanan->status_pembayaran,
             'tgl_pembayaran' => optional($pesanan->tgl_pembayaran)->toIso8601String(),
             'redirect' => $pesanan->status_pembayaran === 'lunas'
-                ? route('konsumen.lacak.detail', $pesanan->no_pesanan)
+                ? $pesanan->lacakUrl()
                 : null,
         ]);
     }
@@ -264,8 +264,8 @@ class BayarController extends Controller
                 'amount' => $pesanan->total_harga,
                 'description' => 'Pembayaran pesanan '.$pesanan->no_pesanan.' - '.$pesanan->nama_konsumen,
                 'invoice_duration' => 86400, // Aktif selama 24 jam
-                'success_redirect_url' => route('konsumen.lacak.detail', $pesanan->no_pesanan),
-                'failure_redirect_url' => route('konsumen.lacak.detail', $pesanan->no_pesanan),
+                'success_redirect_url' => $pesanan->lacakUrl(),
+                'failure_redirect_url' => $pesanan->lacakUrl(),
                 'currency' => 'IDR',
                 'customer' => ['given_names' => $pesanan->nama_konsumen],
             ]);

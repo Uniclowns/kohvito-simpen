@@ -43,7 +43,7 @@ class AdminLaporanKasirPdfTest extends TestCase
 
         $response->assertOk();
         $this->assertStringContainsString('application/pdf', (string) $response->headers->get('content-type'));
-        $this->assertStringContainsString('laporan-kasir.pdf', (string) $response->headers->get('content-disposition'));
+        $this->assertStringContainsString('laporan-kasir-2026-05-15.pdf', (string) $response->headers->get('content-disposition'));
     }
 
     public function test_laporan_kasir_pdf_view_renders_empty_state(): void

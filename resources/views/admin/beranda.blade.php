@@ -184,7 +184,8 @@
         function triggerPrintLaporan() {
             closeAppModal('confirm-print-laporan');
             const a = document.createElement('a');
-            a.href = "{{ route('admin.laporan.cetak') }}";
+            // Bawa filter tanggal dashboard yang sedang aktif agar laporan sesuai periode yang dilihat
+            a.href = "{{ route('admin.laporan.cetak') }}" + window.location.search;
             a.rel = 'noopener';
             document.body.appendChild(a);
             a.click();
@@ -344,6 +345,7 @@
                         <th class="px-4 py-4">Item</th>
                         <th class="px-4 py-4">Kasir</th>
                         <th class="px-4 py-4">Total</th>
+                        <th class="px-4 py-4">Pembayaran</th>
                         <th class="px-4 py-4">Status</th>
                     </tr>
                 </thead>
@@ -357,14 +359,24 @@
                             'menunggu konfirmasi' => ['Wait.svg',   'bg-state-yellow/20 text-state-yellow','Menunggu'],
                             default               => ['Cancel.svg', 'bg-state-red/15 text-state-red',      ucfirst($p->status_pesanan)],
                         };
+                        [$bayarBg, $bayarLabel] = match($p->status_pembayaran) {
+                            'lunas' => ['bg-state-green/15 text-state-green', 'Lunas'],
+                            'gagal' => ['bg-state-red/15 text-state-red',     'Gagal'],
+                            default => ['bg-state-yellow/20 text-state-yellow', 'Menunggu'],
+                        };
                     @endphp
                     <tr class="hover:bg-brand-light/40 transition-colors">
                         <td class="px-6 py-3 font-mono text-xs text-brand-black">{{ $p->no_pesanan }}</td>
-                        <td class="px-4 py-3 text-brand-gray whitespace-nowrap">{{ $p->tgl_pembayaran?->format('H:i') }}</td>
+                        <td class="px-4 py-3 text-brand-gray whitespace-nowrap">{{ $p->tgl_pesanan?->format('H:i') ?? '—' }}</td>
                         <td class="px-4 py-3 text-brand-black">{{ $p->meja?->no_meja ?? '—' }}</td>
                         <td class="px-4 py-3 text-brand-gray max-w-xs truncate" title="{{ $items }}">{{ $items ?: '—' }}</td>
                         <td class="px-4 py-3 text-brand-black">{{ $p->user?->nama_lengkap ?? '—' }}</td>
                         <td class="px-4 py-3 font-medium text-brand-black whitespace-nowrap">Rp {{ number_format($p->total_harga, 0, ',', '.') }}</td>
+                        <td class="px-4 py-3">
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium {{ $bayarBg }}">
+                                {{ $bayarLabel }}
+                            </span>
+                        </td>
                         <td class="px-4 py-3">
                             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium {{ $statusBg }}">
                                 <img src="{{ asset('images/icons/' . $statusIcon) }}" alt="" class="w-3.5 h-3.5 flex-shrink-0">
@@ -374,7 +386,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="px-6 py-8 text-center text-sm text-brand-gray">
+                        <td colspan="8" class="px-6 py-8 text-center text-sm text-brand-gray">
                             Belum ada pesanan hari ini.
                         </td>
                     </tr>

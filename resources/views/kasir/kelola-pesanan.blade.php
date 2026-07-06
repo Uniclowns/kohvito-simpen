@@ -121,7 +121,7 @@
 
                             <div class="mt-4 grid shrink-0 grid-cols-2 gap-3 sm:flex sm:h-11">
                                 <button type="button" data-order-panel-target="{{ $panelId }}"
-                                    class="flex-1 rounded-[9px] bg-[#CCCCCC] px-4 py-2 text-center text-[16px] leading-6 tracking-[0.7px] text-[#681F1F] shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition-colors hover:bg-[#BEBEBE]">
+                                    class="flex-1 whitespace-nowrap rounded-[9px] bg-[#CCCCCC] px-2 py-2 text-center text-[14px] leading-6 tracking-[0.7px] text-[#681F1F] shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition-colors hover:bg-[#BEBEBE]">
                                     Detail
                                 </button>
 
@@ -130,7 +130,7 @@
                                         @csrf
                                         @method('PUT')
                                         <button type="submit"
-                                            class="h-full w-full rounded-[9px] bg-[#681F1F] px-4 py-2 text-center text-[16px] leading-6 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition hover:brightness-110">
+                                            class="h-full w-full whitespace-nowrap rounded-[9px] bg-[#681F1F] px-2 py-2 text-center text-[14px] leading-6 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition hover:brightness-110">
                                             Terima Pesanan
                                         </button>
                                     </form>
@@ -139,12 +139,12 @@
                                         @csrf
                                         @method('PUT')
                                         <button type="submit"
-                                            class="h-full w-full rounded-[9px] bg-[#58E52D] px-4 py-2 text-center text-[16px] leading-6 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition hover:brightness-95">
+                                            class="h-full w-full whitespace-nowrap rounded-[9px] bg-[#58E52D] px-2 py-2 text-center text-[14px] leading-6 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition hover:brightness-95">
                                             Selesai
                                         </button>
                                     </form>
                                     <button type="button" data-order-print-url="{{ route('kasir.pesanan.cetak', $pesanan->no_pesanan) }}"
-                                        class="col-span-2 flex-1 rounded-[9px] bg-[#681F1F] px-4 py-2 text-center text-[16px] leading-6 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition hover:brightness-110 sm:col-span-1">
+                                        class="col-span-2 flex-1 whitespace-nowrap rounded-[9px] bg-[#681F1F] px-2 py-2 text-center text-[14px] leading-6 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition hover:brightness-110 sm:col-span-1">
                                         Cetak Struk
                                     </button>
                                 @endif
@@ -293,7 +293,7 @@
 
                             <div class="grid grid-cols-2 gap-3 px-4 pt-3 sm:flex sm:px-7">
                                 <button type="button" data-panel-close
-                                    class="min-w-0 flex-1 rounded-[9px] bg-[#CCCCCC] px-3 py-2 text-[15px] leading-6 tracking-[0.7px] text-[#681F1F] shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition-colors hover:bg-[#BEBEBE]">
+                                    class="min-w-0 flex-1 whitespace-nowrap rounded-[9px] bg-[#CCCCCC] px-2 py-2 text-[14px] leading-6 tracking-[0.7px] text-[#681F1F] shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition-colors hover:bg-[#BEBEBE]">
                                     Tutup
                                 </button>
                                 @if ($isWaiting)
@@ -301,7 +301,7 @@
                                         @csrf
                                         @method('PUT')
                                         <button type="submit"
-                                            class="w-full rounded-[9px] bg-[#681F1F] px-3 py-2 text-[15px] leading-6 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition hover:brightness-110">
+                                            class="w-full whitespace-nowrap rounded-[9px] bg-[#681F1F] px-2 py-2 text-[14px] leading-6 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition hover:brightness-110">
                                             Terima Pesanan
                                         </button>
                                     </form>
@@ -310,12 +310,12 @@
                                         @csrf
                                         @method('PUT')
                                         <button type="submit"
-                                            class="w-full rounded-[9px] bg-[#58E52D] px-3 py-2 text-[15px] leading-6 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition hover:brightness-95">
+                                            class="w-full whitespace-nowrap rounded-[9px] bg-[#58E52D] px-2 py-2 text-[14px] leading-6 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition hover:brightness-95">
                                             Selesai
                                         </button>
                                     </form>
                                     <button type="button" data-order-print-url="{{ route('kasir.pesanan.cetak', $pesanan->no_pesanan) }}"
-                                        class="col-span-2 min-w-0 flex-1 rounded-[9px] bg-[#681F1F] px-3 py-2 text-[15px] leading-6 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition hover:brightness-110 sm:col-span-1">
+                                        class="col-span-2 min-w-0 flex-1 whitespace-nowrap rounded-[9px] bg-[#681F1F] px-2 py-2 text-[14px] leading-6 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition hover:brightness-110 sm:col-span-1">
                                         Cetak Struk
                                     </button>
                                 @endif

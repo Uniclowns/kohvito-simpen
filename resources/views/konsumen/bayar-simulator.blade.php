@@ -30,7 +30,7 @@
                 Pilih hasil simulasi pembayaran di bawah ini.
             </p>
 
-            <form method="POST" action="{{ route('konsumen.bayar.simulator.callback', $pesanan->no_pesanan) }}">
+            <form method="POST" action="{{ route('konsumen.bayar.simulator.callback', ['noMeja' => $pesanan->meja->no_meja, 'noPesanan' => $pesanan->no_pesanan]) }}">
                 @csrf
                 <input type="hidden" name="hasil" value="lunas">
                 <button type="submit"
@@ -39,7 +39,7 @@
                 </button>
             </form>
 
-            <form method="POST" action="{{ route('konsumen.bayar.simulator.callback', $pesanan->no_pesanan) }}">
+            <form method="POST" action="{{ route('konsumen.bayar.simulator.callback', ['noMeja' => $pesanan->meja->no_meja, 'noPesanan' => $pesanan->no_pesanan]) }}">
                 @csrf
                 <input type="hidden" name="hasil" value="gagal">
                 <button type="submit"
@@ -48,7 +48,7 @@
                 </button>
             </form>
 
-            <a href="{{ route('konsumen.lacak.detail', $pesanan->no_pesanan) }}"
+            <a href="{{ $pesanan->lacakUrl() }}"
                class="mt-2 text-center text-[13px] tracking-[0.6px] text-brand-gray hover:underline">
                 &larr; Kembali ke halaman pesanan tanpa bayar
             </a>

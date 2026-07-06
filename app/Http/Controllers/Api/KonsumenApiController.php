@@ -9,6 +9,7 @@ use App\Models\Meja;
 use App\Models\Menu;
 use App\Models\Pesanan;
 use App\Traits\ApiResponses;
+use App\Traits\CartSessionScope;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -30,6 +31,7 @@ use Xendit\Xendit;
 class KonsumenApiController extends Controller
 {
     use ApiResponses; // Menyertakan trait untuk standarisasi format respon JSON
+    use CartSessionScope; // Helper keranjang per-meja + riwayat cookie
 
     /**
      * Landing page konsumen setelah scan QR meja fisik.
@@ -112,7 +114,7 @@ class KonsumenApiController extends Controller
      */
     public function keranjang(): JsonResponse
     {
-        $keranjang = session('keranjang', []);
+        $keranjang = $this->getKeranjang();
         $totalHarga = array_sum(array_column($keranjang, 'subtotal'));
 
         return $this->successResponse([
@@ -136,7 +138,7 @@ class KonsumenApiController extends Controller
         ]);
 
         $menu = Menu::findOrFail($request->id_menu);
-        $keranjang = session('keranjang', []);
+        $keranjang = $this->getKeranjang();
 
         $idMenu = (int) $request->id_menu;
         $jumlah = (int) $request->jumlah;
@@ -158,7 +160,7 @@ class KonsumenApiController extends Controller
         }
 
         // 4. Rekam pembaruan di session
-        session(['keranjang' => $keranjang]);
+        $this->putKeranjang($keranjang);
 
         $totalHarga = array_sum(array_column($keranjang, 'subtotal'));
 
@@ -181,7 +183,7 @@ class KonsumenApiController extends Controller
             'jumlah' => ['required', 'integer', 'min:0', 'max:99'],
         ]);
 
-        $keranjang = session('keranjang', []);
+        $keranjang = $this->getKeranjang();
         $idMenu = (int) $request->id_menu;
 
         if (! isset($keranjang[$idMenu])) {
@@ -197,7 +199,7 @@ class KonsumenApiController extends Controller
             $keranjang[$idMenu]['subtotal'] = $keranjang[$idMenu]['harga'] * $keranjang[$idMenu]['jumlah'];
         }
 
-        session(['keranjang' => $keranjang]);
+        $this->putKeranjang($keranjang);
 
         $totalHarga = array_sum(array_column($keranjang, 'subtotal'));
 
@@ -219,7 +221,7 @@ class KonsumenApiController extends Controller
             'catatan' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $keranjang = session('keranjang', []);
+        $keranjang = $this->getKeranjang();
         $idMenu = (int) $request->id_menu;
 
         if (! isset($keranjang[$idMenu])) {
@@ -228,7 +230,7 @@ class KonsumenApiController extends Controller
 
         // 1. Simpan catatan baru
         $keranjang[$idMenu]['catatan'] = $request->catatan;
-        session(['keranjang' => $keranjang]);
+        $this->putKeranjang($keranjang);
 
         $totalHarga = array_sum(array_column($keranjang, 'subtotal'));
 
@@ -251,7 +253,7 @@ class KonsumenApiController extends Controller
             return $this->errorResponse('Sesi meja tidak valid. Silakan scan QR Code kembali.', 422);
         }
 
-        $keranjang = session('keranjang', []);
+        $keranjang = $this->getKeranjang();
 
         // 2. Pastikan keranjang belanja tidak kosong
         if (empty($keranjang)) {
@@ -262,16 +264,18 @@ class KonsumenApiController extends Controller
             'nama_konsumen' => ['required', 'string', 'max:255'],
         ]);
 
-        // 3. Generasi nomor unik pesanan kustom
+        // 3. Generasi nomor unik pesanan kustom + kode pelacakan publik
         $noPesanan = 'PS-'.date('YmdHis').'-'.strtoupper(Str::random(4));
+        $trackingCode = Pesanan::generateTrackingCode();
         $totalHarga = array_sum(array_column($keranjang, 'subtotal'));
 
         try {
             // 4. Proses simpan database dalam satu transaksi terisolasi
-            DB::transaction(function () use ($noPesanan, $totalHarga, $keranjang, $request) {
+            DB::transaction(function () use ($noPesanan, $trackingCode, $totalHarga, $keranjang, $request) {
                 // A. Buat header transaksi
                 Pesanan::create([
                     'no_pesanan' => $noPesanan,
+                    'tracking_code' => $trackingCode,
                     'id_user' => null,
                     'id_meja' => session('id_meja'),
                     'nama_konsumen' => $request->nama_konsumen,
@@ -295,13 +299,18 @@ class KonsumenApiController extends Controller
             return $this->errorResponse('Gagal membuat pesanan, coba lagi.', 500);
         }
 
-        // 5. Bersihkan keranjang belanja session
-        session()->forget('keranjang');
+        // 5. Bersihkan HANYA keranjang belanja meja aktif (bukan seluruh session keranjang)
+        $this->forgetKeranjang();
+
+        // 6. Rekam tracking_code ke riwayat session + cookie backup (30 hari)
+        $this->pushRiwayatSession($trackingCode);
+        $cookie = $this->buildRiwayatCookie($trackingCode);
 
         return $this->successResponse([
             'no_pesanan' => $noPesanan,
+            'tracking_code' => $trackingCode,
             'total_harga' => (int) $totalHarga,
-        ], 'Pesanan berhasil dibuat', 201);
+        ], 'Pesanan berhasil dibuat', 201)->withCookie($cookie);
     }
 
     /**

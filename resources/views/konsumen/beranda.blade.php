@@ -300,11 +300,11 @@
             <div>
                 <h3 class="text-[20px] leading-[28px] font-bold tracking-[1px] mb-2.5">Navigation</h3>
                 <ul class="space-y-2 text-[12px] leading-[16px] tracking-[0.6px]">
-                    <li><a href="{{ route('konsumen.beranda', $meja->no_meja) }}" class="hover:underline">Menu</a>
+                    <li><a href="{{ route('konsumen.beranda', ['noMeja' => $meja->no_meja]) }}" class="hover:underline">Menu</a>
                     </li>
-                    <li><a href="{{ route('konsumen.pesanan') }}" class="hover:underline">Pesanan</a></li>
-                    <li><a href="{{ route('konsumen.keranjang') }}" class="hover:underline">Keranjang</a></li>
-                    <li><a href="{{ route('konsumen.lacak') }}" class="hover:underline">Lacak Pesanan</a></li>
+                    <li><a href="{{ route('konsumen.pesanan', ['noMeja' => $meja->no_meja]) }}" class="hover:underline">Pesanan</a></li>
+                    <li><a data-require-cart-scope href="{{ route('konsumen.keranjang', ['noMeja' => $meja->no_meja]) }}" class="hover:underline">Keranjang</a></li>
+                    <li><a href="{{ route('konsumen.tracking', ['noMeja' => $meja->no_meja]) }}" class="hover:underline">Lacak Pesanan</a></li>
                 </ul>
             </div>
 
@@ -352,7 +352,7 @@
          ║  BOTTOM NAVIGATION  (floating, fixed)                           ║
          ╚══════════════════════════════════════════════════════════════════╝ --}}
     @php
-        $keranjang = session('keranjang', []);
+        $keranjang = session('keranjang.'.session('id_meja'), []);
         $cartCount = array_sum(array_column($keranjang, 'jumlah'));
         $hasOrder = session('no_pesanan_baru');
     @endphp
@@ -582,7 +582,7 @@
             });
 
             try {
-                const res = await fetch(`/menu/${id}/detail?partial=1`, {
+                const res = await fetch(`/{{ $meja->no_meja }}/menu/${id}/detail?partial=1&id_meja={{ $meja->id_meja }}`, {
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
                         'Accept': 'text/html'

@@ -134,39 +134,47 @@ Route::prefix('kasir')->middleware(['auth', 'role:kasir'])->name('kasir.')->grou
 // Info halaman order ditutup
 Route::get('/order-tutup', fn () => view('konsumen.order-tutup'))->name('konsumen.order-tutup');
 
-// Tracking pesanan & kuitansi (tidak diblokir saat tutup)
+// Route global /keranjang dimatikan untuk konsumen: tidak boleh menampilkan keranjang random.
+Route::get('/keranjang', fn () => redirect('/')->with('error', 'Silakan scan QR meja terlebih dahulu.'));
+
+// Lacak Pesanan PUBLIK via kode pelacakan (tracking_code) — device-independent.
+// WAJIB dideklarasikan sebelum route dinamis /{noMeja} agar tidak dianggap nomor meja.
+Route::get('/lacak-pesanan', [PesananController::class, 'lacakForm'])->name('konsumen.lacak.form');
+Route::post('/lacak-pesanan', [PesananController::class, 'cari'])->name('konsumen.lacak.cari');
+
+// Aksi per-pesanan global (berbasis no_pesanan, tidak bergantung meja).
 Route::get('/pembayaran/{noPesanan}', [BayarController::class, 'qris'])->name('konsumen.pembayaran');
 Route::get('/pembayaran/{noPesanan}/qr', [BayarController::class, 'downloadQr'])->name('konsumen.bayar.qr');
 Route::get('/pembayaran/{noPesanan}/sync', [BayarController::class, 'syncStatus'])->name('konsumen.bayar.sync');
-
-// Daftar Pesanan — semua pesanan dalam sesi konsumen (Figma 1432-23620 / empty 1465-23298)
-Route::get('/pesanan', [PesananController::class, 'index'])->name('konsumen.pesanan');
-
-// Lacak Pesanan — timeline progress per pesanan (Figma 1465-22886 / empty 1465-24095)
-Route::get('/lacak', [PesananController::class, 'lacakLatest'])->name('konsumen.lacak');
-Route::get('/lacak/{noPesanan}', [PesananController::class, 'lacak'])->name('konsumen.lacak.detail');
-
-// Aksi per-pesanan (polling status, kuitansi, pembatalan)
 Route::get('/pesanan/{noPesanan}/status', [PesananController::class, 'status'])->name('konsumen.pesanan.status');
 Route::get('/pesanan/{noPesanan}/kuitansi', [PesananController::class, 'kuitansi'])->name('konsumen.pesanan.kuitansi');
 Route::delete('/pesanan/{noPesanan}/batal', [PesananController::class, 'batal'])->name('konsumen.pesanan.batal');
 
-// Keranjang & pemesanan (diblokir saat order ditutup)
-Route::middleware('order.status')->group(function () {
-    Route::get('/keranjang', [KeranjangKonsumenController::class, 'index'])->name('konsumen.keranjang');
-    Route::post('/keranjang/tambah', [KeranjangKonsumenController::class, 'storeTambahKeranjang'])->name('konsumen.keranjang.tambah');
-    Route::put('/keranjang/notes', [KeranjangKonsumenController::class, 'updateNotesPesanan'])->name('konsumen.keranjang.notes');
-    Route::put('/keranjang/update', [KeranjangKonsumenController::class, 'updatePesanan'])->name('konsumen.keranjang.update');
-    Route::post('/keranjang/pesan', [KeranjangKonsumenController::class, 'storePesan'])->name('konsumen.keranjang.pesan');
+// Keranjang & pemesanan konsumen wajib membawa konteks meja di URL.
+Route::middleware('order.status')
+    ->prefix('{noMeja}')
+    ->where(['noMeja' => 'M[0-9]+'])
+    ->group(function () {
+        Route::get('/', [BerandaKonsumenController::class, 'index'])->name('konsumen.beranda');
+        Route::get('/menu/data', [BerandaKonsumenController::class, 'getData'])->name('konsumen.menu.data');
+        Route::get('/menu/{id}/detail', [BerandaKonsumenController::class, 'detail'])->name('konsumen.menu.detail');
 
-    // Pembayaran
-    Route::post('/bayar', [BayarController::class, 'bayar'])->name('konsumen.bayar');
-    Route::post('/bayar/callback', [BayarController::class, 'callback'])->name('konsumen.bayar.callback');
-    Route::get('/bayar/simulator/{noPesanan}', [BayarController::class, 'simulator'])->name('konsumen.bayar.simulator');
-    Route::post('/bayar/simulator/{noPesanan}/callback', [BayarController::class, 'simulatorCallback'])->name('konsumen.bayar.simulator.callback');
+        Route::get('/keranjang', [KeranjangKonsumenController::class, 'index'])->name('konsumen.keranjang');
+        Route::post('/keranjang/tambah', [KeranjangKonsumenController::class, 'storeTambahKeranjang'])->name('konsumen.keranjang.tambah');
+        Route::put('/keranjang/notes', [KeranjangKonsumenController::class, 'updateNotesPesanan'])->name('konsumen.keranjang.notes');
+        Route::put('/keranjang/update', [KeranjangKonsumenController::class, 'updatePesanan'])->name('konsumen.keranjang.update');
+        Route::post('/checkout', [KeranjangKonsumenController::class, 'storePesan'])->name('konsumen.checkout.store');
+        Route::post('/keranjang/pesan', [KeranjangKonsumenController::class, 'storePesan'])->name('konsumen.keranjang.pesan');
 
-    // Beranda & Katalog Menu (scan QR → /{noMeja})
-    Route::get('/menu/data', [BerandaKonsumenController::class, 'getData'])->name('konsumen.menu.data');
-    Route::get('/menu/{id}/detail', [BerandaKonsumenController::class, 'detail'])->name('konsumen.menu.detail');
-    Route::get('/{noMeja}', [BerandaKonsumenController::class, 'index'])->name('konsumen.beranda');
-});
+        Route::get('/checkout', [KeranjangKonsumenController::class, 'index'])->name('konsumen.checkout');
+        Route::get('/pesanan', [PesananController::class, 'index'])->name('konsumen.pesanan');
+        Route::get('/tracking', [PesananController::class, 'lacakLatest'])->name('konsumen.tracking');
+        Route::get('/lacak', [PesananController::class, 'lacakLatest'])->name('konsumen.lacak');
+        Route::get('/lacak/{noPesanan}', [PesananController::class, 'lacak'])->name('konsumen.lacak.detail');
+
+        // Pembayaran
+        Route::post('/bayar', [BayarController::class, 'bayar'])->name('konsumen.bayar');
+        Route::post('/bayar/callback', [BayarController::class, 'callback'])->name('konsumen.bayar.callback');
+        Route::get('/bayar/simulator/{noPesanan}', [BayarController::class, 'simulator'])->name('konsumen.bayar.simulator');
+        Route::post('/bayar/simulator/{noPesanan}/callback', [BayarController::class, 'simulatorCallback'])->name('konsumen.bayar.simulator.callback');
+    });

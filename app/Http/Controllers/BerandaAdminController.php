@@ -84,17 +84,18 @@ class BerandaAdminController extends Controller
             ->orderByDesc('total_terjual')
             ->first();
 
-        // 8. Menarik daftar pesanan yang lunas dalam rentang tanggal filter saat ini
+        // 8. Menarik SEMUA pesanan yang dibuat dalam rentang tanggal filter saat ini
+        //    (termasuk yang belum/gagal bayar, ditandai badge status pembayaran di tabel)
         $pesananHariIni = Pesanan::with(['meja', 'user', 'detailPesanan.menu'])
-            ->whereBetween('tgl_pembayaran', [$filterMulai, $filterSelesai])
-            ->orderByDesc('tgl_pembayaran')
+            ->whereBetween('tgl_pesanan', [$filterMulai, $filterSelesai])
+            ->orderByDesc('tgl_pesanan')
             ->get();
 
         // 9. Chart Analitik A: Pola Kepadatan Pemesanan per Jam Hari Ini (08:00 - 22:00)
         $pesananPerJam = DB::table('pesanan')
-            ->select(DB::raw('HOUR(tgl_pembayaran) as jam'), DB::raw('COUNT(*) as total'))
-            ->whereDate('tgl_pembayaran', $today)
-            ->groupBy(DB::raw('HOUR(tgl_pembayaran)'))
+            ->select(DB::raw('HOUR(tgl_pesanan) as jam'), DB::raw('COUNT(*) as total'))
+            ->whereDate('tgl_pesanan', $today)
+            ->groupBy(DB::raw('HOUR(tgl_pesanan)'))
             ->get()
             ->keyBy('jam');
 
@@ -200,8 +201,14 @@ class BerandaAdminController extends Controller
             ->whereBetween('tgl_pembayaran', [$tanggalMulai, $tanggalSelesai])
             ->get();
 
-        // 3. Memanfaatkan DomPDF untuk merender template Blade menjadi file PDF secara instan untuk diunduh
+        // 3. Nama file menyertakan periode agar unduhan tiap hari tidak tertukar dengan file lama
+        $namaFile = 'laporan-kasir-'.$tanggalMulai->format('Y-m-d');
+        if (! $tanggalMulai->isSameDay($tanggalSelesai)) {
+            $namaFile .= '_sd_'.$tanggalSelesai->format('Y-m-d');
+        }
+
+        // 4. Memanfaatkan DomPDF untuk merender template Blade menjadi file PDF secara instan untuk diunduh
         return Pdf::loadView('admin.laporan-kasir-pdf', compact('pesanan', 'tanggalMulai', 'tanggalSelesai'))
-            ->download('laporan-kasir.pdf');
+            ->download($namaFile.'.pdf');
     }
 }

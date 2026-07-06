@@ -8,8 +8,9 @@
     bodyClass="min-h-screen bg-[#F6F6F6] pb-[140px] lg:pb-0 font-sans text-brand-black kvt-konsumen-mobile-view">
 
     @php
-        $mejaNo = session('id_meja_no');
-        $keranjang = session('keranjang', []);
+        $mejaNo = $noMeja ?? request()->route('noMeja') ?? session('id_meja_no');
+        $cartScope = request('s');
+        $keranjang = session('keranjang.'.strtoupper((string) $mejaNo).'.'.(string) $cartScope, []);
         $cartCount = array_sum(array_column($keranjang, 'jumlah'));
 
         // Chip status pesanan (Figma: pill kuning #FFE62F untuk "Pesanan Diproses").
@@ -37,7 +38,7 @@
     <main class="max-w-md md:max-w-3xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl mx-auto px-[18px] pt-4">
         {{-- Back link --}}
         @if ($mejaNo)
-            <a href="{{ route('konsumen.beranda', $mejaNo) }}"
+            <a href="{{ route('konsumen.beranda', ['noMeja' => $mejaNo]) }}"
                class="inline-flex items-center gap-3 text-brand-dark active:opacity-70 mb-3">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
@@ -96,6 +97,14 @@
                                 @endif
                             </span>
                         </div>
+
+                        {{-- Kode pelacakan (tracking_code) — dapat dipakai melacak dari perangkat lain --}}
+                        @if (! empty($pesanan->tracking_code))
+                            <div class="-mt-1 flex items-center gap-1 text-[10px] leading-3 tracking-[0.5px] text-brand-dark/60">
+                                <span>Kode pelacakan:</span>
+                                <span class="font-mono font-bold text-brand-dark select-all">{{ $pesanan->tracking_code }}</span>
+                            </div>
+                        @endif
 
                         {{-- Item list --}}
                         <div class="flex flex-col">
@@ -185,7 +194,7 @@
                                 </a>
                             @endif
 
-                            <a href="{{ route('konsumen.lacak.detail', $pesanan->no_pesanan) }}"
+                            <a href="{{ route('konsumen.lacak.detail', ['noMeja' => $mejaNo, 'noPesanan' => $pesanan->no_pesanan]) }}"
                                class="flex h-8 w-full items-center justify-center rounded-[9px] bg-[#681F1F] px-3 py-1.5 text-[14px] leading-5 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)] active:scale-95">
                                 Lacak Pesanan
                             </a>

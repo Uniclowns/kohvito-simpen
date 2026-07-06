@@ -12,7 +12,7 @@
 
             {{-- Menu --}}
             @if ($mejaNo)
-                <a href="{{ route('konsumen.beranda', $mejaNo) }}"
+                <a href="{{ route('konsumen.beranda', ['noMeja' => $mejaNo]) }}"
                     class="kvt-nav-item {{ $active === 'menu' ? 'is-active' : '' }} flex h-[58px] min-w-0 flex-1 items-center justify-center p-1.5 min-[361px]:w-[78px] min-[361px]:flex-none">
                     <div class="flex flex-col items-center justify-center gap-px">
                         <img src="{{ asset('images/icons/menu_konsumen.svg') }}" class="kvt-nav-icon h-[30px] w-[30px]" alt="">
@@ -29,7 +29,7 @@
             @endif
 
             {{-- Pesanan (daftar pesanan) --}}
-            <a href="{{ route('konsumen.pesanan') }}"
+            <a href="{{ $mejaNo ? route('konsumen.pesanan', ['noMeja' => $mejaNo]) : '#' }}"
                 class="kvt-nav-item {{ $active === 'pesanan' ? 'is-active' : '' }} flex h-[58px] min-w-0 flex-1 items-center justify-center p-1.5 min-[361px]:w-[78px] min-[361px]:flex-none">
                 <div class="flex flex-col items-center justify-center gap-px">
                     <img src="{{ asset('images/icons/pesanan_konsumen.svg') }}" class="kvt-nav-icon h-[30px] w-[30px]" alt="">
@@ -38,7 +38,7 @@
             </a>
 
             {{-- Keranjang --}}
-            <a href="{{ route('konsumen.keranjang') }}"
+            <a data-require-cart-scope href="{{ $mejaNo ? route('konsumen.keranjang', ['noMeja' => $mejaNo]) : '#' }}"
                 class="kvt-nav-item {{ $active === 'keranjang' ? 'is-active' : '' }} relative flex h-[58px] min-w-0 flex-1 items-center justify-center p-1.5 min-[361px]:w-[78px] min-[361px]:flex-none">
                 <div class="flex flex-col items-center justify-center gap-px">
                     <img src="{{ asset('images/icons/keranjang_konsumen.svg') }}" class="kvt-nav-icon h-[30px] w-[30px]" alt="">
@@ -51,7 +51,7 @@
             </a>
 
             {{-- Lacak (timeline) --}}
-            <a href="{{ $lacakHref ?: route('konsumen.lacak') }}"
+            <a href="{{ $lacakHref ?: ($mejaNo ? route('konsumen.tracking', ['noMeja' => $mejaNo]) : '#') }}"
                 class="kvt-nav-item {{ $active === 'lacak' ? 'is-active' : '' }} flex h-[58px] min-w-0 flex-1 items-center justify-center p-1.5 min-[361px]:w-[78px] min-[361px]:flex-none">
                 <div class="flex flex-col items-center justify-center gap-px">
                     <img src="{{ asset('images/icons/lacak_konsumen.svg') }}" class="kvt-nav-icon h-[30px] w-[30px]" alt="">

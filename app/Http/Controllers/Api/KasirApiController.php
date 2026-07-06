@@ -61,8 +61,9 @@ class KasirApiController extends Controller
      */
     public function indexPesanan(): JsonResponse
     {
-        // 1. Tarik seluruh antrean aktif beserta eager load meja dan detail item menu terikat
+        // 1. Tarik seluruh antrean aktif (hanya pesanan lunas — alur pay-first) beserta relasi meja dan item
         $pesanans = Pesanan::with(['meja', 'detailPesanan.menu'])
+            ->where('status_pembayaran', 'lunas')
             ->whereIn('status_pesanan', ['menunggu konfirmasi', 'diproses'])
             ->orderBy('no_pesanan', 'desc')
             ->get();
@@ -107,6 +108,11 @@ class KasirApiController extends Controller
 
         if (! $pesanan) {
             return $this->errorResponse('Pesanan tidak ditemukan', 404);
+        }
+
+        // Alur pay-first: pesanan yang belum lunas tidak boleh diproses dapur
+        if ($pesanan->status_pembayaran !== 'lunas') {
+            return $this->errorResponse('Pesanan belum dibayar — tidak dapat diproses.', 422);
         }
 
         // 2. Ubah dan simpan status pesanan baru

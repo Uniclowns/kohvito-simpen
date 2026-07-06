@@ -5,10 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\KategoriMenu;
 use App\Models\Meja;
 use App\Models\Menu;
+use App\Traits\CartSessionScope;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 /**
@@ -22,6 +22,8 @@ use Illuminate\View\View;
  */
 class BerandaKonsumenController extends Controller
 {
+    use CartSessionScope;
+
     /**
      * Tampilkan halaman utama katalog menu konsumen (Landing Page scan QR).
      * Menerapkan session-scoping dinamis berdasarkan parameter URL `?u={code}` dan nomor meja.
@@ -40,40 +42,11 @@ class BerandaKonsumenController extends Controller
             abort(404);
         }
 
-        // 2. Membaca scope unik token dari query parameter dan session saat ini
-        $urlScope = $request->query('u');
-        $sessionScope = session('konsumen_scope_id');
-        $sessionMejaNo = session('id_meja_no');
+        // Pulihkan riwayat pesanan dari cookie backup (30 hari) ke session.
+        $this->restoreRiwayatDariCookie();
 
-        // 3. Evaluasi apakah sistem perlu membangkitkan sesi transaksi baru:
-        //    - Tidak membawa token ?u={code} di URL.
-        //    - Sesi token lokal server kosong.
-        //    - Token di URL berbeda dengan token session server (user baru menggunakan browser yang sama).
-        //    - Terjadi perpindahan meja fisik (no_meja di session berbeda dengan no_meja QR).
-        $needsNewScope = ! $urlScope
-            || ! $sessionScope
-            || $urlScope !== $sessionScope
-            || $sessionMejaNo !== $meja->no_meja;
-
-        if ($needsNewScope) {
-            // 4. Bangkitkan token 8-karakter unik baru untuk mengisolasi sesi pemesan
-            $newScope = strtolower(Str::random(8));
-
-            // 5. Bersihkan data belanjaan lama dari session demi menjamin integritas keranjang belanja baru
-            session()->forget(['keranjang', 'no_pesanan_baru']);
-
-            // 6. Tulis ulang penampung informasi meja fisik dan identitas scope di session server
-            session([
-                'konsumen_scope_id' => $newScope,
-                'id_meja' => $meja->id_meja,
-                'id_meja_no' => $meja->no_meja,
-            ]);
-
-            // 7. Lakukan pengalihan URL dengan menambahkan parameter query scope unik baru tersebut
-            return redirect()->to(route('konsumen.beranda', $meja->no_meja).'?u='.$newScope);
-        }
-
-        // 8. Pastikan data meja terkunci kembali di dalam session jika scope valid terdeteksi
+        // Simpan konteks meja hanya sebagai cache tampilan/backward-compat.
+        // Sumber utama keranjang adalah URL {noMeja} + cart_scope per-tab dari sessionStorage.
         session([
             'id_meja' => $meja->id_meja,
             'id_meja_no' => $meja->no_meja,
@@ -128,7 +101,7 @@ class BerandaKonsumenController extends Controller
      * @param  Request  $request  Objek HTTP request
      * @param  string  $id  ID Unik menu yang dicari detailnya
      */
-    public function detail(Request $request, string $id): View
+    public function detail(Request $request, string $noMeja, string $id): View
     {
         // 1. Tarik detail menu beserta komposisi bahan baku hidangan
         $menu = Menu::select(
@@ -140,11 +113,10 @@ class BerandaKonsumenController extends Controller
             abort(404);
         }
 
-        // 2. Hubungkan data meja jika informasi meja tersimpan di session
-        $meja = null;
-        if ($mejaId = session('id_meja')) {
-            $meja = Meja::find($mejaId);
-        }
+        // 2. Hubungkan data meja dari request partial dulu.
+        //    Jangan percaya session untuk modal: satu browser bisa buka banyak meja.
+        $mejaId = $request->input('id_meja') ?: session('id_meja');
+        $meja = $mejaId ? Meja::find($mejaId) : null;
 
         // 3. Evaluasi apakah client meminta respon parsial (AJAX / partial=true)
         $wantsPartial = $request->ajax() || $request->boolean('partial');

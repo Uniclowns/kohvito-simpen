@@ -47,7 +47,7 @@
                     <span class="text-[20px] font-bold leading-7 tracking-[1px]">Kembali</span>
                 </button>
             @else
-                <a href="{{ route('konsumen.lacak.detail', $pesanan->no_pesanan) }}"
+                <a href="{{ $pesanan->lacakUrl() }}"
                     class="inline-flex items-center gap-3 text-brand-black active:opacity-70">
                     <svg class="h-5 w-5 text-brand-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                         stroke-width="3">
@@ -90,37 +90,6 @@
                     @endif
                 </div>
 
-                @if ($hasMidtransQr && ! config('services.midtrans.is_production'))
-                    <div class="w-full rounded-[10px] border border-dashed border-brand-red/30 bg-white p-3 text-left">
-                        <p class="mb-1.5 text-[10px] font-bold uppercase tracking-[0.8px] text-brand-red">
-                            Sandbox helper · QR Image URL
-                        </p>
-                        <p class="mb-2 text-[10px] leading-3 text-black/70">
-                            Tempel URL berikut ke
-                            <a href="https://simulator.sandbox.midtrans.com/v2/qris/index" target="_blank"
-                               class="underline decoration-dotted">Midtrans QRIS Simulator</a> kolom
-                            <strong>QR Code Image URL</strong> → klik <strong>Pay</strong> untuk simulasi settlement.
-                        </p>
-                        <div class="flex items-stretch gap-2">
-                            <code id="kvt-qr-url"
-                                  class="block min-w-0 flex-1 overflow-x-auto rounded-[6px] bg-[#F3F3F3] px-2 py-1.5 font-mono text-[10px] leading-3 text-black/80 whitespace-nowrap">{{ $pesanan->qr_url }}</code>
-                            <button type="button"
-                                    onclick="(function(btn){
-                                        const url = document.getElementById('kvt-qr-url').textContent.trim();
-                                        const done = ()=>{ const o=btn.textContent; btn.textContent='Tersalin'; setTimeout(()=>btn.textContent=o,1400); };
-                                        if (navigator.clipboard && navigator.clipboard.writeText) {
-                                            navigator.clipboard.writeText(url).then(done, ()=>{ window.prompt('Salin URL ini:', url); });
-                                        } else {
-                                            window.prompt('Salin URL ini:', url);
-                                        }
-                                    })(this)"
-                                    class="shrink-0 rounded-[6px] bg-brand-red px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.8px] text-white active:opacity-80">
-                                Salin
-                            </button>
-                        </div>
-                    </div>
-                @endif
-
                 <div class="w-full flex flex-col gap-2 mt-2">
                     @if ($driver === 'midtrans' && empty($pesanan->qr_url))
                         <button type="button" disabled
@@ -150,7 +119,7 @@
                 </div>
 
                 <div class="w-full mt-4">
-                    <a href="{{ route('konsumen.lacak.detail', $pesanan->no_pesanan) }}"
+                    <a href="{{ $pesanan->lacakUrl() }}"
                         class="flex h-10 w-full items-center justify-center rounded-[9px] bg-brand-red px-3 py-2 text-[14px] font-bold leading-5 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)] active:scale-[0.98]">
                         Cek Status Pembayaran
                     </a>
@@ -163,7 +132,7 @@
         active="keranjang"
         :mejaNo="$mejaNo"
         :cartCount="$orderItemCount"
-        :lacakHref="route('konsumen.lacak.detail', $pesanan->no_pesanan)" />
+        :lacakHref="$pesanan->lacakUrl()" />
 
     @if ($canCancel)
         <x-konsumen-confirm-modal
@@ -195,7 +164,7 @@
 
     <script>
         (function () {
-            const lacakUrl = @json(route('konsumen.lacak.detail', $pesanan->no_pesanan));
+            const lacakUrl = @json($pesanan->lacakUrl());
             const params = new URLSearchParams(window.location.search);
 
             // Popup gagal bila gateway/simulator menandai pembayaran gagal.

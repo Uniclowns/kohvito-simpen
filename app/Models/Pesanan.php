@@ -18,8 +18,9 @@ use Illuminate\Support\Carbon;
  * @property int|null $id_user ID Kasir yang memproses/mengonfirmasi pesanan (Foreign Key dari `users`)
  * @property int $id_meja ID Meja fisik tempat pemesanan dilakukan (Foreign Key dari `meja`)
  * @property string $nama_konsumen Nama pemesan/konsumen
+ * @property Carbon|null $tgl_pesanan Waktu pesanan dibuat oleh konsumen
  * @property int $total_harga Akumulasi total harga seluruh item dalam pesanan ini
- * @property string $status_pembayaran Status bayar ('menunggu', 'lunas') — sesuai enum migrasi
+ * @property string $status_pembayaran Status bayar ('menunggu', 'lunas', 'gagal') — sesuai enum migrasi
  * @property string $status_pesanan Status progres ('menunggu konfirmasi', 'diproses', 'selesai') — sesuai enum migrasi
  * @property string|null $catatan_pesanan Catatan umum global untuk pesanan
  * @property string|null $midtrans_transaction_id ID transaksi eksternal dari sistem Midtrans
@@ -73,9 +74,11 @@ class Pesanan extends Model
      */
     protected $fillable = [
         'no_pesanan',              // Kode transaksi unik, misal: KOH-260512-XYZ
+        'tracking_code',           // Kode pelacakan publik singkat (mis. KV-7F3A9)
         'id_user',                 // ID staf kasir pembantu transaksi (nullable)
         'id_meja',                 // Referensi meja fisik pelanggan
         'nama_konsumen',           // Nama pelanggan
+        'tgl_pesanan',             // Waktu pesanan dibuat (diisi otomatis saat create)
         'total_harga',             // Nilai tagihan bruto transaksi
         'status_pembayaran',       // Enum: menunggu, lunas
         'status_pesanan',          // Enum: menunggu konfirmasi, diproses, selesai
@@ -98,8 +101,21 @@ class Pesanan extends Model
             'id_user' => 'integer',  // ID Kasir dibaca integer
             'id_meja' => 'integer',  // ID Meja dibaca integer
             'total_harga' => 'integer',  // Nominal harga dibaca integer
+            'tgl_pesanan' => 'datetime', // Waktu pembuatan pesanan cast ke Carbon Instance
             'tgl_pembayaran' => 'datetime', // Tanggal pelunasan cast ke Carbon Instance
         ];
+    }
+
+    /**
+     * Isi otomatis waktu pembuatan pesanan saat record baru dibuat.
+     * Terpusat di model agar semua jalur create (web, API, seeder) konsisten
+     * tanpa perlu mengingat mengisi kolom ini manual.
+     */
+    protected static function booted(): void
+    {
+        static::creating(function (Pesanan $pesanan) {
+            $pesanan->tgl_pesanan ??= now();
+        });
     }
 
     /**
@@ -157,5 +173,45 @@ class Pesanan extends Model
             'status_pesanan' => 'menunggu konfirmasi',
             'tgl_pembayaran' => now(),
         ]);
+    }
+
+    /**
+     * URL halaman lacak pesanan ini (konsumen.lacak.detail).
+     *
+     * Route berada di dalam grup prefix {noMeja}, sehingga wajib membawa dua
+     * parameter. Terpusat di sini agar seluruh pemanggil (controller, blade)
+     * tidak perlu tahu konteks meja masing-masing.
+     */
+    public function lacakUrl(): string
+    {
+        return route('konsumen.lacak.detail', [
+            'noMeja' => $this->meja->no_meja,
+            'noPesanan' => $this->no_pesanan,
+        ]);
+    }
+
+    /**
+     * Bangkitkan kode pelacakan publik yang unik untuk sebuah pesanan.
+     *
+     * Format: "KV-XXXXX" dengan 5 karakter acak alfanumerik huruf besar.
+     * Menghindari nomor urut yang mudah ditebak. Melakukan pengecekan tabrakan
+     * ke database dalam loop agar dijamin unik terhadap kolom `tracking_code`.
+     *
+     * Karakter ambigu (0/O, 1/I) dibuang agar mudah dibaca & dicatat manual
+     * oleh konsumen dari layar.
+     */
+    public static function generateTrackingCode(): string
+    {
+        $alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // tanpa 0,O,1,I
+
+        do {
+            $random = '';
+            for ($i = 0; $i < 5; $i++) {
+                $random .= $alphabet[random_int(0, strlen($alphabet) - 1)];
+            }
+            $code = 'KV-'.$random;
+        } while (static::where('tracking_code', $code)->exists());
+
+        return $code;
     }
 }

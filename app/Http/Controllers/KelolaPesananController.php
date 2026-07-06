@@ -26,10 +26,12 @@ class KelolaPesananController extends Controller
      */
     public function index(): View
     {
-        // 1. Ambil pesanan yang berstatus 'menunggu konfirmasi' atau 'diproses' beserta relasi meja dan item
+        // 1. Ambil pesanan LUNAS yang berstatus 'menunggu konfirmasi' atau 'diproses' beserta relasi meja dan item.
+        //    Alur pay-first: pesanan belum dibayar tidak boleh masuk antrean dapur.
         $pesanans = Pesanan::with(['meja', 'detailPesanan.menu'])
+            ->where('status_pembayaran', 'lunas')
             ->whereIn('status_pesanan', ['menunggu konfirmasi', 'diproses'])
-            ->orderBy('tgl_pembayaran', 'asc') // Urutan FIFO berdasarkan waktu pembayaran/masuk
+            ->orderBy('tgl_pembayaran', 'asc') // Urutan FIFO berdasarkan waktu pembayaran
             ->get();
 
         return view('kasir.kelola-pesanan', compact('pesanans'));
@@ -42,9 +44,10 @@ class KelolaPesananController extends Controller
      */
     public function detail(string $noPesanan): View
     {
-        // 1. Ambil detail data jika pesanan tersebut berstatus aktif
+        // 1. Ambil detail data jika pesanan tersebut lunas dan berstatus aktif
         $pesanan = Pesanan::with(['meja', 'detailPesanan.menu'])
             ->where('no_pesanan', $noPesanan)
+            ->where('status_pembayaran', 'lunas')
             ->whereIn('status_pesanan', ['menunggu konfirmasi', 'diproses'])
             ->firstOrFail();
 
@@ -61,6 +64,11 @@ class KelolaPesananController extends Controller
     public function updateStatus(Request $request, string $noPesanan): RedirectResponse
     {
         $pesanan = Pesanan::where('no_pesanan', $noPesanan)->firstOrFail();
+
+        // 0. Alur pay-first: pesanan yang belum lunas tidak boleh diproses dapur
+        if ($pesanan->status_pembayaran !== 'lunas') {
+            return back()->with('error', 'Pesanan belum dibayar — tidak dapat diproses.');
+        }
 
         // 1. Kamus Aturan Transisi Status (State Machine Kamus)
         //    Menjamin status hanya boleh melangkah maju satu demi satu tingkatan

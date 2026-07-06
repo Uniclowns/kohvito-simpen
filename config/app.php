@@ -79,7 +79,7 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => 'Asia/Jakarta', // WIB (GMT+7) — seluruh now()/Carbon/date() aplikasi mengikuti waktu Indonesia
 
     /*
     |--------------------------------------------------------------------------
