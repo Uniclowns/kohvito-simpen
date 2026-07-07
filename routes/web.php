@@ -139,7 +139,10 @@ Route::get('/keranjang', fn () => redirect('/')->with('error', 'Silakan scan QR 
 
 // Lacak Pesanan PUBLIK via kode pelacakan (tracking_code) — device-independent.
 // WAJIB dideklarasikan sebelum route dinamis /{noMeja} agar tidak dianggap nomor meja.
-Route::get('/lacak-pesanan', [PesananController::class, 'lacakForm'])->name('konsumen.lacak.form');
+// GET juga di-throttle karena ?kode=KV-XXXXX ikut melakukan lookup database.
+Route::get('/lacak-pesanan', [PesananController::class, 'lacakForm'])
+    ->middleware('throttle:15,1')
+    ->name('konsumen.lacak.form');
 Route::post('/lacak-pesanan', [PesananController::class, 'cari'])
     ->middleware('throttle:15,1')
     ->name('konsumen.lacak.cari');

@@ -3,6 +3,8 @@
 namespace App\Traits;
 
 use App\Models\Meja;
+use App\Models\Pesanan;
+use Illuminate\Support\Facades\Cookie as CookieJar;
 use Symfony\Component\HttpFoundation\Cookie;
 
 /**
@@ -155,13 +157,40 @@ trait CartSessionScope
     }
 
     /**
-     * Validasi format kode pelacakan publik ("KV-" + 5 alfanumerik kapital).
-     * Dipakai sebagai gerbang sebelum menyentuh database agar endpoint publik
-     * tidak bisa dipakai menebak/enumerasi nilai lain.
+     * Validasi format kode pelacakan publik ("KV-" + 5 karakter kapital).
+     * Alfabetnya persis alfabet generator (Pesanan::generateTrackingCode):
+     * tanpa 0/O/1/I, sehingga input di luar himpunan itu ditolak sebelum
+     * menyentuh database — gerbang anti tebak/enumerasi endpoint publik.
      */
     protected function isValidTrackingCode(string $kode): bool
     {
-        return (bool) preg_match('/^KV-[A-Z0-9]{5}$/', $kode);
+        return (bool) preg_match('/^KV-[A-HJ-NP-Z2-9]{5}$/', $kode);
+    }
+
+    /**
+     * Catat sebuah pesanan ke riwayat browser aktif secara diam-diam & IDEMPOTEN.
+     *
+     * Titik masuk tunggal untuk semua jalur pelacakan (lacak via kode, lacak
+     * per meja, kuitansi): membaca riwayat aktif dari session + cookie REQUEST
+     * (cookie yang baru di-queue belum terbaca pada request yang sama), merge
+     * tanpa duplikat di memori, tulis kembali ke session, lalu queue cookie
+     * baru 30 hari. Kontrak format riwayat lama (JSON array of tracking_code)
+     * dipertahankan apa adanya.
+     */
+    protected function catatRiwayatPesanan(Pesanan $pesanan): void
+    {
+        if (! is_string($pesanan->tracking_code) || $pesanan->tracking_code === '') {
+            return;
+        }
+
+        // 1. Merge cookie request → session di memori (tanpa duplikat).
+        $this->restoreRiwayatDariCookie();
+
+        // 2. Tambahkan kode pesanan ini ke session riwayat.
+        $this->pushRiwayatSession($pesanan->tracking_code);
+
+        // 3. Queue cookie backup baru; dikirim otomatis bersama response.
+        CookieJar::queue($this->buildRiwayatCookie($pesanan->tracking_code));
     }
 
     /**

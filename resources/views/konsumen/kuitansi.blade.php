@@ -141,6 +141,27 @@
             color: #460001; /* Brand Dark Maroon */
             padding-top: 8px;
         }
+        .tracking-card {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #E6E6E6; /* Brand Gray Extralight — border kartu */
+            border-radius: 12px; /* token rounded.card */
+            background-color: #ffffff;
+            text-align: center;
+        }
+        .tracking-code {
+            margin-top: 8px;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            color: #460001; /* Brand Dark Maroon */
+        }
+        .tracking-hint {
+            margin-top: 3px;
+            font-size: 9px;
+            color: #666;
+            font-weight: 500;
+        }
         .footer {
             text-align: center;
             margin-top: 30px;
@@ -260,6 +281,21 @@
     </table>
 
     <div class="divider"></div>
+
+    <!-- Blok QR Pelacakan: scan di perangkat lain → /lacak-pesanan?kode=... -->
+    @if ($pesanan->tracking_code)
+        @php
+            $urlLacak = route('konsumen.lacak.form', ['kode' => $pesanan->tracking_code]);
+            $qrLacak = base64_encode(
+                \SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')->size(96)->margin(0)->generate($urlLacak)
+            );
+        @endphp
+        <div class="tracking-card">
+            <img src="data:image/svg+xml;base64,{{ $qrLacak }}" width="96" height="96" alt="QR pelacakan pesanan">
+            <div class="tracking-code">{{ $pesanan->tracking_code }}</div>
+            <div class="tracking-hint">Scan untuk melacak pesanan ini di perangkat lain</div>
+        </div>
+    @endif
 
     <!-- Centered Receipt Footer -->
     <div class="footer">

@@ -50,9 +50,18 @@ class PesananController extends Controller
      * Halaman publik pelacakan pesanan via kode pelacakan (tracking_code).
      * Menampilkan form input kode. Tidak butuh session/cookie — bisa diakses
      * kapan saja oleh siapa pun yang memegang kode pelacakan pesanannya.
+     *
+     * Mendukung query param ?kode=KV-XXXXX (mis. dari QR di kuitansi):
+     * kode valid langsung diproses tanpa submit manual.
      */
-    public function lacakForm(): View
+    public function lacakForm(Request $request): View|RedirectResponse|Response
     {
+        $kode = $request->query('kode');
+
+        if (is_string($kode) && trim($kode) !== '') {
+            return $this->prosesKodePelacakan($kode);
+        }
+
         return view('konsumen.lacak-form');
     }
 
@@ -67,8 +76,18 @@ class PesananController extends Controller
             'tracking_code' => ['required', 'string', 'max:20'],
         ]);
 
+        return $this->prosesKodePelacakan($validated['tracking_code']);
+    }
+
+    /**
+     * Jalur bersama pencarian kode pelacakan (form POST maupun ?kode= dari QR):
+     * normalisasi input → gerbang format → lookup DB → auto-merge riwayat →
+     * render timeline. Kode salah selalu berujung redirect ramah ke form.
+     */
+    private function prosesKodePelacakan(string $input): RedirectResponse|Response
+    {
         // Normalisasi input: buang spasi, huruf besar, toleran bila user lupa prefix "KV-".
-        $kode = strtoupper(trim($validated['tracking_code']));
+        $kode = strtoupper(trim($input));
         if (! str_starts_with($kode, 'KV-') && ! str_contains($kode, '-')) {
             $kode = 'KV-'.$kode;
         }
@@ -91,13 +110,10 @@ class PesananController extends Controller
                 ->with('error', 'Pesanan dengan kode tersebut tidak ditemukan. Periksa kembali kode pelacakan Anda.');
         }
 
-        // Pesanan ketemu → catat ke riwayat session + cookie backup, lalu tampilkan timeline.
-        $this->pushRiwayatSession($pesanan->tracking_code);
-        $cookie = $this->buildRiwayatCookie($pesanan->tracking_code);
+        // Pesanan ketemu → auto-merge ke riwayat browser ini, lalu tampilkan timeline.
+        $this->catatRiwayatPesanan($pesanan);
 
-        return response()
-            ->view('konsumen.lacak', ['pesanan' => $pesanan, 'noMeja' => null])
-            ->withCookie($cookie);
+        return response()->view('konsumen.lacak', ['pesanan' => $pesanan, 'noMeja' => null]);
     }
 
     /**
@@ -113,6 +129,10 @@ class PesananController extends Controller
         if (! $pesanan) {
             abort(404);
         }
+
+        // Auto-merge diam-diam: pesanan yang berhasil dilacak ikut tercatat
+        // di riwayat browser ini (session + cookie backup).
+        $this->catatRiwayatPesanan($pesanan);
 
         return view('konsumen.lacak', compact('pesanan', 'noMeja'));
     }
@@ -256,6 +276,10 @@ class PesananController extends Controller
         if ($pesanan->status_pembayaran !== 'lunas') {
             abort(403, 'Kuitansi hanya tersedia setelah pembayaran lunas.');
         }
+
+        // 1b. Auto-merge diam-diam: membuka kuitansi ikut mencatat pesanan
+        //     ke riwayat browser ini (session + cookie backup).
+        $this->catatRiwayatPesanan($pesanan);
 
         // 2. Render view kuitansi dengan pengaturan kertas khusus A5
         $pdf = Pdf::loadView('konsumen.kuitansi', compact('pesanan'))
