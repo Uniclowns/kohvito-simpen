@@ -9,6 +9,7 @@ DESIGN.md
 .phpactor.json
 .phpunit.result.cache
 /.claude/
+/.claude-flow/
 /.codex
 /.cursor/
 /.idea
