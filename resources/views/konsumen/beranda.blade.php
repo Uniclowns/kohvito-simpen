@@ -101,7 +101,7 @@
             </div>
             {{-- NEW: category pills row, mirror dari in-content --}}
             <div id="sticky-category-row"
-                class="flex gap-4 overflow-x-auto md:flex-wrap md:justify-center no-scrollbar mx-[-18px] md:mx-0 px-[18px] md:px-0 mt-2">
+                class="flex gap-4 overflow-x-auto md:flex-wrap md:justify-center no-scrollbar mx-[-18px] md:mx-0 px-[18px] md:px-0 mt-3">
                 <button data-kat="all"
                     class="sticky-cat-btn shrink-0 px-3 py-1.5 rounded-[9px] text-[14px] tracking-[0.7px] bg-brand-dark text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition-all whitespace-nowrap">
                     Semua
@@ -141,7 +141,7 @@
 
                 @if ($kategoris->isNotEmpty())
                     <div>
-                        <h2 class="mb-2 mt-6 text-[24px] font-bold leading-[32px] tracking-[1.2px] text-brand-dark">
+                        <h2 class="mb-2 mt-9 text-[24px] font-bold leading-[32px] tracking-[1.2px] text-brand-dark">
                             Category</h2>
                         <div class="mx-[-18px] mb-[18px] flex gap-4 overflow-x-auto px-[18px] pb-2 no-scrollbar sm:flex-wrap sm:overflow-visible sm:px-[18px] lg:mx-0 lg:px-0"
                             data-category-row data-anim="stagger">
