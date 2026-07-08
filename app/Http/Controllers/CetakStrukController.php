@@ -18,8 +18,6 @@ use Throwable;
  *
  * Satu endpoint melayani kedua layar (antrean aktif & histori) karena proses
  * pencetakannya identik — keduanya hanya butuh nomor pesanan.
- *
- * @package App\Http\Controllers
  */
 class CetakStrukController extends Controller
 {
@@ -27,8 +25,6 @@ class CetakStrukController extends Controller
      * Cetak struk satu pesanan langsung ke printer termal.
      *
      * @param  string  $noPesanan  Nomor transaksi pesanan referensi.
-     * @param  \App\Services\ThermalReceiptPrinter  $printer
-     * @return \Illuminate\Http\JsonResponse
      */
     public function cetak(string $noPesanan, ThermalReceiptPrinter $printer): JsonResponse
     {
@@ -43,18 +39,18 @@ class CetakStrukController extends Controller
         } catch (Throwable $e) {
             Log::error('Cetak struk termal gagal', [
                 'no_pesanan' => $noPesanan,
-                'error'      => $e->getMessage(),
+                'error' => $e->getMessage(),
             ]);
 
             return response()->json([
-                'ok'      => false,
+                'ok' => false,
                 'message' => 'Printer tidak terhubung. Periksa printer & jaringan, lalu coba lagi.',
             ], 503);
         }
 
         // 3. Sukses — beri umpan balik untuk toast di sisi klien
         return response()->json([
-            'ok'      => true,
+            'ok' => true,
             'message' => 'Struk berhasil dicetak.',
         ]);
     }

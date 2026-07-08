@@ -9,7 +9,8 @@
     @php
         $cartCount = count($keranjang);
         $hasOrder = session('no_pesanan_baru');
-        $mejaNo = session('id_meja_no');
+        $mejaNo = $noMeja ?? session('id_meja_no');
+        $cartScope = $cartScope ?? request('s');
         $ppnAmount = (int) round($totalHarga * 0.11);
         $grandTotal = $totalHarga + $ppnAmount;
     @endphp
@@ -30,7 +31,7 @@
     <main class="mx-auto max-w-[390px] md:max-w-4xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl px-[18px] pb-5">
         <div class="pt-3 pb-[9px]">
             @if ($mejaNo)
-                <a href="{{ route('konsumen.beranda', $mejaNo) }}"
+                <a href="{{ route('konsumen.beranda', ['noMeja' => $mejaNo]) }}"
                     class="inline-flex items-center gap-3 text-brand-black active:opacity-70">
                     <svg class="h-5 w-5 text-brand-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                         stroke-width="3">
@@ -150,12 +151,14 @@
                                     </div>
 
                                     <div class="mt-[10px] flex items-start gap-2">
-                                        <form method="POST" action="{{ route('konsumen.keranjang.update') }}"
+                                        <form method="POST" action="{{ route('konsumen.keranjang.update', ['noMeja' => $mejaNo]) }}"
                                             class="min-w-0 flex-1"
                                             data-cart-form
                                             data-action-type="remove">
                                             @csrf
+                                            <input type="hidden" name="cart_scope" value="{{ $cartScope }}">
                                             @method('PUT')
+                                            <input type="hidden" name="id_meja" value="{{ session('id_meja') }}">
                                             <input type="hidden" name="cart_key" value="{{ $cartKey }}">
                                             <input type="hidden" name="id_menu" value="{{ $menuId }}">
                                             <input type="hidden" name="jumlah" value="0">
@@ -165,17 +168,19 @@
                                             </button>
                                         </form>
 
-                                        <button type="button" onclick="openMenuSheet({{ $menuId }})"
-                                            class="flex h-8 min-w-0 flex-1 items-center justify-center rounded-[9px] bg-brand-red px-1 sm:px-3 py-1.5 text-[13px] sm:text-[14px] leading-5 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition active:scale-[0.98]">
+                                        <a href="{{ route('konsumen.menu.detail', ['noMeja' => $mejaNo, 'id' => $menuId]) }}"
+                                            class="flex h-8 min-w-0 flex-1 items-center justify-center rounded-[9px] bg-brand-red px-1 sm:px-3 py-1.5 text-[13px] sm:text-[14px] leading-5 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)]">
                                             Edit
                                         </button>
 
                                         <div class="flex h-8 min-w-0 flex-1 items-center rounded-[9px] bg-[rgba(70,0,1,0.25)]">
-                                            <form method="POST" action="{{ route('konsumen.keranjang.update') }}"
+                                            <form method="POST" action="{{ route('konsumen.keranjang.update', ['noMeja' => $mejaNo]) }}"
                                                   data-cart-form
                                                   data-action-type="minus">
                                                 @csrf
+                                            <input type="hidden" name="cart_scope" value="{{ $cartScope }}">
                                                 @method('PUT')
+                                                <input type="hidden" name="id_meja" value="{{ session('id_meja') }}">
                                                 <input type="hidden" name="cart_key" value="{{ $cartKey }}">
                                                 <input type="hidden" name="id_menu" value="{{ $menuId }}">
                                                 <input type="hidden" name="jumlah" data-jumlah-input value="{{ $item['jumlah'] - 1 }}">
@@ -186,11 +191,13 @@
                                                   data-item-qty>
                                                 {{ $item['jumlah'] }}
                                             </span>
-                                            <form method="POST" action="{{ route('konsumen.keranjang.update') }}"
+                                            <form method="POST" action="{{ route('konsumen.keranjang.update', ['noMeja' => $mejaNo]) }}"
                                                   data-cart-form
                                                   data-action-type="plus">
                                                 @csrf
+                                            <input type="hidden" name="cart_scope" value="{{ $cartScope }}">
                                                 @method('PUT')
+                                                <input type="hidden" name="id_meja" value="{{ session('id_meja') }}">
                                                 <input type="hidden" name="cart_key" value="{{ $cartKey }}">
                                                 <input type="hidden" name="id_menu" value="{{ $menuId }}">
                                                 <input type="hidden" name="jumlah" data-jumlah-input value="{{ $item['jumlah'] + 1 }}">
@@ -275,9 +282,11 @@
                 </div>
             </div>
 
-            <form id="checkout-form" method="POST" action="{{ route('konsumen.keranjang.pesan') }}"
+            <form id="checkout-form" method="POST" action="{{ route('konsumen.checkout.store', ['noMeja' => $mejaNo]) }}"
                 data-checkout-form>
                 @csrf
+                <input type="hidden" name="cart_scope" value="{{ $cartScope }}">
+                <input type="hidden" name="id_meja" value="{{ session('id_meja') }}">
             </form>
 
             <x-konsumen-confirm-modal

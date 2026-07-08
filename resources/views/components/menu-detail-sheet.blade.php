@@ -112,7 +112,8 @@
             });
 
             try {
-                const res = await fetch(`/menu/${id}/detail?partial=1`, {
+                const noMeja = @json(request()->route('noMeja') ?: session('id_meja_no'));
+                const res = await fetch(`/${noMeja}/menu/${id}/detail?partial=1`, {
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
                         'Accept': 'text/html'

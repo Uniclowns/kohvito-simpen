@@ -6,18 +6,17 @@ use App\Models\Pesanan;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Http\Response as HttpResponse;
 use Illuminate\View\View;
 
 /**
  * Class HistoriPesananController
- * 
+ *
  * Controller ini melayani panel riwayat (histori) transaksi kasir.
  * Menyediakan fitur pelacakan pesanan yang berstatus 'selesai' hari ini, pencarian tingkat lanjut
  * berbasis penutupan logika (Closure) untuk multi-kolom kata kunci, penarikan detil nota transaksi kasir,
  * pencetakan kuitansi tunggal PDF, hingga pencetakan rekap seluruh transaksi harian.
- *
- * @package App\Http\Controllers
  */
 class HistoriPesananController extends Controller
 {
@@ -25,12 +24,11 @@ class HistoriPesananController extends Controller
      * Tampilkan daftar seluruh histori transaksi pesanan yang telah selesai khusus hari ini.
      * Mendukung pencarian dinamis (kata kunci no_pesanan / nama_konsumen).
      *
-     * @param  \Illuminate\Http\Request  $request  Objek HTTP request pembawa parameter kata kunci pencarian
-     * @return \Illuminate\View\View
+     * @param  Request  $request  Objek HTTP request pembawa parameter kata kunci pencarian
      */
     public function index(Request $request): View
     {
-        $today  = Carbon::today();
+        $today = Carbon::today();
         $search = $request->input('search');
 
         // 1. Inisialisasi query dasar: pesanan berstatus selesai dan diselesaikan khusus tanggal hari ini
@@ -44,13 +42,13 @@ class HistoriPesananController extends Controller
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('no_pesanan', 'like', "%{$search}%")
-                  ->orWhere('nama_konsumen', 'like', "%{$search}%");
+                    ->orWhere('nama_konsumen', 'like', "%{$search}%");
             });
         }
 
         // 3. Ambil data dengan urutan waktu pelunasan terbaru di paling atas
         $pesanans = $query->orderBy('tgl_pembayaran', 'desc')->get();
-        
+
         // 4. Kalkulasi omzet tagihan bersih hasil penjualan yang terkumpul hari ini
         $totalOmzet = $pesanans->sum('total_harga');
 
@@ -62,7 +60,6 @@ class HistoriPesananController extends Controller
      * Tampilkan detail rincian item pesanan dari histori yang telah selesai.
      *
      * @param  string  $noPesanan  Nomor transaksi pesanan referensi
-     * @return \Illuminate\View\View
      */
     public function detail(string $noPesanan): View
     {
@@ -80,7 +77,7 @@ class HistoriPesananController extends Controller
      * Disajikan dalam bentuk stream (preview) PDF di browser.
      *
      * @param  string  $noPesanan  Nomor transaksi pesanan referensi
-     * @return \Illuminate\Http\Response  Objek file stream PDF kuitansi tunggal
+     * @return Response Objek file stream PDF kuitansi tunggal
      */
     public function cetakHistoriPesanan(string $noPesanan): HttpResponse
     {
@@ -98,8 +95,8 @@ class HistoriPesananController extends Controller
      * Cetak rekapitulasi seluruh laporan transaksi yang selesai pada hari ini dalam bentuk PDF.
      * Disajikan dalam bentuk stream (preview) PDF di browser.
      *
-     * @param  \Illuminate\Http\Request  $request  Objek HTTP request aktif
-     * @return \Illuminate\Http\Response  Objek file stream PDF rekapitulasi transaksi harian
+     * @param  Request  $request  Objek HTTP request aktif
+     * @return Response Objek file stream PDF rekapitulasi transaksi harian
      */
     public function cetakSemuaHistoriPesanan(Request $request): HttpResponse
     {

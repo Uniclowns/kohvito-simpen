@@ -1,0 +1,105 @@
+name: kohvito-simpen
+
+# Konfigurasi database bersama untuk semua service PHP.
+# Environment variable container MENGALAHKAN nilai .env (perilaku Laravel),
+# jadi .env host (Laragon) tidak perlu diubah.
+x-app-env: &app-env
+  APP_URL: http://localhost:8000
+  DB_CONNECTION: mysql
+  DB_HOST: db
+  DB_PORT: "3306"
+  DB_DATABASE: kohvito-simpen
+  DB_USERNAME: kohvito
+  DB_PASSWORD: kohvito_dev
+  SESSION_DRIVER: database
+  CACHE_STORE: database
+  QUEUE_CONNECTION: database
+  # Simulator pembayaran lokal — tidak butuh internet/webhook publik.
+  # Ganti ke "midtrans" bila ingin uji QRIS sandbox dari dalam container.
+  BAYAR_DRIVER: mock
+
+x-app-base: &app-base
+  build: .
+  image: kohvito-simpen-app
+  volumes:
+    - .:/var/www/html
+  environment: *app-env
+  depends_on:
+    db:
+      condition: service_healthy
+  restart: unless-stopped
+
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: kohvito-simpen
+      MYSQL_USER: kohvito
+      MYSQL_PASSWORD: kohvito_dev
+      MYSQL_ROOT_PASSWORD: root_dev
+    ports:
+      # 3307 di host agar tidak bentrok MySQL Laragon (3306).
+      - "3307:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot_dev"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  app:
+    <<: *app-base
+    ports:
+      - "8000:8000"
+    # Migrate dulu (idempoten), baru serve.
+    # BUKAN `artisan serve`: ServeCommand men-spawn PHP built-in server dengan
+    # whitelist env sehingga DB_HOST dkk dari compose tidak diteruskan dan app
+    # jatuh ke .env host. php -S + router vendor meneruskan env apa adanya.
+    # WAJIB dijalankan dari public/: router server.php memakai getcwd() untuk
+    # menemukan index.php.
+    command: sh -c "php artisan migrate --force && cd public && php -S 0.0.0.0:8000 ../vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php"
+
+  # Worker antrean (paritas dengan `composer dev`).
+  queue:
+    <<: *app-base
+    command: sh -c "sleep 5 && php artisan queue:listen --tries=1 --timeout=0"
+    depends_on:
+      db:
+        condition: service_healthy
+      app:
+        condition: service_started
+
+  # Scheduler — wajib agar payments:sync-pending jalan tiap menit.
+  scheduler:
+    <<: *app-base
+    command: sh -c "sleep 5 && php artisan schedule:work"
+    depends_on:
+      db:
+        condition: service_healthy
+      app:
+        condition: service_started
+
+  # Vite dev server (hot-reload Tailwind/JS) — opsional, hanya ikut naik
+  # dengan `docker compose --profile dev up -d`.
+  # node_modules DIPISAH ke named volume: node_modules host hasil instal
+  # Windows (binary native esbuild/tailwind win32) tidak kompatibel Linux.
+  vite:
+    image: node:24-alpine
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+      - vite_node_modules:/var/www/html/node_modules
+    environment:
+      # Bind mount /mnt/d tidak meneruskan event inotify → wajib polling.
+      VITE_POLLING: "1"
+    ports:
+      - "5173:5173"
+    command: sh -c "npm install && exec npm run dev -- --host 0.0.0.0"
+    restart: unless-stopped
+    profiles: ["dev"]
+
+volumes:
+  dbdata:
+  vite_node_modules:

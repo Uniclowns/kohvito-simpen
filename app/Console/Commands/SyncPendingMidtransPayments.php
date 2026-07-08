@@ -5,6 +5,8 @@ namespace App\Console\Commands;
 use App\Models\Pesanan;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
+use Midtrans\Config;
+use Midtrans\Transaction;
 
 /**
  * Failsafe untuk webhook Midtrans yang missed. Dijadwalkan tiap menit:
@@ -25,16 +27,18 @@ class SyncPendingMidtransPayments extends Command
     {
         if (config('services.bayar.driver') !== 'midtrans') {
             $this->info('Driver bukan midtrans — skip.');
+
             return self::SUCCESS;
         }
 
-        if (! class_exists(\Midtrans\Transaction::class)) {
+        if (! class_exists(Transaction::class)) {
             $this->error('Midtrans SDK belum terinstall. Jalankan: composer require midtrans/midtrans-php');
+
             return self::FAILURE;
         }
 
-        \Midtrans\Config::$serverKey    = config('services.midtrans.server_key');
-        \Midtrans\Config::$isProduction = (bool) config('services.midtrans.is_production');
+        Config::$serverKey = config('services.midtrans.server_key');
+        Config::$isProduction = (bool) config('services.midtrans.is_production');
 
         $pending = Pesanan::where('status_pembayaran', 'menunggu')
             ->whereNotNull('midtrans_transaction_id')
@@ -44,6 +48,7 @@ class SyncPendingMidtransPayments extends Command
 
         if ($pending->isEmpty()) {
             $this->info('Tidak ada pesanan menunggu untuk di-sync.');
+
             return self::SUCCESS;
         }
 
@@ -52,7 +57,7 @@ class SyncPendingMidtransPayments extends Command
 
         foreach ($pending as $pesanan) {
             try {
-                $remote = \Midtrans\Transaction::status($pesanan->no_pesanan);
+                $remote = Transaction::status($pesanan->no_pesanan);
                 $remoteStatus = is_object($remote)
                     ? ($remote->transaction_status ?? null)
                     : ($remote['transaction_status'] ?? null);
@@ -60,7 +65,7 @@ class SyncPendingMidtransPayments extends Command
                 if (in_array($remoteStatus, ['capture', 'settlement'], true)) {
                     $pesanan->update([
                         'status_pembayaran' => 'lunas',
-                        'tgl_pembayaran'    => now(),
+                        'tgl_pembayaran' => now(),
                     ]);
                     $synced++;
                     $this->line("  [lunas]    {$pesanan->no_pesanan}");
@@ -74,7 +79,7 @@ class SyncPendingMidtransPayments extends Command
                 $errors++;
                 Log::warning('payments:sync-pending failed for pesanan', [
                     'pesanan' => $pesanan->no_pesanan,
-                    'error'   => $e->getMessage(),
+                    'error' => $e->getMessage(),
                 ]);
             }
         }

@@ -9,20 +9,18 @@ use Illuminate\View\View;
 
 /**
  * Class AuthController
- * 
+ *
  * Controller ini menangani seluruh alur autentikasi berbasis sesi (web) untuk staf kafe.
  * Meliputi penyajian formulir login, pemrosesan validasi kredensial login,
  * proteksi pengalihan berdasarkan peran (Admin/Kasir), proteksi Session Fixation,
  * serta pembersihan sesi saat pengguna melakukan log out.
- *
- * @package App\Http\Controllers
  */
 class AuthController extends Controller
 {
     /**
      * Tampilkan halaman formulir login.
      *
-     * @return \Illuminate\View\View  Halaman login (auth.login)
+     * @return View Halaman login (auth.login)
      */
     public function create(): View
     {
@@ -34,8 +32,8 @@ class AuthController extends Controller
      * Memproses masuk sistem (Login): memvalidasi kredensial dan mengotentikasi pengguna.
      * Mencegah serangan Session Fixation dengan meregenerasi ID sesi setelah login berhasil.
      *
-     * @param  \Illuminate\Http\Request  $request  Objek data kiriman form login
-     * @return \Illuminate\Http\RedirectResponse  Redirect ke halaman dashboard sesuai peran (role)
+     * @param  Request  $request  Objek data kiriman form login
+     * @return RedirectResponse Redirect ke halaman dashboard sesuai peran (role)
      */
     public function store(Request $request): RedirectResponse
     {
@@ -88,8 +86,8 @@ class AuthController extends Controller
      * Mengeluarkan pengguna dari sistem (Logout) dan membersihkan data sesi saat ini.
      * Dipanggil melalui request POST /logout terproteksi csrf.
      *
-     * @param  \Illuminate\Http\Request  $request  Objek request saat ini
-     * @return \Illuminate\Http\RedirectResponse  Redirect kembali ke form login
+     * @param  Request  $request  Objek request saat ini
+     * @return RedirectResponse Redirect kembali ke form login
      */
     public function authenticated(Request $request): RedirectResponse
     {

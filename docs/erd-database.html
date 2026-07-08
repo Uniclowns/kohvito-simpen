@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ERD Database — SIMPEN Kohvito</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 0; background: #faf7f5; color: #2b2b2b; }
+  header { background: #681F1F; color: #fff; padding: 16px 24px; }
+  header h1 { margin: 0; font-size: 20px; }
+  header p { margin: 4px 0 0; font-size: 13px; opacity: .85; }
+  .wrap { padding: 24px; }
+  .counts { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+  .chip { background: #fff; border: 1px solid #e2d6d0; border-radius: 8px; padding: 8px 14px; font-size: 13px; }
+  .chip b { color: #681F1F; }
+  .mermaid { background: #fff; border: 1px solid #e2d6d0; border-radius: 12px; padding: 16px; overflow: auto; }
+  footer { padding: 12px 24px 28px; font-size: 12px; color: #777; }
+</style>
+</head>
+<body>
+<header>
+  <h1>ERD Database — SIMPEN Kohvito</h1>
+  <p>Sumber: MySQL 8.0 (Docker service <code>db</code>, database <code>kohvito-simpen</code>) — diambil langsung dari information_schema</p>
+</header>
+<div class="wrap">
+  <div class="counts">
+    <span class="chip"><b>pesanan</b> 100 baris</span>
+    <span class="chip"><b>detail_pesanan</b> 334</span>
+    <span class="chip"><b>menu</b> 16</span>
+    <span class="chip"><b>meja</b> 10</span>
+    <span class="chip"><b>kategori_menu</b> 5</span>
+    <span class="chip"><b>menu_kategori</b> 16</span>
+    <span class="chip"><b>users</b> 3</span>
+    <span class="chip"><b>role</b> 3</span>
+    <span class="chip"><b>sessions</b> 10</span>
+    <span class="chip">+ tabel framework: cache, jobs, failed_jobs, job_batches, migrations, personal_access_tokens</span>
+  </div>
+
+  <pre class="mermaid">
+erDiagram
+  ROLE {
+    bigint id_role PK
+    varchar nama_role
+  }
+  USERS {
+    bigint id_users PK
+    bigint id_role FK
+    varchar nama_lengkap
+    varchar username UK
+    varchar password
+  }
+  MEJA {
+    bigint id_meja PK
+    varchar no_meja
+    varchar qr_code
+  }
+  KATEGORI_MENU {
+    bigint id_kategori PK
+    varchar nama_kategori
+  }
+  MENU {
+    bigint id_menu PK
+    varchar nama_menu
+    text deskripsi
+    int harga
+    varchar gambar_menu
+    enum status_ketersediaan "Tersedia|Tidak Tersedia"
+    enum jenis_menu "Makanan|Minuman"
+    enum kategori_makanan "Pedas|Tidak Pedas"
+    enum tipe_minuman "Panas|Dingin|Keduanya"
+    text komposisi
+    int stock
+  }
+  MENU_KATEGORI {
+    bigint id_menu PK, FK
+    bigint id_kategori PK, FK
+  }
+  PESANAN {
+    varchar no_pesanan PK "PS-YmdHis-XXXX"
+    varchar tracking_code UK "KV-XXXXX"
+    bigint id_user FK "nullable"
+    bigint id_meja FK
+    varchar nama_konsumen
+    datetime tgl_pesanan
+    int total_harga "Rupiah integer"
+    enum status_pembayaran "menunggu|lunas|gagal"
+    enum status_pesanan "menunggu konfirmasi|diproses|selesai"
+    text catatan_pesanan
+    varchar midtrans_transaction_id
+    varchar qr_url
+    datetime tgl_pembayaran
+  }
+  DETAIL_PESANAN {
+    bigint id_detail PK
+    varchar no_pesanan FK
+    bigint id_menu FK
+    int jumlah
+    varchar catatan
+    int subtotal
+  }
+  SESSIONS {
+    varchar id PK
+    bigint user_id "nullable, tanpa FK constraint"
+    varchar ip_address
+    longtext payload
+    int last_activity
+  }
+
+  ROLE ||--o{ USERS : "id_role"
+  USERS |o--o{ PESANAN : "id_user (kasir/admin, nullable)"
+  MEJA ||--o{ PESANAN : "id_meja"
+  PESANAN ||--|{ DETAIL_PESANAN : "no_pesanan"
+  MENU ||--o{ DETAIL_PESANAN : "id_menu"
+  MENU ||--o{ MENU_KATEGORI : "id_menu"
+  KATEGORI_MENU ||--o{ MENU_KATEGORI : "id_kategori"
+  </pre>
+</div>
+<footer>
+  Konvensi: PK <code>id_{tabel}</code> · pesanan ber-PK string <code>no_pesanan</code> · harga integer Rupiah ·
+  tabel framework Laravel (cache, cache_locks, jobs, job_batches, failed_jobs, migrations, personal_access_tokens, sessions) tidak ber-relasi domain.
+</footer>
+<script>mermaid.initialize({ startOnLoad: true, theme: 'neutral', er: { useMaxWidth: false } });</script>
+</body>
+</html>

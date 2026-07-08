@@ -8,12 +8,11 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 /**
  * Class Meja
- * 
+ *
  * Model ini merepresentasikan entitas meja pelanggan di database (tabel `meja`).
  * Meja memegang peranan krusial dalam sistem pemesanan *dine-in*, di mana setiap nomor meja
  * diasosiasikan dengan sebuah kode QR unik yang discan oleh konsumen untuk memesan makanan.
  *
- * @package App\Models
  * @property int $id_meja ID Unik Meja (Primary Key)
  * @property string $no_meja Nomor atau nama identifikasi meja (misal: "01", "02")
  * @property string|null $qr_code Berisi representasi path/link atau konten dari QR code meja tersebut
@@ -77,8 +76,6 @@ class Meja extends Model
     /**
      * Mendefinisikan relasi One-to-Many (HasMany) ke model Pesanan.
      * Menghubungkan meja ini dengan semua riwayat transaksi pemesanan yang pernah dilakukan darinya.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function pesanan(): HasMany
     {
@@ -97,8 +94,6 @@ class Meja extends Model
      *
      * Base URL diambil dari config('app.qr_meja_base_url') agar bisa diganti
      * tanpa menyentuh kode (cukup ubah .env saat pindah lokasi/WiFi).
-     *
-     * @return string
      */
     public function getScanUrlAttribute(): string
     {

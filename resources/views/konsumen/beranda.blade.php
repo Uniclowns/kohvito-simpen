@@ -84,7 +84,7 @@
         </div>
 
         <div class="hero-headline absolute inset-x-0 top-[116px] px-[18px] sm:top-[124px] md:top-[104px]">
-            <div class="mx-auto max-w-md md:max-w-3xl lg:max-w-5xl">
+            <div class="mx-auto max-w-md md:max-w-3xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl">
                 <h1
                     class="text-mix-dodge text-[36px] font-bold leading-[40px] tracking-[1.8px] text-white/80 sm:text-[44px] sm:leading-[48px]">
                     Pesan Menu
@@ -123,7 +123,7 @@
             </div>
             {{-- NEW: category pills row, mirror dari in-content --}}
             <div id="sticky-category-row"
-                class="flex gap-4 overflow-x-auto md:flex-wrap md:justify-center no-scrollbar mx-[-18px] md:mx-0 px-[18px] md:px-0 mt-2">
+                class="flex gap-4 overflow-x-auto md:flex-wrap md:justify-center no-scrollbar mx-[-18px] md:mx-0 px-[18px] md:px-0 mt-3">
                 <a href="{{ $categoryUrl('all') }}" data-kat="all"
                     class="sticky-cat-btn shrink-0 px-3 py-1.5 rounded-[9px] text-[14px] tracking-[0.7px] {{ $activeKategori === 'all' ? 'bg-brand-dark text-white' : 'bg-white text-brand-dark' }} shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition-all whitespace-nowrap">
                     Semua
@@ -142,7 +142,7 @@
          ║  MAIN CONTENT — Search + Category + Card Grid                   ║
          ╚══════════════════════════════════════════════════════════════════╝ --}}
     <main
-        class="relative z-10 mx-auto mt-[-60px] max-w-md px-[18px] pb-[140px] sm:max-w-xl md:max-w-3xl md:pb-12 lg:max-w-6xl">
+        class="relative z-10 mx-auto mt-[-60px] max-w-md px-[18px] pb-[140px] sm:max-w-xl md:max-w-3xl md:pb-12 lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl">
         <div class="contents">
 
             {{-- ╔══════════════════════════════════════════════════════════════════╗
@@ -171,7 +171,7 @@
 
                 @if ($kategoris->isNotEmpty())
                     <div>
-                        <h2 class="mb-2 mt-6 text-[24px] font-bold leading-[32px] tracking-[1.2px] text-brand-dark">
+                        <h2 class="mb-2 mt-9 text-[24px] font-bold leading-[32px] tracking-[1.2px] text-brand-dark">
                             Category</h2>
                         <div class="mx-[-18px] mb-[18px] flex gap-4 overflow-x-auto px-[18px] pb-2 no-scrollbar sm:flex-wrap sm:overflow-visible sm:px-[18px] lg:mx-0 lg:px-0"
                             data-category-row data-anim="stagger">
@@ -340,11 +340,11 @@
             <div>
                 <h3 class="text-[20px] leading-[28px] font-bold tracking-[1px] mb-2.5">Navigation</h3>
                 <ul class="space-y-2 text-[12px] leading-[16px] tracking-[0.6px]">
-                    <li><a href="{{ route('konsumen.beranda', $meja->no_meja) }}" class="hover:underline">Menu</a>
+                    <li><a href="{{ route('konsumen.beranda', ['noMeja' => $meja->no_meja]) }}" class="hover:underline">Menu</a>
                     </li>
-                    <li><a href="{{ route('konsumen.pesanan') }}" class="hover:underline">Pesanan</a></li>
-                    <li><a href="{{ route('konsumen.keranjang') }}" class="hover:underline">Keranjang</a></li>
-                    <li><a href="{{ route('konsumen.lacak') }}" class="hover:underline">Lacak Pesanan</a></li>
+                    <li><a href="{{ route('konsumen.pesanan', ['noMeja' => $meja->no_meja]) }}" class="hover:underline">Pesanan</a></li>
+                    <li><a data-require-cart-scope href="{{ route('konsumen.keranjang', ['noMeja' => $meja->no_meja]) }}" class="hover:underline">Keranjang</a></li>
+                    <li><a href="{{ route('konsumen.tracking', ['noMeja' => $meja->no_meja]) }}" class="hover:underline">Lacak Pesanan</a></li>
                 </ul>
             </div>
 
@@ -392,7 +392,7 @@
          ║  BOTTOM NAVIGATION  (floating, fixed)                           ║
          ╚══════════════════════════════════════════════════════════════════╝ --}}
     @php
-        $keranjang = session('keranjang', []);
+        $keranjang = session('keranjang.'.session('id_meja'), []);
         $cartCount = count($keranjang);
         $hasOrder = session('no_pesanan_baru');
     @endphp
@@ -564,6 +564,124 @@
             passive: true
         });
 
-        // Detail menu sheet/modal logic lives in the shared menu-detail-sheet component.
+        // ============ Detail Menu Sheet (slide-up, full-screen) ============
+        // Loads /menu/{id}/detail?partial=1 via AJAX and injects the HTML
+        // fragment into the sheet panel, then animates the panel from
+        // translateY(100%) → translateY(0). Injected <script> tags are
+        // re-executed by cloning them (innerHTML alone does not run them).
+
+        // Remember pre-sheet scroll so we can restore it on close.
+        let __menuSheetReturnScrollY = 0;
+
+        // ─── Robust body scroll lock (iOS Safari–safe) ───
+        // `body { overflow: hidden }` alone is bypassed on iOS — body still scrolls
+        // and scroll chains from the panel into the catalog beneath. The cure is
+        // pinning <body> in place with `position: fixed; top: -<scrollY>px` while
+        // the sheet is open, then restoring scroll on close.
+        function lockBodyScroll() {
+            __menuSheetReturnScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+            document.body.style.position = 'fixed';
+            document.body.style.top = `-${__menuSheetReturnScrollY}px`;
+            document.body.style.left = '0';
+            document.body.style.right = '0';
+            document.body.style.width = '100%';
+            document.body.style.overflow = 'hidden';
+        }
+        function unlockBodyScroll() {
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.left = '';
+            document.body.style.right = '';
+            document.body.style.width = '';
+            document.body.style.overflow = '';
+            if (__menuSheetReturnScrollY > 0) {
+                window.scrollTo(0, __menuSheetReturnScrollY);
+                __menuSheetReturnScrollY = 0;
+            }
+        }
+
+        window.openMenuSheet = async function(id) {
+            const sheet = document.getElementById('menu-sheet');
+            const body = document.getElementById('menu-sheet-body');
+            const loader = document.getElementById('menu-sheet-loader');
+            if (!sheet || !body) return;
+
+            // Reset & reveal
+            body.innerHTML = '';
+            if (loader) loader.style.display = '';
+            sheet.classList.remove('hidden');
+            sheet.setAttribute('aria-hidden', 'false');
+            lockBodyScroll();
+
+            // Force the browser to register the initial translateY(100%) state
+            // BEFORE we toggle .is-open — otherwise display:none→block in the
+            // same frame as the class change makes the browser skip the slide
+            // animation and the panel just pops in.
+            void sheet.offsetHeight; // sync reflow
+            requestAnimationFrame(() => { // first paint of initial state
+                requestAnimationFrame(() => { // then trigger transition
+                    sheet.classList.add('is-open');
+                });
+            });
+
+            try {
+                const res = await fetch(`/{{ $meja->no_meja }}/menu/${id}/detail?partial=1&id_meja={{ $meja->id_meja }}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'text/html'
+                    },
+                    credentials: 'same-origin',
+                });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const html = await res.text();
+
+                body.innerHTML = html;
+                if (loader) loader.style.display = 'none';
+
+                // <script> tags inserted via innerHTML do NOT execute — clone them
+                body.querySelectorAll('script').forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    for (const attr of oldScript.attributes) {
+                        newScript.setAttribute(attr.name, attr.value);
+                    }
+                    newScript.textContent = oldScript.textContent;
+                    oldScript.parentNode.replaceChild(newScript, oldScript);
+                });
+            } catch (e) {
+                body.innerHTML = `
+                    <div class="p-8 text-center">
+                        <p class="text-brand-gray text-sm mb-4">Gagal memuat detail menu.</p>
+                        <button type="button" onclick="closeMenuSheet()" class="bg-brand-dark text-white px-5 py-2.5 rounded-[9px] text-sm font-bold">Tutup</button>
+                    </div>`;
+                if (loader) loader.style.display = 'none';
+            }
+        };
+
+        window.closeMenuSheet = function() {
+            const sheet = document.getElementById('menu-sheet');
+            const body = document.getElementById('menu-sheet-body');
+            if (!sheet) return;
+
+            sheet.classList.remove('is-open');
+            sheet.setAttribute('aria-hidden', 'true');
+
+            // After the slide-down transition completes, hide the sheet entirely
+            // and restore the user's prior scroll position via unlockBodyScroll().
+            setTimeout(() => {
+                sheet.classList.add('hidden');
+                if (body) body.innerHTML = '';
+                unlockBodyScroll();
+            }, 420);
+        };
+
+        // ESC closes the sheet
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const sheet = document.getElementById('menu-sheet');
+                if (sheet && sheet.classList.contains('is-open')) {
+                    window.closeMenuSheet();
+                }
+            }
+        });
     </script>
 </x-layouts.konsumen>

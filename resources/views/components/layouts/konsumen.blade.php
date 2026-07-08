@@ -7,11 +7,12 @@
 
 @php
     // Membaca nomor meja dari session global konsumen
-    $mejaNo = session('id_meja_no');
+    $mejaNo = request()->route('noMeja') ?: session('id_meja_no');
+    $cartScope = request('s');
 
     // Menghitung jumlah jenis menu (baris) yang aktif di keranjang session.
     // Badge menampilkan banyaknya menu berbeda, bukan akumulasi porsi.
-    $cartCount = count(session('keranjang', []));
+    $cartCount = count(session('keranjang.'.strtoupper((string) $mejaNo).'.'.(string) $cartScope, []));
 
     // Mendeteksi secara cerdas rute aktif saat ini untuk pencahayaan status menu navigasi desktop
     $routeName = request()->route()?->getName();
@@ -43,7 +44,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
 </head>
-<body class="{{ $bodyClass }}">
+<body class="{{ $bodyClass }}" data-table-code="{{ $mejaNo ?: '' }}">
 
     {{-- ╔══════════════════════════════════════════════════════════════════╗
      ║  PREMIUM DESKTOP TOP HEADER  —  Khusus layar lebar (lg:block)   ║
@@ -54,7 +55,7 @@
         <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
 
             {{-- Bagian Kiri: Logo & Nama Kafe --}}
-            <a href="{{ $mejaNo ? route('konsumen.beranda', $mejaNo) : '#' }}" class="flex items-center gap-3.5 active:scale-[0.98] transition duration-200">
+            <a href="{{ $mejaNo ? route('konsumen.beranda', ['noMeja' => $mejaNo]) : '#' }}" class="flex items-center gap-3.5 active:scale-[0.98] transition duration-200">
                 <div class="h-12 w-auto flex items-center justify-center p-0.5 bg-white/5 rounded-xl border border-white/10 shadow-md">
                     <img src="{{ asset('images/logo/KOHVITO LOGO WHITE.png') }}" alt="Kohvito Logo" class="h-10 w-auto object-contain">
                 </div>
@@ -67,7 +68,7 @@
             {{-- Bagian Tengah: Tautan Navigasi Interaktif --}}
             <nav class="flex items-center gap-1.5">
                 @if($mejaNo)
-                    <a href="{{ route('konsumen.beranda', $mejaNo) }}"
+                    <a href="{{ route('konsumen.beranda', ['noMeja' => $mejaNo]) }}"
                        class="relative px-5 py-2.5 rounded-xl text-sm font-bold tracking-wide transition-all duration-200 {{ $activeTab === 'menu' ? 'text-[#E52E2D] bg-white/5' : 'text-white/80 hover:text-white hover:bg-white/5' }}">
                         Menu
                         @if($activeTab === 'menu')
@@ -76,7 +77,7 @@
                     </a>
                 @endif
 
-                <a href="{{ route('konsumen.pesanan') }}"
+                <a href="{{ ($mejaNo ? route('konsumen.pesanan', ['noMeja' => $mejaNo]) : '#') }}"
                    class="relative px-5 py-2.5 rounded-xl text-sm font-bold tracking-wide transition-all duration-200 {{ $activeTab === 'pesanan' ? 'text-[#E52E2D] bg-white/5' : 'text-white/80 hover:text-white hover:bg-white/5' }}">
                     Pesanan
                     @if($activeTab === 'pesanan')
@@ -84,7 +85,7 @@
                     @endif
                 </a>
 
-                <a href="{{ route('konsumen.keranjang') }}"
+                <a data-require-cart-scope href="{{ ($mejaNo ? route('konsumen.keranjang', ['noMeja' => $mejaNo]) : '#') }}"
                    class="relative px-5 py-2.5 rounded-xl text-sm font-bold tracking-wide transition-all duration-200 {{ $activeTab === 'keranjang' ? 'text-[#E52E2D] bg-white/5' : 'text-white/80 hover:text-white hover:bg-white/5' }}">
                     <div class="flex items-center gap-2">
                         <span>Keranjang</span>
@@ -99,7 +100,7 @@
                     @endif
                 </a>
 
-                <a href="{{ route('konsumen.lacak') }}"
+                <a href="{{ ($mejaNo ? route('konsumen.tracking', ['noMeja' => $mejaNo]) : '#') }}"
                    class="relative px-5 py-2.5 rounded-xl text-sm font-bold tracking-wide transition-all duration-200 {{ $activeTab === 'lacak' ? 'text-[#E52E2D] bg-white/5' : 'text-white/80 hover:text-white hover:bg-white/5' }}">
                     Lacak Pesanan
                     @if($activeTab === 'lacak')

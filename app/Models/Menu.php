@@ -10,12 +10,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Class Menu
- * 
+ *
  * Model ini mewakili entitas menu makanan/minuman di database (tabel `menu`).
  * Mengelola informasi detail hidangan, ketersediaan stok, harga jual, komposisi bahan,
  * kategori rasa, dan jenis penyajian (Makanan/Minuman).
  *
- * @package App\Models
  * @property int $id_menu ID Unik Menu (Primary Key)
  * @property string $nama_menu Nama hidangan/minuman (misal: "Nasi Goreng Kampung")
  * @property string|null $deskripsi Ulasan deskriptif mengenai menu terkait
@@ -88,11 +87,11 @@ class Menu extends Model
     protected function casts(): array
     {
         return [
-            'id_menu'             => 'integer', // ID Menu wajib integer
-            'harga'               => 'integer', // Harga wajib bertipe integer untuk kalkulasi total
-            'stock'               => 'integer', // Jumlah stok wajib integer untuk pengurangan stock-control
+            'id_menu' => 'integer', // ID Menu wajib integer
+            'harga' => 'integer', // Harga wajib bertipe integer untuk kalkulasi total
+            'stock' => 'integer', // Jumlah stok wajib integer untuk pengurangan stock-control
             'status_ketersediaan' => 'string',  // Status dibaca sebagai string
-            'jenis_menu'          => 'string',  // Jenis menu dibaca sebagai string
+            'jenis_menu' => 'string',  // Jenis menu dibaca sebagai string
         ];
     }
 
@@ -100,8 +99,6 @@ class Menu extends Model
      * Hubungan Banyak-ke-Banyak (Many-to-Many) ke model KategoriMenu.
      * Digunakan untuk menghubungkan menu ke banyak kategori rasa atau penomoran
      * melalui perantara tabel pivot `menu_kategori`.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function kategoris(): BelongsToMany
     {
@@ -116,8 +113,6 @@ class Menu extends Model
     /**
      * Hubungan Satu-ke-Banyak (One-to-Many) ke model DetailPesanan.
      * Memungkinkan penelusuran histori pemesanan produk menu ini di setiap transaksi.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function detailPesanan(): HasMany
     {

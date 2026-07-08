@@ -7,12 +7,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
  * Class KategoriMenu
- * 
+ *
  * Model ini merepresentasikan entitas kategori menu di database (tabel `kategori_menu`).
  * Digunakan untuk mengelompokkan menu (misalnya: Kopi, Cemilan, Makanan Berat, dsb.)
  * agar mempermudah proses penyaringan dan navigasi oleh konsumen maupun admin.
  *
- * @package App\Models
  * @property int $id_kategori ID Unik Kategori Menu (Primary Key)
  * @property string $nama_kategori Nama Kategori (misal: "Kopi", "Non-Kopi", "Makanan Utama")
  */
@@ -65,7 +64,7 @@ class KategoriMenu extends Model
     protected function casts(): array
     {
         return [
-            'id_kategori'   => 'integer', // Pastikan ID Kategori dibaca sebagai integer
+            'id_kategori' => 'integer', // Pastikan ID Kategori dibaca sebagai integer
             'nama_kategori' => 'string',  // Pastikan Nama Kategori dibaca sebagai string
         ];
     }
@@ -74,8 +73,6 @@ class KategoriMenu extends Model
      * Hubungan Banyak-ke-Banyak (Many-to-Many) ke model Menu.
      * Menghubungkan kategori ini ke daftar produk menu yang termasuk di dalamnya,
      * dijembatani oleh tabel pivot `menu_kategori`.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function menus(): BelongsToMany
     {

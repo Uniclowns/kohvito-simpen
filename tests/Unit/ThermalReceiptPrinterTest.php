@@ -163,33 +163,31 @@ class ThermalReceiptPrinterTest extends TestCase
 
     /**
      * Membangun struk contoh dari objek Pesanan in-memory (tanpa basis data).
-     *
-     * @return string
      */
     private function buildSampleReceipt(): string
     {
-        $menuKopi = new Menu();
+        $menuKopi = new Menu;
         $menuKopi->nama_menu = 'Kopi Susu';
 
-        $menuRoti = new Menu();
+        $menuRoti = new Menu;
         $menuRoti->nama_menu = 'Croissant';
 
-        $itemKopi = new DetailPesanan();
+        $itemKopi = new DetailPesanan;
         $itemKopi->jumlah = 2;
         $itemKopi->subtotal = 36000;
         $itemKopi->catatan = 'tidak pakai gula';
         $itemKopi->setRelation('menu', $menuKopi);
 
-        $itemRoti = new DetailPesanan();
+        $itemRoti = new DetailPesanan;
         $itemRoti->jumlah = 1;
         $itemRoti->subtotal = 22000;
         $itemRoti->catatan = null;
         $itemRoti->setRelation('menu', $menuRoti);
 
-        $meja = new Meja();
+        $meja = new Meja;
         $meja->no_meja = 5;
 
-        $pesanan = new Pesanan();
+        $pesanan = new Pesanan;
         $pesanan->no_pesanan = 'KOH-TEST-001';
         $pesanan->nama_konsumen = 'Budi';
         $pesanan->status_pembayaran = 'lunas';

@@ -9,28 +9,26 @@ use Illuminate\View\View;
 
 /**
  * Class KelolaPesananController
- * 
+ *
  * Controller ini mengatur manajemen antrean pesanan aktif di dapur kafe (Panel Kasir).
  * Bertugas menarik antrean berjalan (antrean berstatus 'menunggu konfirmasi' dan 'diproses'),
  * melihat spesifikasi rincian pesanan, mencetak struk pemesanan PDF, serta mengamankan alur transisi
  * status pengerjaan makanan/minuman menggunakan pola State Machine (Mesin State terproteksi).
- *
- * @package App\Http\Controllers
  */
 class KelolaPesananController extends Controller
 {
     /**
      * Tampilkan antrean pesanan aktif yang harus dikerjakan dapur.
      * Diurutkan dari waktu masuk yang terlama (FIFO - First In First Out) agar adil.
-     *
-     * @return \Illuminate\View\View
      */
     public function index(): View
     {
-        // 1. Ambil pesanan yang berstatus 'menunggu konfirmasi' atau 'diproses' beserta relasi meja dan item
+        // 1. Ambil pesanan LUNAS yang berstatus 'menunggu konfirmasi' atau 'diproses' beserta relasi meja dan item.
+        //    Alur pay-first: pesanan belum dibayar tidak boleh masuk antrean dapur.
         $pesanans = Pesanan::with(['meja', 'detailPesanan.menu'])
+            ->where('status_pembayaran', 'lunas')
             ->whereIn('status_pesanan', ['menunggu konfirmasi', 'diproses'])
-            ->orderBy('tgl_pembayaran', 'asc') // Urutan FIFO berdasarkan waktu pembayaran/masuk
+            ->orderBy('tgl_pembayaran', 'asc') // Urutan FIFO berdasarkan waktu pembayaran
             ->get();
 
         return view('kasir.kelola-pesanan', compact('pesanans'));
@@ -40,13 +38,13 @@ class KelolaPesananController extends Controller
      * Tampilkan detail pesanan yang sedang aktif di antrean.
      *
      * @param  string  $noPesanan  Nomor transaksi pesanan referensi
-     * @return \Illuminate\View\View
      */
     public function detail(string $noPesanan): View
     {
-        // 1. Ambil detail data jika pesanan tersebut berstatus aktif
+        // 1. Ambil detail data jika pesanan tersebut lunas dan berstatus aktif
         $pesanan = Pesanan::with(['meja', 'detailPesanan.menu'])
             ->where('no_pesanan', $noPesanan)
+            ->where('status_pembayaran', 'lunas')
             ->whereIn('status_pesanan', ['menunggu konfirmasi', 'diproses'])
             ->firstOrFail();
 
@@ -57,19 +55,23 @@ class KelolaPesananController extends Controller
      * Mengubah status pengerjaan pesanan menggunakan pola State Machine (transisi berurutan).
      * Mencegah lompatan status (misal dari menunggu konfirmasi langsung selesai) demi konsistensi.
      *
-     * @param  \Illuminate\Http\Request  $request  Objek HTTP request
+     * @param  Request  $request  Objek HTTP request
      * @param  string  $noPesanan  Nomor transaksi pesanan referensi
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function updateStatus(Request $request, string $noPesanan): RedirectResponse
     {
         $pesanan = Pesanan::where('no_pesanan', $noPesanan)->firstOrFail();
 
+        // 0. Alur pay-first: pesanan yang belum lunas tidak boleh diproses dapur
+        if ($pesanan->status_pembayaran !== 'lunas') {
+            return back()->with('error', 'Pesanan belum dibayar — tidak dapat diproses.');
+        }
+
         // 1. Kamus Aturan Transisi Status (State Machine Kamus)
         //    Menjamin status hanya boleh melangkah maju satu demi satu tingkatan
         $transitions = [
             'menunggu konfirmasi' => 'diproses',
-            'diproses'            => 'selesai',
+            'diproses' => 'selesai',
         ];
 
         // 2. Tentukan status selanjutnya berdasarkan status pesanan saat ini
@@ -86,7 +88,7 @@ class KelolaPesananController extends Controller
 
         // 5. Tentukan label pesan notifikasi interaktif untuk dilemparkan ke client
         $isAccepted = $nextStatus === 'diproses';
-        $message    = $isAccepted
+        $message = $isAccepted
             ? 'Pesanan diterima dan sedang diproses.'
             : 'Pesanan telah selesai.';
 

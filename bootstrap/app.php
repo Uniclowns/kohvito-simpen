@@ -15,8 +15,16 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'role'         => CheckRole::class,
+            'role' => CheckRole::class,
             'order.status' => CheckOrderStatus::class,
+        ]);
+
+        // Cookie riwayat pesanan hanya berisi daftar tracking_code publik
+        // (bukan data sensitif). Dikecualikan dari enkripsi agar dapat dibaca
+        // konsisten lintas-request sebagai JSON biasa (mis. saat scan QR ulang
+        // di perangkat/sesi berbeda).
+        $middleware->encryptCookies(except: [
+            'riwayat_pesanan_kohvito',
         ]);
         $middleware->validateCsrfTokens(except: [
             'bayar/callback',

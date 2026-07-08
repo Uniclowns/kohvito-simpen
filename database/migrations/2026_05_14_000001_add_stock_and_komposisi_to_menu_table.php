@@ -11,15 +11,16 @@ use Illuminate\Support\Facades\Schema;
  * (skip lewat Schema::hasColumn). Tujuannya: source-control hygiene
  * untuk environment yang sudah ditambah kolom manual via Tinker.
  */
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         Schema::table('menu', function (Blueprint $table) {
-            if (!Schema::hasColumn('menu', 'komposisi')) {
+            if (! Schema::hasColumn('menu', 'komposisi')) {
                 $table->text('komposisi')->nullable()->after('tipe_minuman');
             }
 
-            if (!Schema::hasColumn('menu', 'stock')) {
+            if (! Schema::hasColumn('menu', 'stock')) {
                 $table->unsignedInteger('stock')->default(0)->after('komposisi');
             }
         });

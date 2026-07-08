@@ -8,22 +8,20 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class CheckRole
- * 
+ *
  * Middleware keamanan multi-user untuk membatasi hak akses halaman dashboard.
  * Memeriksa apakah pengguna yang terautentikasi memiliki peran (role) yang diizinkan
  * untuk mengakses suatu grup rute.
- *
- * @package App\Http\Middleware
  */
 class CheckRole
 {
     /**
      * Menangani pemrosesan HTTP request yang masuk.
      *
-     * @param  \Illuminate\Http\Request  $request  Objek HTTP Request saat ini
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next  Callback Closure penerus request
+     * @param  Request  $request  Objek HTTP Request saat ini
+     * @param  Closure(Request): (Response)  $next  Callback Closure penerus request
      * @param  string  $role  Nama role yang diizinkan (admin / kasir)
-     * @return \Symfony\Component\HttpFoundation\Response  Mengembalikan abort(403) jika ditolak, atau meloloskan request
+     * @return Response Mengembalikan abort(403) jika ditolak, atau meloloskan request
      */
     public function handle(Request $request, Closure $next, string $role): Response
     {
@@ -39,7 +37,7 @@ class CheckRole
         // 4. Standardisasi: lowercase + buang spasi agar "Super Admin" → "superadmin"
         //    (matches route param `role:superadmin` tanpa peduli ejaan DB).
         $rolePengguna = str_replace(' ', '', strtolower($user->role->nama_role));
-        $roleSyarat   = str_replace(' ', '', strtolower($role));
+        $roleSyarat = str_replace(' ', '', strtolower($role));
 
         // 5. SUPER ADMIN BYPASS — god mode: lolos semua role check (admin/kasir/superadmin).
         //    Designed agar 1 akun Super Admin bisa pantau & operasikan semua panel

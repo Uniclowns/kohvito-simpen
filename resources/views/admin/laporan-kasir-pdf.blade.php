@@ -62,7 +62,7 @@
     </style>
 </head>
 <body>
-    <div class="center bold" style="font-size: 18px; color: #380000; margin-bottom: 4px;">KOHVITO CAFFEE</div>
+    <div class="center bold" style="font-size: 18px; color: #380000; margin-bottom: 4px;">KAFE KOHVITO</div>
     <div class="center" style="font-size: 13px;">Laporan Transaksi Kasir</div>
     <div class="center" style="font-size: 11px; color: #555; margin-bottom: 6px;">
         Periode: {{ $tanggalMulai->translatedFormat('d F Y') }}

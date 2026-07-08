@@ -43,8 +43,10 @@
             </a>
         </div>
 
-        <form id="detail-form" method="POST" action="{{ route('konsumen.keranjang.tambah') }}" class="flex flex-col md:grid md:grid-cols-12 md:gap-6 md:items-stretch w-full gap-3">
+        <form id="detail-form" method="POST" action="{{ route('konsumen.keranjang.tambah', ['noMeja' => $meja?->no_meja ?? request()->route('noMeja') ?? session('id_meja_no')]) }}" class="flex flex-col md:grid md:grid-cols-12 md:gap-8 md:items-start w-full gap-[15px]">
             @csrf
+            <input type="hidden" name="cart_scope" value="{{ request('s') }}">
+            <input type="hidden" name="id_meja" value="{{ $meja?->id_meja ?? session('id_meja') }}">
             <input type="hidden" name="id_menu" value="{{ $menu->id_menu }}">
             <input type="hidden" name="jumlah" id="qty-input" value="1">
             <input type="hidden" name="catatan" id="catatan-input" value="">

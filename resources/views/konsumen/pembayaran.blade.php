@@ -22,7 +22,7 @@
     @endphp
 
     <header class="bg-brand-dark px-[18px] pt-[14px] pb-[12px] safe-top">
-        <div class="mx-auto flex max-w-[390px] md:max-w-4xl lg:max-w-5xl xl:max-w-6xl items-center justify-between">
+        <div class="mx-auto flex max-w-[390px] md:max-w-4xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl items-center justify-between">
             <p class="flex-1 text-[12px] font-bold leading-4 tracking-[0.6px] text-white">Pembayaran</p>
             <div class="flex h-8 w-8 shrink-0 items-center justify-center">
                 <img src="{{ asset('images/icons/MASCOOT WHITE.svg') }}" alt="Kohvito"
@@ -34,7 +34,7 @@
         </div>
     </header>
 
-    <main class="mx-auto max-w-[390px] md:max-w-4xl lg:max-w-5xl xl:max-w-6xl px-[18px] pb-6">
+    <main class="mx-auto max-w-[390px] md:max-w-4xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl px-[18px] pb-6">
         <div class="pt-3 pb-6">
             @if ($canCancel)
                 <button type="button"
@@ -47,7 +47,7 @@
                     <span class="text-[20px] font-bold leading-7 tracking-[1px]">Kembali</span>
                 </button>
             @else
-                <a href="{{ route('konsumen.lacak.detail', $pesanan->no_pesanan) }}"
+                <a href="{{ $pesanan->lacakUrl() }}"
                     class="inline-flex items-center gap-3 text-brand-black active:opacity-70">
                     <svg class="h-5 w-5 text-brand-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                         stroke-width="3">
@@ -119,7 +119,7 @@
                 </div>
 
                 <div class="w-full mt-4">
-                    <a href="{{ route('konsumen.lacak.detail', $pesanan->no_pesanan) }}"
+                    <a href="{{ $pesanan->lacakUrl() }}"
                         class="flex h-10 w-full items-center justify-center rounded-[9px] bg-brand-red px-3 py-2 text-[14px] font-bold leading-5 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)] active:scale-[0.98]">
                         Cek Status Pembayaran
                     </a>
@@ -132,7 +132,7 @@
         active="keranjang"
         :mejaNo="$mejaNo"
         :cartCount="$orderItemCount"
-        :lacakHref="route('konsumen.lacak.detail', $pesanan->no_pesanan)" />
+        :lacakHref="$pesanan->lacakUrl()" />
 
     @if ($canCancel)
         <x-konsumen-confirm-modal
@@ -164,7 +164,7 @@
 
     <script>
         (function () {
-            const lacakUrl = @json(route('konsumen.lacak.detail', $pesanan->no_pesanan));
+            const lacakUrl = @json($pesanan->lacakUrl());
             const params = new URLSearchParams(window.location.search);
 
             // Popup gagal bila gateway/simulator menandai pembayaran gagal.

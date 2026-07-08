@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\KategoriMenu;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
@@ -13,12 +12,9 @@ class MenuDescriptionMigrationTest extends TestCase
 
     public function test_menu_deskripsi_is_moved_to_komposisi_then_replaced_with_flavor_description(): void
     {
-        $kategori = KategoriMenu::create(['nama_kategori' => 'Kopi']);
-
         DB::table('menu')->insert([
             [
                 'id_menu' => 1,
-                'id_kategori' => $kategori->id_kategori,
                 'nama_menu' => 'V Loco',
                 'deskripsi' => 'Espresso // Milk // Signature Base',
                 'harga' => 30000,
@@ -32,7 +28,6 @@ class MenuDescriptionMigrationTest extends TestCase
             ],
             [
                 'id_menu' => 4,
-                'id_kategori' => $kategori->id_kategori,
                 'nama_menu' => 'Angguro',
                 'deskripsi' => 'Original "Kopi Anggur" - The most best seller at Kohvito since 2023',
                 'harga' => 28000,

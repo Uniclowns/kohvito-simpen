@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Traits\ApiResponses;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -10,13 +11,11 @@ use Illuminate\Support\Facades\Auth;
 
 /**
  * Class AuthApiController
- * 
+ *
  * Controller RESTful API ini menangani otentikasi berbasis token (Token-based Authentication)
  * menggunakan Laravel Sanctum untuk klien luar (seperti SPA atau aplikasi mobile).
  * Meliputi pemrosesan login aman, pembentukan personal access token terenkripsi,
  * pengambilan info identitas user terotentikasi, serta pencabutan token saat log out.
- *
- * @package App\Http\Controllers\Api
  */
 class AuthApiController extends Controller
 {
@@ -25,8 +24,8 @@ class AuthApiController extends Controller
     /**
      * Otentikasi pengguna (Login API) dan membangkitkan token akses Sanctum baru.
      *
-     * @param  \Illuminate\Http\Request  $request  Objek HTTP Request pembawa username dan sandi
-     * @return \Illuminate\Http\JsonResponse Respon JSON standar sukses berisi token, atau 401 jika gagal
+     * @param  Request  $request  Objek HTTP Request pembawa username dan sandi
+     * @return JsonResponse Respon JSON standar sukses berisi token, atau 401 jika gagal
      */
     public function login(Request $request): JsonResponse
     {
@@ -48,7 +47,7 @@ class AuthApiController extends Controller
         }
 
         // 4. Autentikasi sukses. Tarik objek user dan lakukan eager-load relasi role
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = Auth::user();
         $user->load('role');
 
@@ -58,10 +57,10 @@ class AuthApiController extends Controller
         // 6. Kembalikan respon sukses berisi payload data user dan token
         return $this->successResponse([
             'user' => [
-                'id_users'     => $user->id_users,
+                'id_users' => $user->id_users,
                 'nama_lengkap' => $user->nama_lengkap,
-                'username'     => $user->username,
-                'role'         => $user->role?->nama_role,
+                'username' => $user->username,
+                'role' => $user->role?->nama_role,
             ],
             'token' => $token,
         ], 'Login berhasil');
@@ -70,8 +69,8 @@ class AuthApiController extends Controller
     /**
      * Mengeluarkan pengguna dari sesi API (Logout) dengan menghapus token akses aktif saat ini.
      *
-     * @param  \Illuminate\Http\Request  $request  Objek HTTP request pembawa token otentikasi
-     * @return \Illuminate\Http\JsonResponse Respon sukses terstandarisasi
+     * @param  Request  $request  Objek HTTP request pembawa token otentikasi
+     * @return JsonResponse Respon sukses terstandarisasi
      */
     public function logout(Request $request): JsonResponse
     {
@@ -84,21 +83,21 @@ class AuthApiController extends Controller
     /**
      * Memperoleh detail informasi profil pengguna yang sedang login saat ini (Check Session API).
      *
-     * @param  \Illuminate\Http\Request  $request  Objek HTTP request terotentikasi
-     * @return \Illuminate\Http\JsonResponse Respon sukses berisi profil pengguna
+     * @param  Request  $request  Objek HTTP request terotentikasi
+     * @return JsonResponse Respon sukses berisi profil pengguna
      */
     public function me(Request $request): JsonResponse
     {
         // 1. Tarik user terotentikasi dan muat detail relasi perannya
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = $request->user();
         $user->load('role');
 
         return $this->successResponse([
-            'id_users'     => $user->id_users,
+            'id_users' => $user->id_users,
             'nama_lengkap' => $user->nama_lengkap,
-            'username'     => $user->username,
-            'role'         => $user->role?->nama_role,
+            'username' => $user->username,
+            'role' => $user->role?->nama_role,
         ]);
     }
 }

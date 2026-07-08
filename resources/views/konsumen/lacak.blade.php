@@ -20,14 +20,15 @@
     bodyClass="min-h-screen bg-[#F6F6F6] pb-[140px] lg:pb-0 font-sans text-brand-black kvt-konsumen-mobile-view">
 
     @php
-        $mejaNo = session('id_meja_no');
-        $keranjang = session('keranjang', []);
+        $mejaNo = $noMeja ?? request()->route('noMeja') ?? session('id_meja_no');
+        $cartScope = request('s');
+        $keranjang = session('keranjang.'.strtoupper((string) $mejaNo).'.'.(string) $cartScope, []);
         $cartCount = count($keranjang);
     @endphp
 
     {{-- Top header bar --}}
     <header class="bg-brand-dark safe-top">
-        <div class="max-w-md md:max-w-3xl lg:max-w-5xl xl:max-w-6xl mx-auto px-[18px] pt-[14px] pb-3 flex items-center justify-between">
+        <div class="max-w-md md:max-w-2xl mx-auto px-[18px] pt-[14px] pb-3 flex items-center justify-between">
             <p class="flex-1 text-white text-[12px] leading-4 font-bold tracking-[0.6px] capitalize">Lacak Pesanan</p>
             <div class="w-8 h-8 flex items-center justify-center shrink-0">
                 <img src="{{ asset('images/icons/MASCOOT WHITE.svg') }}" alt="Kohvito" class="w-full h-full object-contain">
@@ -41,7 +42,7 @@
     <main class="max-w-md md:max-w-2xl mx-auto px-[18px] pt-4">
         {{-- Back link --}}
         @if ($mejaNo)
-            <a href="{{ route('konsumen.beranda', $mejaNo) }}"
+            <a href="{{ route('konsumen.beranda', ['noMeja' => $mejaNo]) }}"
                class="inline-flex items-center gap-3 text-brand-dark active:opacity-70 mb-3">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
@@ -131,6 +132,17 @@
                             {{ $tanggal->translatedFormat('l, d M Y H:i') }}
                         </span>
                     </div>
+
+                    {{-- Kode pelacakan publik (tracking_code) — simpan untuk melacak ulang kapan saja --}}
+                    @if (! empty($pesanan->tracking_code))
+                        <div class="mt-1 flex items-center justify-between gap-2 rounded-[6px] bg-brand-dark/5 px-[10px] py-[6px]">
+                            <div class="flex flex-col">
+                                <span class="text-[9px] leading-3 tracking-[0.5px] text-brand-dark/60 uppercase">Kode Pelacakan</span>
+                                <span class="font-mono text-[14px] leading-4 font-bold tracking-[1px] text-brand-dark select-all">{{ $pesanan->tracking_code }}</span>
+                            </div>
+                            <span class="shrink-0 text-[9px] leading-3 text-brand-dark/60 text-right">Simpan kode ini<br>untuk melacak ulang</span>
+                        </div>
+                    @endif
                 </header>
 
                 {{-- ---------- Timeline 5 langkah ---------- --}}
@@ -248,7 +260,7 @@
             </article>
 
             {{-- ---------- CTA di luar kartu ---------- --}}
-            <a href="{{ route('konsumen.pesanan') }}"
+            <a href="{{ $mejaNo ? route('konsumen.pesanan', ['noMeja' => $mejaNo]) : route('konsumen.lacak.form') }}"
                class="mt-3 flex h-8 w-full items-center justify-center rounded-[9px] bg-brand-red px-3 py-1.5 text-[14px] leading-5 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)] active:scale-95">
                 Cek Pesanan Anda
             </a>
