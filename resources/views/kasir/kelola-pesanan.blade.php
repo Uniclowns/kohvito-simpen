@@ -121,32 +121,30 @@
 
                             <div class="mt-4 grid shrink-0 grid-cols-2 gap-3 sm:flex sm:h-11">
                                 <button type="button" data-order-panel-target="{{ $panelId }}"
-                                    class="flex-1 whitespace-nowrap rounded-[9px] bg-[#CCCCCC] px-2 py-2 text-center text-[14px] leading-6 tracking-[0.7px] text-[#681F1F] shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition-colors hover:bg-[#BEBEBE]">
+                                    class="flex min-w-0 flex-1 items-center justify-center whitespace-nowrap rounded-[9px] bg-[#CCCCCC] px-3 py-2 text-[14px] leading-6 tracking-[0.4px] text-[#681F1F] shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition-colors hover:bg-[#BEBEBE]">
                                     Detail
                                 </button>
 
                                 @if ($isWaiting)
-                                    <form method="POST" action="{{ route('kasir.pesanan.update-status', $pesanan->no_pesanan) }}" class="flex-1">
+                                    <form method="POST" action="{{ route('kasir.pesanan.update-status', $pesanan->no_pesanan) }}" class="min-w-0 flex-1">
                                         @csrf
                                         @method('PUT')
                                         <button type="submit"
-                                            class="h-full w-full whitespace-nowrap rounded-[9px] bg-[#681F1F] px-2 py-2 text-center text-[14px] leading-6 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition hover:brightness-110">
+                                            class="flex h-full w-full items-center justify-center whitespace-nowrap rounded-[9px] bg-[#681F1F] px-3 py-2 text-[14px] leading-6 tracking-[0.4px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition hover:brightness-110">
                                             Terima Pesanan
                                         </button>
                                     </form>
                                 @else
-                                    <form method="POST" action="{{ route('kasir.pesanan.update-status', $pesanan->no_pesanan) }}" class="flex-1">
+                                    <form method="POST" action="{{ route('kasir.pesanan.update-status', $pesanan->no_pesanan) }}" class="min-w-0 flex-1">
                                         @csrf
                                         @method('PUT')
                                         <button type="submit"
-                                            class="h-full w-full whitespace-nowrap rounded-[9px] bg-[#58E52D] px-2 py-2 text-center text-[14px] leading-6 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition hover:brightness-95">
+                                            class="flex h-full w-full items-center justify-center whitespace-nowrap rounded-[9px] bg-[#58E52D] px-3 py-2 text-[14px] leading-6 tracking-[0.4px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition hover:brightness-95">
                                             Selesai
                                         </button>
                                     </form>
-                                    <button type="button" data-order-print-url="{{ route('kasir.pesanan.cetak', $pesanan->no_pesanan) }}"
-                                        class="col-span-2 flex-1 whitespace-nowrap rounded-[9px] bg-[#681F1F] px-2 py-2 text-center text-[14px] leading-6 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition hover:brightness-110 sm:col-span-1">
-                                        Cetak Struk
-                                    </button>
+                                    <x-cetak-struk-button :no-pesanan="$pesanan->no_pesanan"
+                                        class="col-span-2 flex-1 rounded-[9px] bg-[#681F1F] px-4 py-2 text-center text-[16px] leading-6 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition hover:brightness-110 sm:col-span-1" />
                                 @endif
                             </div>
                         </div>
@@ -196,8 +194,8 @@
                                         {{ $statusLabel }}
                                     </span>
                                 </div>
-                                <div class="flex items-center justify-between gap-4 text-[12px] leading-4 tracking-[0.5px] text-[#681F1F]">
-                                    <p class="w-[90px] truncate">Order #{{ \Illuminate\Support\Str::limit($pesanan->no_pesanan, 8, '') }}</p>
+                                <div class="flex items-start justify-between gap-4 text-[12px] leading-4 tracking-[0.5px] text-[#681F1F]">
+                                    <p class="min-w-0 break-all">Order #{{ $pesanan->no_pesanan }}</p>
                                     <div class="flex shrink-0 flex-wrap items-start justify-end gap-x-[3px] gap-y-0.5 text-right sm:flex-nowrap sm:whitespace-nowrap">
                                         @if ($pesanan->tgl_pembayaran)
                                             <p>{{ $pesanan->tgl_pembayaran->translatedFormat('l, d F Y') }}</p>
@@ -239,20 +237,17 @@
 
                                                 <div class="flex min-w-0 flex-1 items-start justify-between gap-3 py-1.5">
                                                     <div class="min-w-0">
-                                                        <p class="truncate text-[14px] font-bold capitalize leading-[18px] tracking-[0.6px] text-black">
+                                                        <p class="break-words text-[14px] font-bold capitalize leading-[18px] tracking-[0.6px] text-black">
                                                             {{ $detail->jumlah }} {{ $menu?->nama_menu ?? 'Menu' }}@if ($variant)<span class="italic text-[#460001]">({{ $variant }})</span>@endif
                                                         </p>
                                                         @foreach ($notes as $note)
-                                                            <p class="truncate text-[12px] leading-4 tracking-[0.5px] text-[#808080]">{{ $note }}</p>
+                                                            <p class="break-words text-[12px] leading-4 tracking-[0.5px] text-[#808080]">{{ $note }}</p>
                                                         @endforeach
                                                     </div>
                                                     <div class="shrink-0 text-right">
                                                         <p class="whitespace-nowrap text-[14px] font-bold leading-[18px] tracking-[0.6px] text-black">
                                                             {{ number_format($detail->subtotal, 0, ',', '.') }}
                                                         </p>
-                                                        @foreach ($notes as $note)
-                                                            <p class="whitespace-nowrap text-[12px] leading-4 tracking-[0.5px] text-[#808080]">+2.000</p>
-                                                        @endforeach
                                                     </div>
                                                 </div>
                                             </div>
@@ -289,6 +284,17 @@
                                     </div>
                                 </div>
 
+                                <div data-scroll-hint
+                                    class="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-center pb-3 opacity-0 transition-opacity duration-300">
+                                    <div class="pointer-events-none absolute inset-x-0 bottom-0 h-[100px] bg-gradient-to-t from-white from-[12%] via-white/85 to-transparent backdrop-blur-sm"></div>
+                                    <div class="relative flex items-center gap-1 text-[#460001]">
+                                        <span class="whitespace-nowrap text-[13px] leading-7 tracking-[0.9px] sm:text-[18px]">Scroll Untuk Melihat Menu Lainnya</span>
+                                        <svg class="h-[18px] w-[18px] animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="m6 9 6 6 6-6"/>
+                                        </svg>
+                                    </div>
+                                </div>
+
                             </div>
 
                             <div class="grid grid-cols-2 gap-3 px-4 pt-3 sm:flex sm:px-7">
@@ -314,10 +320,8 @@
                                             Selesai
                                         </button>
                                     </form>
-                                    <button type="button" data-order-print-url="{{ route('kasir.pesanan.cetak', $pesanan->no_pesanan) }}"
-                                        class="col-span-2 min-w-0 flex-1 whitespace-nowrap rounded-[9px] bg-[#681F1F] px-2 py-2 text-[14px] leading-6 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition hover:brightness-110 sm:col-span-1">
-                                        Cetak Struk
-                                    </button>
+                                    <x-cetak-struk-button :no-pesanan="$pesanan->no_pesanan"
+                                        class="col-span-2 min-w-0 flex-1 rounded-[9px] bg-[#681F1F] px-3 py-2 text-[15px] leading-6 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition hover:brightness-110 sm:col-span-1" />
                                 @endif
                             </div>
                         </aside>
@@ -336,8 +340,13 @@
                 </svg>
             </button>
             <div class="flex flex-col items-center text-center">
-                <img src="{{ asset('images/gif/success.gif') }}" alt=""
-                    class="mb-5 h-[170px] w-[180px] object-contain sm:mb-7 sm:h-[250px] sm:w-[240px]">
+                {{-- Gif animasi; onerror jatuh ke svg statis. Tidak pakai
+                     file_exists(public_path()) karena public/images/** di-exclude
+                     dari bundle function Vercel (selalu false di sana). --}}
+                <img src="{{ asset('images/gif/success.gif') }}"
+                    onerror="this.onerror=null; this.src='{{ asset('images/illustration/print success.svg') }}';"
+                    alt="" aria-hidden="true"
+                    class="mb-5 h-[170px] w-auto object-contain sm:mb-7 sm:h-[250px]">
                 <p id="kasir-order-success-title"
                     class="max-w-[440px] text-[26px] font-bold leading-8 tracking-[1.1px] text-[#460001]">
                     Berhasil Menerima Pesanan
@@ -421,6 +430,18 @@
                     panel?.querySelector('[data-scroll-panel]')?.scrollTo({ top: 0 });
                 };
 
+                const SCROLL_HINT_THRESHOLD = 4;
+
+                const updateScrollHint = (panel) => {
+                    if (!panel) return;
+                    const scroller = panel.querySelector('[data-scroll-panel]');
+                    const hint = panel.querySelector('[data-scroll-hint]');
+                    if (!scroller || !hint) return;
+                    const hasOverflow = scroller.scrollHeight - scroller.clientHeight > SCROLL_HINT_THRESHOLD;
+                    const atBottom = scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - SCROLL_HINT_THRESHOLD;
+                    hint.classList.toggle('opacity-0', !hasOverflow || atBottom);
+                };
+
                 const activatePanel = (id) => {
                     let activePanel = null;
 
@@ -438,6 +459,7 @@
 
                     syncDetailLayout();
                     resetPanelScroll(activePanel);
+                    window.requestAnimationFrame(() => updateScrollHint(activePanel));
                     showBodyLockIfNeeded();
                 };
 
@@ -465,10 +487,14 @@
                     panel.addEventListener('click', (event) => {
                         if (event.target === panel) closePanel(panel);
                     });
+                    panel.querySelector('[data-scroll-panel]')?.addEventListener('scroll', () => updateScrollHint(panel), { passive: true });
                 });
 
                 desktopDetailQuery.addEventListener('change', showBodyLockIfNeeded);
-                window.addEventListener('resize', () => window.requestAnimationFrame(syncCardPreviews));
+                window.addEventListener('resize', () => window.requestAnimationFrame(() => {
+                    syncCardPreviews();
+                    updateScrollHint(getActivePanel());
+                }));
                 document.fonts?.ready?.then(syncCardPreviews);
 
                 const successModal = document.querySelector('[data-success-modal]');
@@ -477,10 +503,6 @@
                 const successCopy = {
                     accepted: {
                         title: 'Berhasil Menerima Pesanan',
-                        subtitle: '',
-                    },
-                    printed: {
-                        title: 'Berhasil Mencetak Struk',
                         subtitle: '',
                     },
                     completed: {
@@ -507,13 +529,10 @@
                     showBodyLockIfNeeded();
                 };
 
-                document.querySelectorAll('[data-order-print-url]').forEach((button) => {
-                    button.addEventListener('click', () => {
-                        const printWindow = window.open(button.dataset.orderPrintUrl, '_blank');
-                        if (printWindow) printWindow.opener = null;
-                        openSuccess('printed');
-                    });
-                });
+                // Cetak struk pelanggan + Checker (Barista/Kitchen) kini langsung ke
+                // printer termal jaringan via ESC/POS. Tombol "Cetak Struk" memakai
+                // komponen x-cetak-struk-button yang ditangani resources/js/cetak-struk.js
+                // (POST ke kasir.struk.cetak) — tanpa dialog printer, tab baru, atau PDF.
 
                 document.querySelectorAll('[data-success-close]').forEach((button) => {
                     button.addEventListener('click', closeSuccess);

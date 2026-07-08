@@ -10,8 +10,9 @@
     $mejaNo = request()->route('noMeja') ?: session('id_meja_no');
     $cartScope = request('s');
 
-    // Menghitung total porsi item belanjaan yang aktif di keranjang session
-    $cartCount = array_sum(array_column(session('keranjang.'.strtoupper((string) $mejaNo).'.'.(string) $cartScope, []), 'jumlah'));
+    // Menghitung jumlah jenis menu (baris) yang aktif di keranjang session.
+    // Badge menampilkan banyaknya menu berbeda, bukan akumulasi porsi.
+    $cartCount = count(session('keranjang.'.strtoupper((string) $mejaNo).'.'.(string) $cartScope, []));
 
     // Mendeteksi secara cerdas rute aktif saat ini untuk pencahayaan status menu navigasi desktop
     $routeName = request()->route()?->getName();

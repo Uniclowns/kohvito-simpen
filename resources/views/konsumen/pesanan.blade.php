@@ -11,7 +11,7 @@
         $mejaNo = $noMeja ?? request()->route('noMeja') ?? session('id_meja_no');
         $cartScope = request('s');
         $keranjang = session('keranjang.'.strtoupper((string) $mejaNo).'.'.(string) $cartScope, []);
-        $cartCount = array_sum(array_column($keranjang, 'jumlah'));
+        $cartCount = count($keranjang);
 
         // Chip status pesanan (Figma: pill kuning #FFE62F untuk "Pesanan Diproses").
         $statusPesananChip = [

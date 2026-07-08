@@ -2,12 +2,12 @@
 
     <x-slot:headerEnd>
         <div class="hidden items-center gap-3 sm:flex">
-            <div class="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full">
-                <img src="{{ asset('images/icons/KVT ICON USER.svg') }}" alt="User Avatar"
-                    class="w-12 h-12 object-contain">
+            <div class="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-brand-red to-brand-dark ring-1 ring-brand-dark/15">
+                <img src="{{ asset('images/icons/MASCOOT WHITE.svg') }}" alt="Kohvito"
+                    class="h-7 w-7 object-contain">
             </div>
             <span
-                class="max-w-[220px] truncate text-[22px] tracking-[1px] text-[#460001]">{{ auth()->user()?->nama_lengkap ?? (auth()->user()?->name ?? 'Kasir') }}</span>
+                class="max-w-[220px] truncate text-[18px] font-bold tracking-[0.5px] text-brand-dark">{{ auth()->user()?->nama_lengkap ?? (auth()->user()?->name ?? 'Username') }}</span>
         </div>
     </x-slot:headerEnd>
 
@@ -18,141 +18,156 @@
     @endif
 
     {{-- ── 4 Stat Cards ── --}}
-    <div class="mb-10 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4" data-anim="stagger">
-        <div class="bg-[rgba(104,31,31,0.12)] rounded-[9px] px-5 py-5 lg:px-7 lg:py-6" data-anim-item>
-            <div class="flex items-center gap-2 mb-2">
-                <svg class="w-5 h-5 text-[#681F1F]" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd"
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                        clip-rule="evenodd" />
+    <div class="mb-8 grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 xl:grid-cols-4" data-anim="stagger">
+        {{-- Pesanan Selesai --}}
+        <div class="group rounded-2xl bg-white p-5 ring-1 ring-brand-dark/[0.06] shadow-[0_2px_4px_rgba(0,0,0,0.05),0_14px_32px_-18px_rgba(70,0,1,0.28)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_38px_-18px_rgba(70,0,1,0.34)] lg:p-6" data-anim-item>
+            <div class="mb-3.5 flex items-center gap-2 text-brand-red">
+                <svg class="h-[18px] w-[18px] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <h6 class="text-[14px] text-[#681F1F] font-bold uppercase tracking-[0.6px]">Jumlah Pesanan Selesai</h6>
+                <h6 class="text-[12px] font-bold uppercase tracking-[1px]">Jumlah Pesanan Selesai</h6>
             </div>
-            <div class="mt-2 flex flex-wrap items-baseline gap-2">
-                <p class="text-[34px] font-bold leading-[42px] text-black sm:text-[42px] sm:leading-[46px]" data-count-up="{{ $selesai }}">{{ $selesai }}</p>
-                <p class="text-[22px] font-bold leading-[30px] text-black sm:text-[26px] sm:leading-[34px]">Pesanan</p>
+            <div class="flex flex-wrap items-baseline gap-x-2">
+                <p class="text-[34px] font-bold leading-[40px] text-brand-black sm:text-[40px] sm:leading-[44px]" data-count-up="{{ $selesai }}">{{ $selesai }}</p>
+                <p class="text-[20px] font-bold leading-7 text-brand-gray">Pesanan</p>
             </div>
-            <p class="text-[14px] text-[rgba(70,0,1,0.5)] mt-2">
-                {{ $selesaiMinuman }} Minuman &nbsp; {{ $selesaiMakanan }} Makanan &nbsp; Berhasil Terjual
+            <p class="mt-2.5 text-[13px] leading-5 text-brand-gray">
+                <span class="font-semibold text-brand-red">{{ $selesaiMinuman }}</span> Minuman
+                <span class="px-1 text-brand-red-muted">·</span>
+                <span class="font-semibold text-brand-red">{{ $selesaiMakanan }}</span> Makanan Berhasil Terjual
             </p>
         </div>
 
-        <div class="bg-[rgba(104,31,31,0.12)] rounded-[9px] px-5 py-5 lg:px-7 lg:py-6" data-anim-item>
-            <div class="flex items-center gap-2 mb-2">
-                <svg class="w-5 h-5 text-[#681F1F]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        {{-- Pesanan Aktif --}}
+        <div class="group rounded-2xl bg-white p-5 ring-1 ring-brand-dark/[0.06] shadow-[0_2px_4px_rgba(0,0,0,0.05),0_14px_32px_-18px_rgba(70,0,1,0.28)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_38px_-18px_rgba(70,0,1,0.34)] lg:p-6" data-anim-item>
+            <div class="mb-3.5 flex items-center gap-2 text-brand-red">
+                <svg class="h-[18px] w-[18px] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <h6 class="text-[14px] text-[#681F1F] font-bold uppercase tracking-[0.6px]">Jumlah Pesanan Aktif</h6>
+                <h6 class="text-[12px] font-bold uppercase tracking-[1px]">Jumlah Pesanan Aktif</h6>
             </div>
-            <div class="mt-2 flex flex-wrap items-baseline gap-2">
-                <p class="text-[34px] font-bold leading-[42px] text-black sm:text-[42px] sm:leading-[46px]" data-count-up="{{ $pesananAktif }}">{{ $pesananAktif }}</p>
-                <p class="text-[22px] font-bold leading-[30px] text-black sm:text-[26px] sm:leading-[34px]">Pesanan</p>
+            <div class="flex flex-wrap items-baseline gap-x-2">
+                <p class="text-[34px] font-bold leading-[40px] text-brand-black sm:text-[40px] sm:leading-[44px]" data-count-up="{{ $pesananAktif }}">{{ $pesananAktif }}</p>
+                <p class="text-[20px] font-bold leading-7 text-brand-gray">Pesanan</p>
             </div>
-            <p class="text-[14px] text-[rgba(70,0,1,0.5)] mt-2">&nbsp;</p>
+            <p class="mt-2.5 text-[13px] leading-5 text-brand-gray">Menunggu &amp; sedang diproses dapur</p>
         </div>
 
-        <div class="bg-[rgba(104,31,31,0.12)] rounded-[9px] px-5 py-5 lg:px-7 lg:py-6" data-anim-item>
-            <div class="flex items-center gap-2 mb-2">
-                <svg class="w-5 h-5 text-[#681F1F]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+        {{-- Total Transaksi --}}
+        <div class="group rounded-2xl bg-white p-5 ring-1 ring-brand-dark/[0.06] shadow-[0_2px_4px_rgba(0,0,0,0.05),0_14px_32px_-18px_rgba(70,0,1,0.28)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_38px_-18px_rgba(70,0,1,0.34)] lg:p-6" data-anim-item>
+            <div class="mb-3.5 flex items-center gap-2 text-brand-red">
+                <svg class="h-[18px] w-[18px] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                 </svg>
-                <h6 class="text-[14px] text-[#681F1F] font-bold uppercase tracking-[0.6px]">Total Transaksi</h6>
+                <h6 class="text-[12px] font-bold uppercase tracking-[1px]">Total Transaksi</h6>
             </div>
-            <div class="mt-2 flex flex-wrap items-baseline gap-2">
-                <p class="text-[34px] font-bold leading-[42px] text-black sm:text-[42px] sm:leading-[46px]" data-count-up="{{ $totalTransaksi }}">{{ $totalTransaksi }}</p>
-                <p class="text-[22px] font-bold leading-[30px] text-black sm:text-[26px] sm:leading-[34px]">Transaksi</p>
+            <div class="flex flex-wrap items-baseline gap-x-2">
+                <p class="text-[34px] font-bold leading-[40px] text-brand-black sm:text-[40px] sm:leading-[44px]" data-count-up="{{ $totalTransaksi }}">{{ $totalTransaksi }}</p>
+                <p class="text-[20px] font-bold leading-7 text-brand-gray">Transaksi</p>
             </div>
-            <p class="text-[14px] text-[rgba(70,0,1,0.5)] mt-2">&nbsp;</p>
+            <p class="mt-2.5 text-[13px] leading-5 text-brand-gray">Transaksi lunas sepanjang waktu</p>
         </div>
 
-        <div class="bg-[rgba(104,31,31,0.12)] rounded-[9px] px-5 py-5 lg:px-7 lg:py-6" data-anim-item>
-            <div class="flex items-center gap-2 mb-2">
-                <svg class="w-5 h-5 text-[#681F1F]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        {{-- Total Pendapatan Kotor --}}
+        <div class="group rounded-2xl bg-white p-5 ring-1 ring-brand-dark/[0.06] shadow-[0_2px_4px_rgba(0,0,0,0.05),0_14px_32px_-18px_rgba(70,0,1,0.28)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_38px_-18px_rgba(70,0,1,0.34)] lg:p-6" data-anim-item>
+            <div class="mb-3.5 flex items-center gap-2 text-brand-red">
+                <svg class="h-[18px] w-[18px] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h2m4 0h2M6 19h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                 </svg>
-                <h6 class="text-[14px] text-[#681F1F] font-bold uppercase tracking-[0.6px]">Total Pendapatan Kotor</h6>
+                <h6 class="text-[12px] font-bold uppercase tracking-[1px]">Total Pendapatan Kotor</h6>
             </div>
-            <div class="mt-2 flex min-w-0 flex-wrap items-baseline gap-2">
-                <p class="text-[22px] font-bold leading-[30px] text-black sm:text-[26px] sm:leading-[34px]">Rp</p>
-                <p class="kvt-break-anywhere text-[32px] font-bold leading-[40px] text-black sm:text-[42px] sm:leading-[46px]" data-count-up="{{ $omzetTotal }}">{{ number_format($omzetTotal, 0, ',', '.') }}
-                </p>
+            <div class="flex min-w-0 flex-wrap items-baseline gap-x-2">
+                <p class="text-[22px] font-bold leading-7 text-brand-black sm:text-[24px] sm:leading-8">Rp</p>
+                <p class="kvt-break-anywhere text-[30px] font-bold leading-[38px] text-brand-black sm:text-[36px] sm:leading-[42px]" data-count-up="{{ $omzetTotal }}">{{ number_format($omzetTotal, 0, ',', '.') }}</p>
             </div>
-            <p class="text-[14px] text-[rgba(70,0,1,0.5)] mt-2">
-                Rata-Rata Pembelian Sebesar Rp {{ number_format($rataPembelian, 0, ',', '.') }}
+            <p class="mt-2.5 text-[13px] leading-5 text-brand-gray">
+                Rata-Rata Pembelian Sebesar <span class="font-semibold text-brand-red">Rp {{ number_format($rataPembelian, 0, ',', '.') }}</span>
             </p>
         </div>
     </div>
 
-    {{-- ── 2 Terlaris Cards ── --}}
-    <div class="mb-10 grid grid-cols-1 gap-5 lg:grid-cols-2">
-        <div
-            class="flex flex-col sm:flex-row min-w-0 items-stretch sm:items-center overflow-hidden rounded-[9px] bg-white shadow-[2px_4px_4px_rgba(0,0,0,0.18)]">
-            <div class="bg-[#681F1F] hidden sm:flex items-center justify-center px-6 shrink-0">
-                <img src="{{ asset('images/icons/Food.svg') }}" alt="" class="w-10 h-10 brightness-0 invert">
+    {{-- ── Terlaris Cards (desain disamakan dengan panel Admin) ── --}}
+    <div class="mb-10 grid grid-cols-1 gap-4 lg:grid-cols-2">
+
+        {{-- Makanan Terlaris --}}
+        <div class="flex min-h-24 overflow-hidden rounded-xl border border-brand-gray-extralight bg-white shadow-sm sm:h-24">
+            <div class="w-20 bg-brand-dark flex items-center justify-center flex-shrink-0">
+                <img src="{{ asset('images/icons/Food.svg') }}" alt="" class="w-8 h-8 brightness-0 invert">
             </div>
-            @if ($makananTerlaris?->gambar_menu)
-                @php
-                    $imgSrcMk = str_starts_with($makananTerlaris->gambar_menu, 'http')
-                        ? $makananTerlaris->gambar_menu
-                        : asset('images/food/' . $makananTerlaris->gambar_menu);
-                @endphp
-                <div class="w-full h-44 sm:w-[120px] sm:h-[120px] shrink-0 overflow-hidden">
-                    <img src="{{ $imgSrcMk }}" alt="" class="w-full h-full object-cover">
+            <div class="flex min-w-0 flex-1 items-center gap-3 px-3 py-3 sm:gap-4 sm:px-4">
+                @if ($makananTerlaris?->gambar_menu)
+                    @php
+                        $imgSrcMk = str_starts_with($makananTerlaris->gambar_menu, 'http')
+                            ? $makananTerlaris->gambar_menu
+                            : asset("images/food/{$makananTerlaris->gambar_menu}");
+                    @endphp
+                    <img src="{{ $imgSrcMk }}"
+                         alt="{{ $makananTerlaris->nama_menu }}"
+                         loading="lazy" decoding="async"
+                         class="w-16 h-16 object-cover rounded-full flex-shrink-0 border border-brand-gray-extralight">
+                @else
+                    <div class="w-16 h-16 rounded-full bg-brand-light flex items-center justify-center flex-shrink-0">
+                        <img src="{{ asset('images/icons/Food.svg') }}" alt="" class="w-8 h-8 opacity-20">
+                    </div>
+                @endif
+                <div class="min-w-0">
+                    <p class="text-[10px] text-brand-red font-bold uppercase tracking-wider mb-1">Makanan Terlaris</p>
+                    <p class="mb-1 truncate text-lg font-bold leading-tight text-brand-black">{{ $makananTerlaris?->nama_menu ?? '—' }}</p>
+                    @if ($makananTerlaris)
+                        <p class="text-[10px] text-brand-gray font-medium">{{ $makananTerlaris->total_terjual }} Terjual Hari Ini</p>
+                    @else
+                        <p class="text-[10px] text-brand-gray font-medium">Belum ada data</p>
+                    @endif
                 </div>
-            @endif
-            <div class="min-w-0 flex-1 px-4 py-4 sm:py-3 sm:px-6">
-                <p class="text-[14px] text-brand-red font-bold uppercase tracking-[0.6px] mb-2">Makanan Terlaris</p>
-                <p class="truncate text-[24px] font-bold leading-[32px] text-black mb-2">
-                    {{ $makananTerlaris?->nama_menu ?? '—' }}
-                </p>
-                <p class="text-[14px] text-brand-gray font-bold">
-                    {{ $makananTerlaris->total_terjual ?? 0 }} Terjual Hari ini
-                </p>
             </div>
         </div>
 
-        <div
-            class="flex flex-col sm:flex-row min-w-0 items-stretch sm:items-center overflow-hidden rounded-[9px] bg-white shadow-[2px_4px_4px_rgba(0,0,0,0.18)]">
-            <div class="bg-[#681F1F] hidden sm:flex items-center justify-center px-6 shrink-0">
-                <img src="{{ asset('images/icons/Drink.svg') }}" alt="" class="w-10 h-10 brightness-0 invert">
+        {{-- Minuman Terlaris --}}
+        <div class="flex min-h-24 overflow-hidden rounded-xl border border-brand-gray-extralight bg-white shadow-sm sm:h-24">
+            <div class="w-20 bg-brand-dark flex items-center justify-center flex-shrink-0">
+                <img src="{{ asset('images/icons/Drink.svg') }}" alt="" class="w-8 h-8 brightness-0 invert">
             </div>
-            @if ($minumanTerlaris?->gambar_menu)
-                @php
-                    $imgSrcMn = str_starts_with($minumanTerlaris->gambar_menu, 'http')
-                        ? $minumanTerlaris->gambar_menu
-                        : asset('images/drink/' . $minumanTerlaris->gambar_menu);
-                @endphp
-                <div class="w-full h-44 sm:w-[120px] sm:h-[120px] shrink-0 overflow-hidden">
-                    <img src="{{ $imgSrcMn }}" alt="" class="w-full h-full object-cover">
+            <div class="flex min-w-0 flex-1 items-center gap-3 px-3 py-3 sm:gap-4 sm:px-4">
+                @if ($minumanTerlaris?->gambar_menu)
+                    @php
+                        $imgSrcMn = str_starts_with($minumanTerlaris->gambar_menu, 'http')
+                            ? $minumanTerlaris->gambar_menu
+                            : asset("images/drink/{$minumanTerlaris->gambar_menu}");
+                    @endphp
+                    <img src="{{ $imgSrcMn }}"
+                         alt="{{ $minumanTerlaris->nama_menu }}"
+                         loading="lazy" decoding="async"
+                         class="w-16 h-16 object-cover rounded-full flex-shrink-0 border border-brand-gray-extralight">
+                @else
+                    <div class="w-16 h-16 rounded-full bg-brand-light flex items-center justify-center flex-shrink-0">
+                        <img src="{{ asset('images/icons/Drink.svg') }}" alt="" class="w-8 h-8 opacity-20">
+                    </div>
+                @endif
+                <div class="min-w-0">
+                    <p class="text-[10px] text-brand-red font-bold uppercase tracking-wider mb-1">Minuman Terlaris</p>
+                    <p class="mb-1 truncate text-lg font-bold leading-tight text-brand-black">{{ $minumanTerlaris?->nama_menu ?? '—' }}</p>
+                    @if ($minumanTerlaris)
+                        <p class="text-[10px] text-brand-gray font-medium">{{ $minumanTerlaris->total_terjual }} Terjual Hari Ini</p>
+                    @else
+                        <p class="text-[10px] text-brand-gray font-medium">Belum ada data</p>
+                    @endif
                 </div>
-            @endif
-            <div class="min-w-0 flex-1 px-4 py-4 sm:py-3 sm:px-6">
-                <p class="text-[14px] text-brand-red font-bold uppercase tracking-[0.6px] mb-2">Minuman Terlaris</p>
-                <p class="truncate text-[24px] font-bold leading-[32px] text-black mb-2">
-                    {{ $minumanTerlaris?->nama_menu ?? '—' }}
-                </p>
-                <p class="text-[14px] text-brand-gray font-bold">
-                    {{ $minumanTerlaris->total_terjual ?? 0 }} Terjual Hari ini
-                </p>
             </div>
         </div>
     </div>
 
     {{-- ── Charts ── --}}
-    <div class="grid grid-cols-1 gap-8 mb-8 xl:grid-cols-2 xl:gap-6">
-        <div class="rounded-[9px] bg-white px-4 pb-5 pt-5 shadow-sm sm:px-8 sm:pb-6 sm:pt-7">
-            <p class="text-[24px] font-bold text-[#460001] tracking-[1px] mb-6">Pesanan Hari Ini</p>
-            <div class="relative h-[260px] sm:h-[340px]">
+    <div class="mb-8 grid grid-cols-1 gap-4 sm:gap-5">
+        <div class="rounded-2xl bg-white px-4 pb-5 pt-5 ring-1 ring-brand-dark/[0.06] shadow-[0_2px_4px_rgba(0,0,0,0.05),0_14px_32px_-18px_rgba(70,0,1,0.26)] sm:px-7 sm:pb-7 sm:pt-7">
+            <h2 class="mb-6 text-[22px] font-bold leading-8 tracking-[0.8px] text-brand-dark sm:text-[24px]">Pesanan Hari Ini</h2>
+            <div class="relative h-[260px] sm:h-[300px]">
                 <canvas id="chartPesanan"></canvas>
             </div>
         </div>
 
-        <div class="rounded-[9px] bg-white px-4 pb-5 pt-5 shadow-sm sm:px-8 sm:pb-6 sm:pt-7">
-            <p class="text-[24px] font-bold text-[#460001] tracking-[1px] mb-6">Pendapatan Minggu Ini</p>
-            <div class="relative h-[260px] sm:h-[340px]">
+        <div class="rounded-2xl bg-white px-4 pb-5 pt-5 ring-1 ring-brand-dark/[0.06] shadow-[0_2px_4px_rgba(0,0,0,0.05),0_14px_32px_-18px_rgba(70,0,1,0.26)] sm:px-7 sm:pb-7 sm:pt-7">
+            <h2 class="mb-6 text-[22px] font-bold leading-8 tracking-[0.8px] text-brand-dark sm:text-[24px]">Pendapatan Minggu Ini</h2>
+            <div class="relative h-[260px] sm:h-[300px]">
                 <canvas id="chartPendapatan"></canvas>
             </div>
         </div>
@@ -167,17 +182,25 @@
                 const hariLabels = @json($hariLabels);
                 const pendapatanData = @json($pendapatanData);
 
-                new Chart(document.getElementById('chartPesanan').getContext('2d'), {
+                const pesananCtx = document.getElementById('chartPesanan').getContext('2d');
+                const areaFill = pesananCtx.createLinearGradient(0, 0, 0, 300);
+                areaFill.addColorStop(0, 'rgba(104,31,31,0.18)');
+                areaFill.addColorStop(1, 'rgba(104,31,31,0.01)');
+
+                new Chart(pesananCtx, {
                     type: 'line',
                     data: {
                         labels: jamLabels,
                         datasets: [{
                             data: jamData,
                             borderColor: '#681F1F',
-                            backgroundColor: 'rgba(104,31,31,0.10)',
-                            borderWidth: 2,
-                            pointRadius: 3,
-                            pointBackgroundColor: '#681F1F',
+                            backgroundColor: areaFill,
+                            borderWidth: 2.5,
+                            pointRadius: 0,
+                            pointHoverRadius: 5,
+                            pointHoverBackgroundColor: '#681F1F',
+                            pointHoverBorderColor: '#FFFFFF',
+                            pointHoverBorderWidth: 2,
                             fill: true,
                             tension: 0.4,
                         }]
@@ -185,36 +208,27 @@
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        interaction: { mode: 'index', intersect: false },
                         plugins: {
-                            legend: {
-                                display: false
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: '#460001',
+                                padding: 10,
+                                cornerRadius: 8,
+                                displayColors: false,
+                                callbacks: { label: ctx => ctx.parsed.y + ' pesanan' }
                             }
                         },
                         scales: {
                             x: {
-                                grid: {
-                                    display: false
-                                },
-                                ticks: {
-                                    font: {
-                                        size: 11
-                                    },
-                                    color: '#68121F'
-                                }
+                                grid: { display: false },
+                                ticks: { font: { size: 11 }, color: '#808080' }
                             },
                             y: {
-                                grid: {
-                                    color: '#E6E6E6'
-                                },
+                                grid: { color: '#EDEDED' },
+                                border: { display: false },
                                 beginAtZero: true,
-                                ticks: {
-                                    font: {
-                                        size: 11
-                                    },
-                                    color: '#68121F',
-                                    stepSize: 25,
-                                    precision: 0
-                                }
+                                ticks: { font: { size: 11 }, color: '#808080', stepSize: 25, precision: 0 }
                             }
                         }
                     }
@@ -227,47 +241,35 @@
                         datasets: [{
                             data: pendapatanData,
                             backgroundColor: '#681F1F',
+                            hoverBackgroundColor: '#460001',
                             borderRadius: 6,
                             borderSkipped: false,
+                            maxBarThickness: 56,
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
                         plugins: {
-                            legend: {
-                                display: false
-                            },
+                            legend: { display: false },
                             tooltip: {
-                                callbacks: {
-                                    label: ctx => 'Rp ' + ctx.parsed.y.toLocaleString('id-ID')
-                                }
+                                backgroundColor: '#460001',
+                                padding: 10,
+                                cornerRadius: 8,
+                                displayColors: false,
+                                callbacks: { label: ctx => 'Rp ' + ctx.parsed.y.toLocaleString('id-ID') }
                             }
                         },
                         scales: {
                             x: {
-                                grid: {
-                                    display: false
-                                },
-                                ticks: {
-                                    font: {
-                                        size: 11
-                                    },
-                                    color: '#68121F'
-                                }
+                                grid: { display: false },
+                                ticks: { font: { size: 11 }, color: '#808080' }
                             },
                             y: {
-                                grid: {
-                                    color: '#E6E6E6'
-                                },
+                                grid: { color: '#EDEDED' },
+                                border: { display: false },
                                 beginAtZero: true,
-                                ticks: {
-                                    font: {
-                                        size: 11
-                                    },
-                                    color: '#68121F',
-                                    callback: v => (v / 1000000).toFixed(1) + 'jt'
-                                }
+                                ticks: { font: { size: 11 }, color: '#808080', callback: v => (v / 1000000).toFixed(1) + 'jt' }
                             }
                         }
                     }

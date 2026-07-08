@@ -58,11 +58,21 @@ class BerandaAdminController extends Controller
             ->sum('total_harga');
 
         // 4. Perhitungan statistik data master dan antrean aktif
-        $totalMenu = Menu::count();
-        $totalKasir = User::where('id_role', 2)->count(); // ID Role 2 mewakili peran Kasir
-        $totalTransaksi = Pesanan::where('status_pembayaran', 'lunas')->count();
+        $totalMenu       = Menu::count();
+        $totalMakanan    = Menu::where('jenis_menu', 'Makanan')->count();
+        $totalMinuman    = Menu::where('jenis_menu', 'Minuman')->count();
+        $totalKasir      = User::where('id_role', 2)->count(); // ID Role 2 mewakili peran Kasir
+        $totalTransaksi  = Pesanan::where('status_pembayaran', 'lunas')->count();
         $pesananDiproses = Pesanan::whereIn('status_pesanan', ['menunggu konfirmasi', 'diproses'])->count();
 
+        // 4b. Rata-rata nilai pembelian bulan berjalan (basket size), bukan pembagi statis.
+        //     Dihitung dari omzet bulan ini dibagi jumlah transaksi lunas bulan ini.
+        $transaksiBulanIni = Pesanan::where('status_pembayaran', 'lunas')
+            ->whereYear('tgl_pembayaran', $today->year)
+            ->whereMonth('tgl_pembayaran', $today->month)
+            ->count();
+        $rataPembelian = $transaksiBulanIni > 0 ? (int) round($omzetBulanIni / $transaksiBulanIni) : 0;
+        
         // 5. Cek status operasional pemesanan global dari cache sistem
         $orderStatus = Cache::get('order_status', 'buka');
 
@@ -93,9 +103,9 @@ class BerandaAdminController extends Controller
 
         // 9. Chart Analitik A: Pola Kepadatan Pemesanan per Jam Hari Ini (08:00 - 22:00)
         $pesananPerJam = DB::table('pesanan')
-            ->select(DB::raw('HOUR(tgl_pesanan) as jam'), DB::raw('COUNT(*) as total'))
-            ->whereDate('tgl_pesanan', $today)
-            ->groupBy(DB::raw('HOUR(tgl_pesanan)'))
+            ->select(DB::raw('EXTRACT(HOUR FROM tgl_pembayaran) as jam'), DB::raw('COUNT(*) as total'))
+            ->whereDate('tgl_pembayaran', $today)
+            ->groupBy(DB::raw('EXTRACT(HOUR FROM tgl_pembayaran)'))
             ->get()
             ->keyBy('jam');
 
@@ -109,10 +119,10 @@ class BerandaAdminController extends Controller
         // 10. Chart Analitik B: Grafik Pendapatan Mingguan Berjalan (Senin - Minggu)
         $startOfWeek = Carbon::now()->startOfWeek(Carbon::MONDAY);
         $pendapatanRaw = DB::table('pesanan')
-            ->select(DB::raw('DATE(tgl_pembayaran) as tanggal'), DB::raw('SUM(total_harga) as total'))
+            ->select(DB::raw('CAST(tgl_pembayaran AS DATE) as tanggal'), DB::raw('SUM(total_harga) as total'))
             ->where('status_pembayaran', 'lunas')
             ->whereBetween('tgl_pembayaran', [$startOfWeek->toDateString(), Carbon::now()->endOfDay()])
-            ->groupBy(DB::raw('DATE(tgl_pembayaran)'))
+            ->groupBy(DB::raw('CAST(tgl_pembayaran AS DATE)'))
             ->get()
             ->keyBy('tanggal');
 
@@ -127,8 +137,9 @@ class BerandaAdminController extends Controller
 
         // 11. Mengembalikan view dengan melemparkan compact data analisis penjualan
         return view('admin.beranda', compact(
-            'omzetHariIni', 'omzetBulanIni',
-            'totalMenu', 'totalKasir', 'totalTransaksi', 'pesananDiproses', 'orderStatus',
+            'omzetHariIni', 'omzetBulanIni', 'rataPembelian',
+            'totalMenu', 'totalMakanan', 'totalMinuman',
+            'totalKasir', 'totalTransaksi', 'pesananDiproses', 'orderStatus',
             'makananTerlaris', 'minumanTerlaris',
             'pesananHariIni',
             'jamLabels', 'jamData',
@@ -146,10 +157,10 @@ class BerandaAdminController extends Controller
     {
         // 1. Agregasi total tagihan per tanggal untuk transaksi yang lunas selama 30 hari ke belakang
         $data = DB::table('pesanan')
-            ->select(DB::raw('DATE(tgl_pembayaran) as tanggal'), DB::raw('SUM(total_harga) as total'))
+            ->select(DB::raw('CAST(tgl_pembayaran AS DATE) as tanggal'), DB::raw('SUM(total_harga) as total'))
             ->where('status_pembayaran', 'lunas')
-            ->where('tgl_pembayaran', '>=', DB::raw('NOW() - INTERVAL 30 DAY'))
-            ->groupBy(DB::raw('DATE(tgl_pembayaran)'))
+            ->where('tgl_pembayaran', '>=', Carbon::now()->subDays(30))
+            ->groupBy(DB::raw('CAST(tgl_pembayaran AS DATE)'))
             ->orderBy('tanggal', 'asc')
             ->get();
 

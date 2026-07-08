@@ -56,12 +56,17 @@ class BerandaKasirController extends Controller
         // 5. Total antrean pesanan yang masih harus dikerjakan saat ini
         $pesananAktif = $menunggu + $diproses;
 
-        // 6. Total transaksi lunas dan total omzet kotor sepanjang masa untuk perhitungan rata-rata belanja
-        $totalTransaksi = Pesanan::where('status_pembayaran', 'lunas')->count();
-        $omzetTotal = (int) Pesanan::where('status_pembayaran', 'lunas')->sum('total_harga');
+        // 6. Total transaksi lunas dan total omzet kotor KHUSUS HARI INI (konsisten dengan
+        //    kartu Selesai/Aktif yang juga berlingkup harian) untuk perhitungan rata-rata belanja
+        $totalTransaksi = Pesanan::where('status_pembayaran', 'lunas')
+            ->whereDate('tgl_pembayaran', $today)
+            ->count();
+        $omzetTotal     = (int) Pesanan::where('status_pembayaran', 'lunas')
+            ->whereDate('tgl_pembayaran', $today)
+            ->sum('total_harga');
 
-        // Perhitungan rata-rata nilai pembelian (basket size) per transaksi (menghindari division by zero)
-        $rataPembelian = $totalTransaksi > 0 ? (int) round($omzetTotal / $totalTransaksi) : 0;
+        // Perhitungan rata-rata nilai pembelian (basket size) per transaksi hari ini (menghindari division by zero)
+        $rataPembelian  = $totalTransaksi > 0 ? (int) round($omzetTotal / $totalTransaksi) : 0;
 
         // 7. Agregasi Makanan terlaris yang dipesan khusus hari ini
         $makananTerlaris = DB::table('detail_pesanan')
@@ -87,9 +92,9 @@ class BerandaKasirController extends Controller
 
         // 9. Chart Analitik A: Kepadatan Pesanan Masuk per Jam hari ini (Fokus jam operasional 08:00 - 17:00)
         $pesananPerJam = DB::table('pesanan')
-            ->select(DB::raw('HOUR(tgl_pembayaran) as jam'), DB::raw('COUNT(*) as total'))
+            ->select(DB::raw('EXTRACT(HOUR FROM tgl_pembayaran) as jam'), DB::raw('COUNT(*) as total'))
             ->whereDate('tgl_pembayaran', $today)
-            ->groupBy(DB::raw('HOUR(tgl_pembayaran)'))
+            ->groupBy(DB::raw('EXTRACT(HOUR FROM tgl_pembayaran)'))
             ->get()
             ->keyBy('jam');
 
@@ -103,10 +108,10 @@ class BerandaKasirController extends Controller
         // 10. Chart Analitik B: Pendapatan Harian Minggu Ini (Senin s.d. Minggu)
         $startOfWeek = Carbon::now()->startOfWeek(Carbon::MONDAY);
         $pendapatanRaw = DB::table('pesanan')
-            ->select(DB::raw('DATE(tgl_pembayaran) as tanggal'), DB::raw('SUM(total_harga) as total'))
+            ->select(DB::raw('CAST(tgl_pembayaran AS DATE) as tanggal'), DB::raw('SUM(total_harga) as total'))
             ->where('status_pembayaran', 'lunas')
             ->whereBetween('tgl_pembayaran', [$startOfWeek->toDateString(), Carbon::now()->endOfDay()])
-            ->groupBy(DB::raw('DATE(tgl_pembayaran)'))
+            ->groupBy(DB::raw('CAST(tgl_pembayaran AS DATE)'))
             ->get()
             ->keyBy('tanggal');
 

@@ -9,6 +9,7 @@ use App\Traits\CartSessionScope;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 /**
@@ -45,6 +46,25 @@ class BerandaKonsumenController extends Controller
         // Pulihkan riwayat pesanan dari cookie backup (30 hari) ke session.
         $this->restoreRiwayatDariCookie();
 
+        // Pindah meja fisik tidak boleh menghapus keranjang scoped meja lain.
+        // Hanya alur legacy (session('keranjang') berisi baris item langsung)
+        // yang perlu direset dan diarahkan ulang agar tidak terbawa lintas meja.
+        $sessionMejaNo = session('id_meja_no');
+        $legacyCart = collect(session('keranjang', []))->contains(
+            fn ($row) => is_array($row) && array_key_exists('id_menu', $row)
+        );
+
+        if ($sessionMejaNo && $sessionMejaNo !== $meja->no_meja && $legacyCart) {
+            session()->forget(['keranjang', 'no_pesanan_baru']);
+
+            session([
+                'id_meja' => $meja->id_meja,
+                'id_meja_no' => $meja->no_meja,
+            ]);
+
+            return redirect()->route('konsumen.beranda', $meja->no_meja);
+        }
+
         // Simpan konteks meja hanya sebagai cache tampilan/backward-compat.
         // Sumber utama keranjang adalah URL {noMeja} + cart_scope per-tab dari sessionStorage.
         session([
@@ -52,13 +72,53 @@ class BerandaKonsumenController extends Controller
             'id_meja_no' => $meja->no_meja,
         ]);
 
-        // 9. Ambil semua kategori menu beserta menu terikat yang berstatus 'Tersedia' (tersaring rapi)
-        $kategoris = KategoriMenu::with(['menus' => function ($query) {
-            $query->where('status_ketersediaan', 'Tersedia');
-        }])->get();
+        // 9. Ambil seluruh kategori untuk kontrol filter, lalu muat semua menu tersedia
+        //    agar filter client-side tetap bisa berpindah kategori tanpa request ulang.
+        $kategoris = KategoriMenu::orderBy('id_kategori')->get();
+        $menus = Menu::with('kategoris')
+            ->where('status_ketersediaan', 'Tersedia')
+            ->orderBy('id_menu')
+            ->get();
+
+        $search = trim((string) $request->query('search', ''));
+        $search = Str::limit($search, 100, '');
+
+        $requestedKategori = $request->query('kategori', $request->query('id_kategori'));
+        $kategoriId = ctype_digit((string) $requestedKategori)
+            ? (int) $requestedKategori
+            : null;
+
+        if ($kategoriId && ! $kategoris->contains('id_kategori', $kategoriId)) {
+            $kategoriId = null;
+        }
+
+        $normalizedSearch = Str::lower($search);
+        $visibleMenuIds = $menus
+            ->filter(function (Menu $menu) use ($kategoriId, $normalizedSearch): bool {
+                $matchesKategori = ! $kategoriId
+                    || $menu->kategoris->contains('id_kategori', $kategoriId);
+
+                if (! $matchesKategori) {
+                    return false;
+                }
+
+                if ($normalizedSearch === '') {
+                    return true;
+                }
+
+                $haystack = Str::lower(implode(' ', [
+                    $menu->nama_menu,
+                    $menu->deskripsi,
+                    $menu->komposisi,
+                ]));
+
+                return Str::contains($haystack, $normalizedSearch);
+            })
+            ->pluck('id_menu')
+            ->all();
 
         // 10. Kembalikan view katalog beranda konsumen
-        return view('konsumen.beranda', compact('meja', 'kategoris'));
+        return view('konsumen.beranda', compact('meja', 'kategoris', 'menus', 'visibleMenuIds', 'search', 'kategoriId'));
     }
 
     /**
@@ -72,17 +132,27 @@ class BerandaKonsumenController extends Controller
         // 1. Validasi opsional parameter kategori jika disertakan
         $request->validate([
             'id_kategori' => 'sometimes|integer|exists:kategori_menu,id_kategori',
+            'search' => 'sometimes|string|max:100',
         ]);
 
         // 2. Susun query pencarian menu yang berstatus aktif/tersedia
         $query = Menu::where('status_ketersediaan', 'Tersedia')
-            ->select('id_menu', 'nama_menu', 'deskripsi', 'harga', 'gambar_menu', 'jenis_menu');
+            ->select('id_menu', 'nama_menu', 'deskripsi', 'komposisi', 'harga', 'gambar_menu', 'jenis_menu');
 
         // 3. Tambahkan filter kategori jika form dikirimkan oleh pengguna
         if ($request->filled('id_kategori')) {
             $kategoriId = $request->input('id_kategori');
             $query->whereHas('kategoris', function ($q) use ($kategoriId) {
                 $q->where('kategori_menu.id_kategori', $kategoriId);
+            });
+        }
+
+        if ($request->filled('search')) {
+            $search = Str::lower($request->input('search'));
+            $query->where(function ($q) use ($search) {
+                $q->whereRaw('LOWER(nama_menu) LIKE ?', ["%{$search}%"])
+                    ->orWhereRaw('LOWER(deskripsi) LIKE ?', ["%{$search}%"])
+                    ->orWhereRaw('LOWER(komposisi) LIKE ?', ["%{$search}%"]);
             });
         }
 

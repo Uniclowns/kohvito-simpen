@@ -237,7 +237,10 @@
                 </svg>
             </button>
             <div class="flex flex-col items-center text-center">
-                <img src="{{ asset('images/gif/success.gif') }}" alt="" class="mb-5 h-[170px] w-[180px] object-contain sm:mb-7 sm:h-[250px] sm:w-[240px]">
+                {{-- Gif animasi; onerror jatuh ke svg statis. Tidak pakai
+                     file_exists(public_path()) karena public/images/** di-exclude
+                     dari bundle function Vercel (selalu false di sana). --}}
+                <img src="{{ asset('images/gif/success.gif') }}" onerror="this.onerror=null; this.src='{{ asset('images/illustration/print success.svg') }}';" alt="" aria-hidden="true" class="mb-5 h-[170px] w-auto object-contain sm:mb-7 sm:h-[250px]">
                 <p id="histori-print-success-title" class="max-w-[440px] text-[21px] font-bold leading-[29px] tracking-[1.1px] text-[#460001] sm:text-[26px] sm:leading-[32px]">
                     Berhasil Mencetak Histori Pesanan
                 </p>

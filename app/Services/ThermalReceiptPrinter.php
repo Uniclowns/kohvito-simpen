@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Pesanan;
+use Illuminate\Support\Collection;
 use RuntimeException;
 
 /**
@@ -46,7 +47,140 @@ class ThermalReceiptPrinter
      */
     public function print(Pesanan $pesanan): void
     {
-        $this->send($this->buildReceipt($pesanan));
+        $this->send($this->buildDocument($pesanan));
+    }
+
+    /**
+     * Menyusun seluruh dokumen cetak untuk satu pesanan: struk pelanggan diikuti
+     * Checker internal Barista (minuman) dan Kitchen (makanan) bila ada itemnya.
+     *
+     * Disusun sebagai satu rangkaian byte sehingga seluruh lembar terkirim dalam
+     * satu koneksi socket; tiap lembar diakhiri perintah potong (full cut) sendiri.
+     *
+     * Fungsi murni tanpa I/O — aman diuji unit.
+     *
+     * @param  \App\Models\Pesanan  $pesanan
+     * @return string  Rangkaian byte ESC/POS untuk struk + checker.
+     */
+    public function buildDocument(Pesanan $pesanan): string
+    {
+        $out = $this->buildReceipt($pesanan);
+
+        // Pemisahan kategori mengikuti aturan yang sama dengan tampilan cetak HTML:
+        // Minuman -> Checker Barista, Makanan -> Checker Kitchen.
+        $drinks = $pesanan->detailPesanan
+            ->filter(fn ($d) => ($d->menu?->jenis_menu) === 'Minuman')
+            ->values();
+        $foods = $pesanan->detailPesanan
+            ->filter(fn ($d) => ($d->menu?->jenis_menu) === 'Makanan')
+            ->values();
+
+        if ($drinks->isNotEmpty()) {
+            $out .= $this->buildChecker($pesanan, 'BARISTA', 'MINUMAN', $drinks);
+        }
+
+        if ($foods->isNotEmpty()) {
+            $out .= $this->buildChecker($pesanan, 'KITCHEN', 'MAKANAN', $foods);
+        }
+
+        return $out;
+    }
+
+    /**
+     * Menyusun satu lembar Checker internal (Barista / Kitchen).
+     *
+     * Checker adalah cetakan operasional, BUKAN untuk pelanggan: tanpa harga,
+     * diskon, atau total pembayaran — hanya nama menu, jumlah, varian, dan catatan
+     * agar tim dapur/bar cepat membaca.
+     *
+     * @param  \App\Models\Pesanan  $pesanan
+     * @param  string  $type      Judul checker: 'BARISTA' | 'KITCHEN'.
+     * @param  string  $kategori  Label kategori: 'MINUMAN' | 'MAKANAN'.
+     * @param  \Illuminate\Support\Collection  $items  Item kategori ini saja.
+     * @return string  Rangkaian byte ESC/POS satu lembar checker.
+     */
+    public function buildChecker(Pesanan $pesanan, string $type, string $kategori, Collection $items): string
+    {
+        $waktu = $pesanan->tgl_pembayaran?->format('d-m-Y H:i')
+            ?? now()->format('d-m-Y H:i');
+
+        $out = self::ESC . '@'; // Reset state untuk lembar baru
+
+        // ---- Judul checker ----
+        $out .= self::ESC . 'a' . "\x01";            // rata tengah
+        $out .= self::GS . '!' . "\x01";             // tinggi ganda
+        $out .= self::ESC . 'E' . "\x01";            // tebal
+        $out .= 'CHECKER ' . $type . "\n";
+        $out .= self::ESC . 'E' . "\x00";            // tebal mati
+        $out .= self::GS . '!' . "\x00";             // ukuran normal
+        $out .= self::ESC . 'a' . "\x00";            // rata kiri
+        $out .= $this->divider();
+
+        // ---- Info operasional (tanpa harga) ----
+        $out .= $this->infoLine('No Order', (string) $pesanan->no_pesanan);
+        $out .= $this->infoLine('Tanggal', $waktu);
+        $out .= $this->infoLine('Meja', (string) ($pesanan->meja?->no_meja ?? 'Quick Service'));
+        $out .= $this->infoLine('Customer', (string) ($pesanan->nama_konsumen ?? '-'));
+        $out .= $this->infoLine('Purpose', 'DINE IN');
+        $out .= $this->divider();
+
+        // ---- Label kategori ----
+        $out .= self::ESC . 'E' . "\x01";            // tebal
+        $out .= strtoupper($kategori) . "\n";
+        $out .= self::ESC . 'E' . "\x00";
+
+        // ---- Daftar item + varian/catatan (tanpa harga) ----
+        foreach ($items as $item) {
+            $nama = $item->menu?->nama_menu ?? 'Menu';
+
+            $out .= self::ESC . 'E' . "\x01";        // tebal
+            $out .= ((int) $item->jumlah) . 'x ' . $this->clean($nama) . "\n";
+            $out .= self::ESC . 'E' . "\x00";
+
+            foreach ($this->splitCatatan((string) ($item->catatan ?? '')) as [$label, $value]) {
+                $baris = $value !== '' ? $label . ': ' . $value : $label;
+                $out .= $this->wrap('  ' . $baris);
+            }
+        }
+        $out .= $this->divider();
+
+        // ---- Total item kategori ----
+        $out .= self::ESC . 'E' . "\x01";            // tebal
+        $out .= 'TOTAL ITEM ' . strtoupper($kategori) . ': ' . (int) $items->sum('jumlah') . "\n";
+        $out .= self::ESC . 'E' . "\x00";
+
+        // ---- Umpan kertas + potong ----
+        $out .= "\n\n\n";
+        $out .= self::GS . 'V' . "\x00";             // potong penuh (full cut)
+
+        return $out;
+    }
+
+    /**
+     * Memecah field catatan berpola "Label: Value | Label: Value | Catatan ..."
+     * menjadi pasangan [label, value]. Segmen tanpa ':' dikembalikan apa adanya
+     * sebagai [teks, ''].
+     *
+     * @param  string  $catatan
+     * @return array<int, array{0: string, 1: string}>
+     */
+    private function splitCatatan(string $catatan): array
+    {
+        $segments = array_filter(
+            array_map('trim', explode('|', $catatan)),
+            static fn ($s) => $s !== ''
+        );
+
+        $pairs = [];
+        foreach ($segments as $seg) {
+            $pos = strpos($seg, ':');
+
+            $pairs[] = $pos !== false
+                ? [trim(substr($seg, 0, $pos)), trim(substr($seg, $pos + 1))]
+                : [$seg, ''];
+        }
+
+        return $pairs;
     }
 
     /**

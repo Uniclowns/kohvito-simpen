@@ -154,6 +154,7 @@ Route::get('/pembayaran/{noPesanan}/sync', [BayarController::class, 'syncStatus'
 Route::get('/pesanan/{noPesanan}/status', [PesananController::class, 'status'])->name('konsumen.pesanan.status');
 Route::get('/pesanan/{noPesanan}/kuitansi', [PesananController::class, 'kuitansi'])->name('konsumen.pesanan.kuitansi');
 Route::delete('/pesanan/{noPesanan}/batal', [PesananController::class, 'batal'])->name('konsumen.pesanan.batal');
+Route::get('/menu/data', [BerandaKonsumenController::class, 'getData'])->name('konsumen.menu.data');
 
 // Keranjang & pemesanan konsumen wajib membawa konteks meja di URL.
 Route::middleware('order.status')
@@ -161,7 +162,7 @@ Route::middleware('order.status')
     ->where(['noMeja' => 'M[0-9]+'])
     ->group(function () {
         Route::get('/', [BerandaKonsumenController::class, 'index'])->name('konsumen.beranda');
-        Route::get('/menu/data', [BerandaKonsumenController::class, 'getData'])->name('konsumen.menu.data');
+        Route::get('/menu/data', [BerandaKonsumenController::class, 'getData']);
         Route::get('/menu/{id}/detail', [BerandaKonsumenController::class, 'detail'])->name('konsumen.menu.detail');
 
         Route::get('/keranjang', [KeranjangKonsumenController::class, 'index'])->name('konsumen.keranjang');

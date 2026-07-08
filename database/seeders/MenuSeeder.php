@@ -2,210 +2,61 @@
 
 namespace Database\Seeders;
 
-use App\Models\Menu;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class MenuSeeder extends Seeder
 {
-    /**
-     * Seed data contoh untuk tabel menu + pivot menu_kategori.
-     */
     public function run(): void
     {
-        $menus = [
-            // Kopi (id_kategori = 1)
-            [
-                'nama_menu' => 'Espresso',
-                'deskripsi' => 'Espresso klasik dengan biji kopi pilihan, kuat dan pekat.',
-                'harga' => 18000,
-                'gambar_menu' => 'https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?w=400&h=300&fit=crop&q=80',
-                'status_ketersediaan' => 'Tersedia',
-                'jenis_menu' => 'Minuman',
-                'kategori_makanan' => null,
-                'tipe_minuman' => 'Panas',
-                '_kategori_ids' => [1],
-            ],
-            [
-                'nama_menu' => 'Cappuccino',
-                'deskripsi' => 'Espresso dengan susu steamed dan foam lembut yang creamy.',
-                'harga' => 25000,
-                'gambar_menu' => 'https://images.unsplash.com/photo-1534778101976-62847782c213?w=400&h=300&fit=crop&q=80',
-                'status_ketersediaan' => 'Tersedia',
-                'jenis_menu' => 'Minuman',
-                'kategori_makanan' => null,
-                'tipe_minuman' => 'Panas',
-                '_kategori_ids' => [1],
-            ],
-            [
-                'nama_menu' => 'Caffe Latte',
-                'deskripsi' => 'Espresso dengan banyak susu steamed dan sedikit foam.',
-                'harga' => 28000,
-                'gambar_menu' => 'https://images.unsplash.com/photo-1561047029-3000c68339ca?w=400&h=300&fit=crop&q=80',
-                'status_ketersediaan' => 'Tersedia',
-                'jenis_menu' => 'Minuman',
-                'kategori_makanan' => null,
-                'tipe_minuman' => 'Keduanya',
-                '_kategori_ids' => [1],
-            ],
-            [
-                'nama_menu' => 'Americano',
-                'deskripsi' => 'Espresso yang diencerkan dengan air panas, rasa kopi yang bersih.',
-                'harga' => 20000,
-                'gambar_menu' => 'https://images.unsplash.com/photo-1551030173-122aabc4489c?w=400&h=300&fit=crop&q=80',
-                'status_ketersediaan' => 'Tersedia',
-                'jenis_menu' => 'Minuman',
-                'kategori_makanan' => null,
-                'tipe_minuman' => 'Keduanya',
-                '_kategori_ids' => [1],
-            ],
-
-            // Non-Kopi (id_kategori = 2)
-            [
-                'nama_menu' => 'Matcha Latte',
-                'deskripsi' => 'Matcha premium Jepang dengan susu segar yang creamy.',
-                'harga' => 30000,
-                'gambar_menu' => 'https://images.unsplash.com/photo-1536256263959-f5b5a4612df3?w=400&h=300&fit=crop&q=80',
-                'status_ketersediaan' => 'Tersedia',
-                'jenis_menu' => 'Minuman',
-                'kategori_makanan' => null,
-                'tipe_minuman' => 'Keduanya',
-                '_kategori_ids' => [2],
-            ],
-            [
-                'nama_menu' => 'Cokelat Panas',
-                'deskripsi' => 'Cokelat premium dengan susu hangat yang meleleh di mulut.',
-                'harga' => 25000,
-                'gambar_menu' => 'https://images.unsplash.com/photo-1542990253-a781e04bfd2f?w=400&h=300&fit=crop&q=80',
-                'status_ketersediaan' => 'Tersedia',
-                'jenis_menu' => 'Minuman',
-                'kategori_makanan' => null,
-                'tipe_minuman' => 'Panas',
-                '_kategori_ids' => [2],
-            ],
-            [
-                'nama_menu' => 'Teh Tarik',
-                'deskripsi' => 'Teh susu khas dengan teknik tarik yang menghasilkan busa lembut.',
-                'harga' => 18000,
-                'gambar_menu' => 'https://images.unsplash.com/photo-1571934811356-5cc061b6821f?w=400&h=300&fit=crop&q=80',
-                'status_ketersediaan' => 'Tersedia',
-                'jenis_menu' => 'Minuman',
-                'kategori_makanan' => null,
-                'tipe_minuman' => 'Panas',
-                '_kategori_ids' => [2],
-            ],
-
-            // Makanan Berat (id_kategori = 3)
-            [
-                'nama_menu' => 'Nasi Goreng Spesial',
-                'deskripsi' => 'Nasi goreng dengan telur, ayam, dan sayuran segar pilihan.',
-                'harga' => 35000,
-                'gambar_menu' => 'https://images.unsplash.com/photo-1603360946369-dc9bb6258143?w=400&h=300&fit=crop&q=80',
-                'status_ketersediaan' => 'Tersedia',
-                'jenis_menu' => 'Makanan',
-                'kategori_makanan' => 'Pedas',
-                'tipe_minuman' => null,
-                '_kategori_ids' => [3],
-            ],
-            [
-                'nama_menu' => 'Mie Goreng',
-                'deskripsi' => 'Mie goreng dengan bumbu khas dan topping telur serta sayuran.',
-                'harga' => 30000,
-                'gambar_menu' => 'https://images.unsplash.com/photo-1569050467447-ce54b3bbc37d?w=400&h=300&fit=crop&q=80',
-                'status_ketersediaan' => 'Tersedia',
-                'jenis_menu' => 'Makanan',
-                'kategori_makanan' => 'Pedas',
-                'tipe_minuman' => null,
-                '_kategori_ids' => [3],
-            ],
-            [
-                'nama_menu' => 'Sandwich Club',
-                'deskripsi' => 'Sandwich berlapis ayam panggang, keju, selada, dan tomat segar.',
-                'harga' => 40000,
-                'gambar_menu' => 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=400&h=300&fit=crop&q=80',
-                'status_ketersediaan' => 'Tersedia',
-                'jenis_menu' => 'Makanan',
-                'kategori_makanan' => 'Tidak Pedas',
-                'tipe_minuman' => null,
-                '_kategori_ids' => [3],
-            ],
-
-            // Snack (id_kategori = 4)
-            [
-                'nama_menu' => 'French Fries',
-                'deskripsi' => 'Kentang goreng renyah dengan saus tomat dan mayones.',
-                'harga' => 20000,
-                'gambar_menu' => 'https://images.unsplash.com/photo-1573080496219-5e73f29bc294?w=400&h=300&fit=crop&q=80',
-                'status_ketersediaan' => 'Tersedia',
-                'jenis_menu' => 'Makanan',
-                'kategori_makanan' => 'Tidak Pedas',
-                'tipe_minuman' => null,
-                '_kategori_ids' => [4],
-            ],
-            [
-                'nama_menu' => 'Roti Bakar',
-                'deskripsi' => 'Roti bakar dengan pilihan selai cokelat, stroberi, atau keju.',
-                'harga' => 18000,
-                'gambar_menu' => 'https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=400&h=300&fit=crop&q=80',
-                'status_ketersediaan' => 'Tidak Tersedia',
-                'jenis_menu' => 'Makanan',
-                'kategori_makanan' => 'Tidak Pedas',
-                'tipe_minuman' => null,
-                '_kategori_ids' => [4],
-            ],
-            [
-                'nama_menu' => 'Cheese Stick',
-                'deskripsi' => 'Stik keju renyah dengan lapisan tepung panir yang gurih.',
-                'harga' => 22000,
-                'gambar_menu' => 'https://images.unsplash.com/photo-1548340748-6fe2a3e20852?w=400&h=300&fit=crop&q=80',
-                'status_ketersediaan' => 'Tersedia',
-                'jenis_menu' => 'Makanan',
-                'kategori_makanan' => 'Tidak Pedas',
-                'tipe_minuman' => null,
-                '_kategori_ids' => [4],
-            ],
-
-            // Minuman Segar (id_kategori = 5)
-            [
-                'nama_menu' => 'Jus Jeruk',
-                'deskripsi' => 'Jus jeruk segar peras tanpa gula tambahan, kaya vitamin C.',
-                'harga' => 15000,
-                'gambar_menu' => 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400&h=300&fit=crop&q=80',
-                'status_ketersediaan' => 'Tersedia',
-                'jenis_menu' => 'Minuman',
-                'kategori_makanan' => null,
-                'tipe_minuman' => 'Dingin',
-                '_kategori_ids' => [5],
-            ],
-            [
-                'nama_menu' => 'Es Teh Manis',
-                'deskripsi' => 'Teh manis dingin yang menyegarkan dengan es batu pilihan.',
-                'harga' => 10000,
-                'gambar_menu' => 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&h=300&fit=crop&q=80',
-                'status_ketersediaan' => 'Tersedia',
-                'jenis_menu' => 'Minuman',
-                'kategori_makanan' => null,
-                'tipe_minuman' => 'Dingin',
-                '_kategori_ids' => [5],
-            ],
-            [
-                'nama_menu' => 'Lemon Squash',
-                'deskripsi' => 'Air soda segar dengan perasan lemon dan sedikit madu.',
-                'harga' => 18000,
-                'gambar_menu' => 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=400&h=300&fit=crop&q=80',
-                'status_ketersediaan' => 'Tersedia',
-                'jenis_menu' => 'Minuman',
-                'kategori_makanan' => null,
-                'tipe_minuman' => 'Dingin',
-                '_kategori_ids' => [5],
-            ],
+        $rows = [
+            ['id_menu' => 1, 'nama_menu' => 'V Loco', 'deskripsi' => 'Kopi susu signature creamy dengan espresso bold dipadu manis lembut khas Kohvito.', 'harga' => 30000, 'gambar_menu' => 'vloco.png', 'status_ketersediaan' => 'Tidak Tersedia', 'jenis_menu' => 'Minuman', 'kategori_makanan' => null, 'tipe_minuman' => 'Keduanya', 'komposisi' => 'Espresso // Milk // Signature Base', 'stock' => 0],
+            ['id_menu' => 3, 'nama_menu' => 'Just Matcha', 'deskripsi' => 'Matcha pekat dengan susu lembut, menghadirkan rasa earthy umami yang menenangkan.', 'harga' => 27000, 'gambar_menu' => 'just_matcha.png', 'status_ketersediaan' => 'Tersedia', 'jenis_menu' => 'Minuman', 'kategori_makanan' => null, 'tipe_minuman' => 'Keduanya', 'komposisi' => 'Milk // Matcha', 'stock' => 0],
+            ['id_menu' => 4, 'nama_menu' => 'Angguro', 'deskripsi' => 'Kopi anggur signature: aroma anggur segar berpadu kopi pekat, menyegarkan dan ringan di tenggorokan.', 'harga' => 28002, 'gambar_menu' => 'angguro.png', 'status_ketersediaan' => 'Tersedia', 'jenis_menu' => 'Minuman', 'kategori_makanan' => null, 'tipe_minuman' => 'Dingin', 'komposisi' => 'Espresso // Wine Reduction // Sweet Base', 'stock' => 7],
+            ['id_menu' => 5, 'nama_menu' => 'Florida Summer', 'deskripsi' => 'Mocktail tropical segar, perpaduan jeruk manis, semangka juicy, dan kesegaran mint.', 'harga' => 33000, 'gambar_menu' => 'florida_summer.png', 'status_ketersediaan' => 'Tersedia', 'jenis_menu' => 'Minuman', 'kategori_makanan' => null, 'tipe_minuman' => 'Dingin', 'komposisi' => 'Orange // Watermelon // Mint', 'stock' => 0],
+            ['id_menu' => 6, 'nama_menu' => 'Black Bloom', 'deskripsi' => 'Arabica murni dengan aksen floral plum, light body dan after-taste bunga yang elegan.', 'harga' => 29000, 'gambar_menu' => 'black_bloom.png', 'status_ketersediaan' => 'Tersedia', 'jenis_menu' => 'Minuman', 'kategori_makanan' => null, 'tipe_minuman' => 'Dingin', 'komposisi' => 'Arabica Shot // White Flower Plum', 'stock' => 0],
+            ['id_menu' => 7, 'nama_menu' => 'Classic', 'deskripsi' => 'Arabica klasik dengan profil fruity natural, asam halus dan body yang clean.', 'harga' => 26000, 'gambar_menu' => 'americano.png', 'status_ketersediaan' => 'Tersedia', 'jenis_menu' => 'Minuman', 'kategori_makanan' => null, 'tipe_minuman' => 'Keduanya', 'komposisi' => 'Arabica // Fruity', 'stock' => 0],
+            ['id_menu' => 8, 'nama_menu' => 'Golden Hour', 'deskripsi' => 'Americano disegarkan jus citrus dan zoda, pahit kopi diimbangi asam citrus yang fresh.', 'harga' => 27000, 'gambar_menu' => 'golden_hour.png', 'status_ketersediaan' => 'Tersedia', 'jenis_menu' => 'Minuman', 'kategori_makanan' => null, 'tipe_minuman' => 'Dingin', 'komposisi' => 'Americano // Citrus Jus // Zoda', 'stock' => 0],
+            ['id_menu' => 9, 'nama_menu' => 'Sunset', 'deskripsi' => 'Americano dengan jus peach dan zoda, manis buah peach mengalir di atas bold espresso.', 'harga' => 28000, 'gambar_menu' => 'sunset.png', 'status_ketersediaan' => 'Tersedia', 'jenis_menu' => 'Minuman', 'kategori_makanan' => null, 'tipe_minuman' => 'Dingin', 'komposisi' => 'Americano // Peach Jus // Zoda', 'stock' => 0],
+            ['id_menu' => 10, 'nama_menu' => 'Arena', 'deskripsi' => 'Kopi susu aren creamy dengan manis gula aren khas yang smoky dan rich.', 'harga' => 26000, 'gambar_menu' => 'arena.png', 'status_ketersediaan' => 'Tersedia', 'jenis_menu' => 'Minuman', 'kategori_makanan' => null, 'tipe_minuman' => 'Keduanya', 'komposisi' => 'Espresso // Milk // Signature Syrup // Aren', 'stock' => 0],
+            ['id_menu' => 11, 'nama_menu' => 'Banana', 'deskripsi' => 'Kopi susu pisang dengan irisan pisang asli, manis natural dan creamy lembut.', 'harga' => 27000, 'gambar_menu' => 'banana.png', 'status_ketersediaan' => 'Tersedia', 'jenis_menu' => 'Minuman', 'kategori_makanan' => null, 'tipe_minuman' => 'Keduanya', 'komposisi' => 'Espresso // Milk // Signature Syrup // Sliced Banana', 'stock' => 0],
+            ['id_menu' => 12, 'nama_menu' => 'Cinnamon', 'deskripsi' => 'Kopi susu cinnamon hangat, aroma rempah kayu manis yang cozy dan warming.', 'harga' => 27000, 'gambar_menu' => 'cinnamon.png', 'status_ketersediaan' => 'Tersedia', 'jenis_menu' => 'Minuman', 'kategori_makanan' => null, 'tipe_minuman' => 'Keduanya', 'komposisi' => 'Espresso // Milk // Signature Syrup // Cinnamon', 'stock' => 0],
+            ['id_menu' => 13, 'nama_menu' => 'Salted', 'deskripsi' => 'Kopi susu salted caramel, balance manis-asin yang adiktif dan smooth.', 'harga' => 28000, 'gambar_menu' => 'salted.png', 'status_ketersediaan' => 'Tersedia', 'jenis_menu' => 'Minuman', 'kategori_makanan' => null, 'tipe_minuman' => 'Keduanya', 'komposisi' => 'Espresso // Milk // Signature Syrup // Salted Caramel', 'stock' => 0],
+            ['id_menu' => 14, 'nama_menu' => 'Latte', 'deskripsi' => 'Latte lembut dengan susu ringan dan foam tipis - kopi tetap terasa namun tetap creamy.', 'harga' => 27000, 'gambar_menu' => 'latte.png', 'status_ketersediaan' => 'Tersedia', 'jenis_menu' => 'Minuman', 'kategori_makanan' => null, 'tipe_minuman' => 'Keduanya', 'komposisi' => 'Arabica Shot // Light Milk // Light Foam', 'stock' => 0],
+            ['id_menu' => 15, 'nama_menu' => 'Cappucino', 'deskripsi' => 'Cappuccino klasik dengan foam tebal, aroma kopi pekat dipadu silky milk foam.', 'harga' => 28000, 'gambar_menu' => 'latte.png', 'status_ketersediaan' => 'Tersedia', 'jenis_menu' => 'Minuman', 'kategori_makanan' => null, 'tipe_minuman' => 'Keduanya', 'komposisi' => 'Arabica Shot // Milk // Thick Foam', 'stock' => 0],
+            ['id_menu' => 16, 'nama_menu' => 'Con Hielo', 'deskripsi' => 'Kopi tiga susu khas Indonesia, manis legit dengan dingin yang menyegarkan.', 'harga' => 26000, 'gambar_menu' => 'con_hielo.png', 'status_ketersediaan' => 'Tersedia', 'jenis_menu' => 'Minuman', 'kategori_makanan' => null, 'tipe_minuman' => 'Dingin', 'komposisi' => 'Espresso // 3 Ways Milk', 'stock' => 0],
+            ['id_menu' => 17, 'nama_menu' => 'Florida Summer (Fresh)', 'deskripsi' => 'Versi fresh dari mocktail tropical: jeruk, semangka, dan mint yang menyegarkan tanpa kafein.', 'harga' => 33000, 'gambar_menu' => 'florida_summer.png', 'status_ketersediaan' => 'Tersedia', 'jenis_menu' => 'Minuman', 'kategori_makanan' => null, 'tipe_minuman' => 'Dingin', 'komposisi' => 'Orange // Watermelon // Mint', 'stock' => 0],
+            ['id_menu' => 18, 'nama_menu' => 'Lychee Tea', 'deskripsi' => 'Teh dingin dengan lychee manis dan kesegaran mint, refreshing untuk siang hari.', 'harga' => 24000, 'gambar_menu' => 'lychee_tea.png', 'status_ketersediaan' => 'Tersedia', 'jenis_menu' => 'Minuman', 'kategori_makanan' => null, 'tipe_minuman' => 'Dingin', 'komposisi' => 'Lychee // Tea // Mint', 'stock' => 0],
+            ['id_menu' => 19, 'nama_menu' => 'Applelieble', 'deskripsi' => 'Teh apel dengan sentuhan mint, segar dan manis tanpa perlu gula tambahan.', 'harga' => 24000, 'gambar_menu' => 'applelieble.png', 'status_ketersediaan' => 'Tersedia', 'jenis_menu' => 'Minuman', 'kategori_makanan' => null, 'tipe_minuman' => 'Dingin', 'komposisi' => 'Apple // Tea // Mint', 'stock' => 0],
+            ['id_menu' => 20, 'nama_menu' => 'Jareh', 'deskripsi' => 'Teh sereh dengan mint, herbal segar dan menenangkan dengan aroma khas Indonesia.', 'harga' => 24000, 'gambar_menu' => 'jareh.png', 'status_ketersediaan' => 'Tersedia', 'jenis_menu' => 'Minuman', 'kategori_makanan' => null, 'tipe_minuman' => 'Dingin', 'komposisi' => 'Lemongrass // Tea // Mint', 'stock' => 0],
+            ['id_menu' => 21, 'nama_menu' => 'Cupid', 'deskripsi' => 'Susu berry dengan gummy candy, manis fruity dan playful dengan kunyahan kenyal.', 'harga' => 26000, 'gambar_menu' => 'cupid.png', 'status_ketersediaan' => 'Tersedia', 'jenis_menu' => 'Minuman', 'kategori_makanan' => null, 'tipe_minuman' => 'Keduanya', 'komposisi' => 'Milk // Berry // Gummy Candy', 'stock' => 0],
+            ['id_menu' => 22, 'nama_menu' => 'Just Matcha (Creamy)', 'deskripsi' => 'Matcha latte creamy versi premium, susu lebih kental menghasilkan tekstur yang silky.', 'harga' => 27000, 'gambar_menu' => 'just_matcha.png', 'status_ketersediaan' => 'Tersedia', 'jenis_menu' => 'Minuman', 'kategori_makanan' => null, 'tipe_minuman' => 'Keduanya', 'komposisi' => 'Milk // Matcha', 'stock' => 0],
+            ['id_menu' => 23, 'nama_menu' => 'Matcha Berry', 'deskripsi' => 'Matcha latte dengan saus berry, balance earthy matcha dan tart berry yang fruity.', 'harga' => 30000, 'gambar_menu' => 'matcha_berry.png', 'status_ketersediaan' => 'Tersedia', 'jenis_menu' => 'Minuman', 'kategori_makanan' => null, 'tipe_minuman' => 'Dingin', 'komposisi' => 'Milk // Matcha // Berry', 'stock' => 0],
+            ['id_menu' => 24, 'nama_menu' => 'Choco Bisquit', 'deskripsi' => 'Cokelat susu dengan biscuit crumble, manis cokelat creamy dan crunch biscuit.', 'harga' => 27000, 'gambar_menu' => 'choco_bisquit.png', 'status_ketersediaan' => 'Tersedia', 'jenis_menu' => 'Minuman', 'kategori_makanan' => null, 'tipe_minuman' => 'Dingin', 'komposisi' => 'Milk // Chocolate // Bisquit', 'stock' => 0],
+            ['id_menu' => 25, 'nama_menu' => 'Nasi Goreng Kohvito', 'deskripsi' => 'Nasi goreng spesial Kohvito dengan sosis, baso sapi, telur, dan salad segar - savory dan filling.', 'harga' => 37000, 'gambar_menu' => 'nasi_goreng_kohvito.png', 'status_ketersediaan' => 'Tersedia', 'jenis_menu' => 'Makanan', 'kategori_makanan' => 'Pedas', 'tipe_minuman' => null, 'komposisi' => 'Rice // Salad // Egg // Sausage // Beef Baso', 'stock' => 0],
+            ['id_menu' => 26, 'nama_menu' => 'Ayam Duo Sambal', 'deskripsi' => 'Ayam strip crispy dengan dua sambal: bawang gurih dan ijo pedas segar.', 'harga' => 39000, 'gambar_menu' => 'ayam_duo_sambal.png', 'status_ketersediaan' => 'Tersedia', 'jenis_menu' => 'Makanan', 'kategori_makanan' => 'Pedas', 'tipe_minuman' => null, 'komposisi' => 'Rice // Chicken Strip // Salad // Sambal Bawang // Sambal Ijo', 'stock' => 0],
+            ['id_menu' => 27, 'nama_menu' => 'Green Curry', 'deskripsi' => 'Chicken katsu disiram kuah green curry kental dengan terong, harum rempah Thailand.', 'harga' => 39000, 'gambar_menu' => 'green_curry.png', 'status_ketersediaan' => 'Tersedia', 'jenis_menu' => 'Makanan', 'kategori_makanan' => 'Pedas', 'tipe_minuman' => null, 'komposisi' => 'Rice // Chicken Katsu // Green Curry // Aubergine', 'stock' => 0],
+            ['id_menu' => 28, 'nama_menu' => 'Chicken Salted Egg', 'deskripsi' => 'Ayam saus telur asin creamy dengan parutan kuning telur asin dan aroma jeruk basil segar.', 'harga' => 38000, 'gambar_menu' => 'chicken_salted_egg.png', 'status_ketersediaan' => 'Tersedia', 'jenis_menu' => 'Makanan', 'kategori_makanan' => 'Tidak Pedas', 'tipe_minuman' => null, 'komposisi' => 'Rice // Egg // Chicken Salted Egg // Grated Salted Egg Yolk // Fresh Lemon Basi', 'stock' => 0],
+            ['id_menu' => 29, 'nama_menu' => 'Wonton Ori / Kuah Pedas', 'deskripsi' => 'Wonton lembut dalam kuah ayam pedas dengan chili oil dan daun bawang - hangat dan kaya umami.', 'harga' => 29000, 'gambar_menu' => 'wonton_pedas.png', 'status_ketersediaan' => 'Tersedia', 'jenis_menu' => 'Makanan', 'kategori_makanan' => 'Pedas', 'tipe_minuman' => null, 'komposisi' => 'Wonton // Chicken Broth // Chili Oil // Chives', 'stock' => 0],
+            ['id_menu' => 30, 'nama_menu' => 'Korean Chicken', 'deskripsi' => 'Ayam Korean dengan saus balado pedas dan aroma daun jeruk - fusion Korea-Indonesia yang nendang.', 'harga' => 63000, 'gambar_menu' => 'korean_chicken.png', 'status_ketersediaan' => 'Tersedia', 'jenis_menu' => 'Makanan', 'kategori_makanan' => 'Pedas', 'tipe_minuman' => null, 'komposisi' => 'Chicken // Korean Sauce // Balado // Lime Leaves', 'stock' => 0],
+            ['id_menu' => 31, 'nama_menu' => 'Chicken Wings', 'deskripsi' => 'Sayap ayam crispy dengan saus pedas balado dan daun jeruk - gurih pedas menggugah selera.', 'harga' => 35000, 'gambar_menu' => 'chicken_wings.png', 'status_ketersediaan' => 'Tersedia', 'jenis_menu' => 'Makanan', 'kategori_makanan' => 'Pedas', 'tipe_minuman' => null, 'komposisi' => 'Chicken Wings // Spicy Sauce // Balado // Lime Leaves', 'stock' => 0],
+            ['id_menu' => 32, 'nama_menu' => 'Smoked Beef Pasta', 'deskripsi' => 'Pasta fettuccine creamy dengan smoked beef gurih dan taburan parsley segar.', 'harga' => 42000, 'gambar_menu' => 'smoked_beef_pasta.png', 'status_ketersediaan' => 'Tersedia', 'jenis_menu' => 'Makanan', 'kategori_makanan' => 'Tidak Pedas', 'tipe_minuman' => null, 'komposisi' => 'Pasta Fettuchini // Smoked Beef // Milk // Parsley', 'stock' => 0],
+            ['id_menu' => 33, 'nama_menu' => 'Burger & Chips', 'deskripsi' => 'Chicken burger dengan saus house-made disandingkan kentang slice crispy - classic comfort food.', 'harga' => 42000, 'gambar_menu' => 'burger_chips.png', 'status_ketersediaan' => 'Tersedia', 'jenis_menu' => 'Makanan', 'kategori_makanan' => 'Tidak Pedas', 'tipe_minuman' => null, 'komposisi' => 'Potato Slice // Chicken Burger // House Made Souce', 'stock' => 0],
+            ['id_menu' => 34, 'nama_menu' => 'Potato Mix', 'deskripsi' => 'Mix ubi ungu dan kuning goreng - manis natural dengan tekstur lembut di dalam, crispy di luar.', 'harga' => 28000, 'gambar_menu' => 'potato_mix.png', 'status_ketersediaan' => 'Tersedia', 'jenis_menu' => 'Makanan', 'kategori_makanan' => 'Tidak Pedas', 'tipe_minuman' => null, 'komposisi' => 'Purple // Yellow Sweet Potato', 'stock' => 0],
+            ['id_menu' => 35, 'nama_menu' => 'Grilled Chicken Finger', 'deskripsi' => 'Chicken finger panggang dengan saus BBQ merah dan mayonaise - smoky, creamy, dan filling.', 'harga' => 35000, 'gambar_menu' => 'chicken_strip.png', 'status_ketersediaan' => 'Tersedia', 'jenis_menu' => 'Makanan', 'kategori_makanan' => 'Tidak Pedas', 'tipe_minuman' => null, 'komposisi' => 'Chicken // Red BBQ // Mayo', 'stock' => 0],
+            ['id_menu' => 36, 'nama_menu' => 'Banana Frites', 'deskripsi' => 'Pisang goreng renyah dengan dua saus: cokelat dan keju - manis-gurih cocok untuk teman ngopi.', 'harga' => 28000, 'gambar_menu' => 'banana_frites.png', 'status_ketersediaan' => 'Tersedia', 'jenis_menu' => 'Makanan', 'kategori_makanan' => 'Tidak Pedas', 'tipe_minuman' => null, 'komposisi' => 'Fried Banana // Chocolate Sauce // Cheese Sauce', 'stock' => 0],
+            ['id_menu' => 37, 'nama_menu' => 'Churros', 'deskripsi' => 'Churros crispy luar lembut dalam dengan saus cokelat dan keju - dessert yang adiktif.', 'harga' => 35000, 'gambar_menu' => 'churros.png', 'status_ketersediaan' => 'Tersedia', 'jenis_menu' => 'Makanan', 'kategori_makanan' => 'Tidak Pedas', 'tipe_minuman' => null, 'komposisi' => 'Churros // Chocolate Sauce // Cheese Sauce', 'stock' => 0],
+            ['id_menu' => 38, 'nama_menu' => 'Tela-Tela', 'deskripsi' => 'Singkong goreng tabur balado - gurih pedas crunchy yang nagih.', 'harga' => 28000, 'gambar_menu' => 'tela_tela.png', 'status_ketersediaan' => 'Tersedia', 'jenis_menu' => 'Makanan', 'kategori_makanan' => 'Pedas', 'tipe_minuman' => null, 'komposisi' => 'Cassava // Balado Powder', 'stock' => 0],
+            ['id_menu' => 39, 'nama_menu' => 'Tahu Cabe Garam', 'deskripsi' => 'Tahu goreng crispy dengan irisan cabe dan daun jeruk - savory pedas yang fresh dan ringan.', 'harga' => 27000, 'gambar_menu' => 'tahu_cabe_garam.png', 'status_ketersediaan' => 'Tersedia', 'jenis_menu' => 'Makanan', 'kategori_makanan' => 'Pedas', 'tipe_minuman' => null, 'komposisi' => 'Fried Tofu // Chili Slice // Lime Leaves', 'stock' => 0],
         ];
 
-        foreach ($menus as $data) {
-            $kategoriIds = $data['_kategori_ids'];
-            unset($data['_kategori_ids']);
-
-            $menu = Menu::create($data);
-            $menu->kategoris()->attach($kategoriIds);
+        foreach (array_chunk($rows, 200) as $chunk) {
+            DB::table('menu')->upsert($chunk, ['id_menu'], ['nama_menu', 'deskripsi', 'harga', 'gambar_menu', 'status_ketersediaan', 'jenis_menu', 'kategori_makanan', 'tipe_minuman', 'komposisi', 'stock']);
         }
+
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement("SELECT setval(pg_get_serial_sequence('menu', 'id_menu'), COALESCE((SELECT MAX(id_menu) FROM menu), 1), true)");
+        }
+
     }
 }

@@ -3,11 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pesanan;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Http\Response as HttpResponse;
 use Illuminate\View\View;
 
 /**
@@ -102,21 +99,25 @@ class KelolaPesananController extends Controller
     }
 
     /**
-     * Cetak kuitansi struk antrean pesanan dalam format PDF untuk dapur/pelanggan.
-     * Disajikan dalam bentuk stream (preview) PDF di browser.
+     * Tampilkan struk pesanan sebagai halaman HTML siap-cetak (print-friendly 80mm).
+     *
+     * Sebelumnya endpoint ini mengalirkan file PDF (dompdf) sehingga browser
+     * cenderung mengunduh berkas terlebih dahulu. Sekarang ia mengembalikan
+     * halaman HTML yang memanggil window.print() otomatis, sehingga kasir
+     * langsung melihat dialog cetak browser tanpa ada unduhan PDF. Isi struk
+     * tidak berubah — hanya format keluarannya.
      *
      * @param  string  $noPesanan  Nomor transaksi pesanan referensi
-     * @return Response Objek file stream PDF kuitansi/struk
+     * @return \Illuminate\View\View  Halaman struk HTML siap cetak
      */
-    public function cetakPesanan(string $noPesanan): HttpResponse
+    public function cetakPesanan(string $noPesanan): View
     {
         // 1. Mengambil data transaksi beserta relasi detail item
         $pesanan = Pesanan::with(['meja', 'detailPesanan.menu'])
             ->where('no_pesanan', $noPesanan)
             ->firstOrFail();
 
-        // 2. Load template Blade cetak nota dan alirkan file PDF ke browser
-        return Pdf::loadView('kasir.cetak-pesanan-pdf', compact('pesanan'))
-            ->stream("struk-{$noPesanan}.pdf");
+        // 2. Render struk sebagai halaman HTML siap-cetak (bukan unduhan PDF)
+        return view('kasir.cetak-pesanan-print', compact('pesanan'));
     }
 }

@@ -18,7 +18,7 @@
     <div data-sidebar-overlay class="fixed inset-0 z-40 hidden bg-black/45 lg:hidden"></div>
 
     <div class="flex min-h-screen">
-        <x-sidebar variant="kasir" />
+        <x-sidebar />
 
         <div class="flex min-w-0 flex-1 flex-col">
 

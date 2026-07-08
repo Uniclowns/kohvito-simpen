@@ -5,6 +5,28 @@
 --}}
 <x-layouts.konsumen :title="'Pesan Menu Anti Ribet - Meja ' . $meja->no_meja . ' - ' . config('app.name')"
     bodyClass="min-h-screen bg-[#F6F6F6] font-sans text-brand-black kvt-konsumen-mobile-view">
+    @php
+        $activeKategori = $kategoriId ? (string) $kategoriId : 'all';
+        $currentScope = request()->query('u');
+        $categoryUrl = function (string $id) use ($meja, $currentScope, $search) {
+            $query = [];
+
+            if ($currentScope) {
+                $query['u'] = $currentScope;
+            }
+
+            if ($search !== '') {
+                $query['search'] = $search;
+            }
+
+            if ($id !== 'all') {
+                $query['kategori'] = $id;
+            }
+
+            return route('konsumen.beranda', $meja->no_meja) . ($query ? '?' . http_build_query($query) : '');
+        };
+    @endphp
+
     {{-- ╔══════════════════════════════════════════════════════════════════╗
          ║  SPLASH OVERLAY  —  Figma 648-8923 + 792-11529                  ║
          ║  Putih → titik merah → meledak jadi merah → mascot + greeting  ║
@@ -91,7 +113,7 @@
                 </span>
             </div>
             <div class="relative mb-2 max-w-md mx-auto md:max-w-none">
-                <input id="sticky-search-input" type="text" placeholder="Cari Menu"
+                <input id="sticky-search-input" type="search" placeholder="Cari Menu" value="{{ $search }}"
                     class="w-full bg-white/15 border border-white/20 rounded-[9px] p-[10px] pr-10 text-[14px] tracking-[0.7px] text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/40">
                 <svg class="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-white/80" fill="none"
                     stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
@@ -102,15 +124,15 @@
             {{-- NEW: category pills row, mirror dari in-content --}}
             <div id="sticky-category-row"
                 class="flex gap-4 overflow-x-auto md:flex-wrap md:justify-center no-scrollbar mx-[-18px] md:mx-0 px-[18px] md:px-0 mt-3">
-                <button data-kat="all"
-                    class="sticky-cat-btn shrink-0 px-3 py-1.5 rounded-[9px] text-[14px] tracking-[0.7px] bg-brand-dark text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition-all whitespace-nowrap">
+                <a href="{{ $categoryUrl('all') }}" data-kat="all"
+                    class="sticky-cat-btn shrink-0 px-3 py-1.5 rounded-[9px] text-[14px] tracking-[0.7px] {{ $activeKategori === 'all' ? 'bg-brand-dark text-white' : 'bg-white text-brand-dark' }} shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition-all whitespace-nowrap">
                     Semua
-                </button>
+                </a>
                 @foreach ($kategoris as $kategori)
-                    <button data-kat="{{ $kategori->id_kategori }}"
-                        class="sticky-cat-btn shrink-0 px-3 py-1.5 rounded-[9px] text-[14px] tracking-[0.7px] bg-white text-brand-dark shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition-all whitespace-nowrap">
+                    <a href="{{ $categoryUrl((string) $kategori->id_kategori) }}" data-kat="{{ $kategori->id_kategori }}"
+                        class="sticky-cat-btn shrink-0 px-3 py-1.5 rounded-[9px] text-[14px] tracking-[0.7px] {{ $activeKategori === (string) $kategori->id_kategori ? 'bg-brand-dark text-white' : 'bg-white text-brand-dark' }} shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition-all whitespace-nowrap">
                         {{ $kategori->nama_kategori }}
-                    </button>
+                    </a>
                 @endforeach
             </div>
         </div>
@@ -129,15 +151,23 @@
                  ╚══════════════════════════════════════════════════════════════════╝ --}}
             {{-- Kolom Kanan: Pencarian, Horizontal pills (mobile only) & Grid Menu --}}
             <div class="space-y-0">
-                <div class="relative mb-3 max-w-md lg:max-w-lg">
-                    <input id="search-input" type="text" placeholder="Cari Menu"
+                <form id="menu-filter-form" method="GET" action="{{ route('konsumen.beranda', $meja->no_meja) }}"
+                    class="relative mb-3 max-w-md lg:max-w-lg">
+                    @if ($currentScope)
+                        <input type="hidden" name="u" value="{{ $currentScope }}">
+                    @endif
+                    <input id="active-category-input" type="hidden" name="kategori" value="{{ $kategoriId ?? '' }}">
+                    <input id="search-input" type="search" name="search" value="{{ $search }}" placeholder="Cari Menu"
                         class="w-full rounded-[9px] border-0 bg-brand-red/15 p-[10px] pr-10 text-[14px] leading-5 tracking-[0.7px] text-brand-dark placeholder-brand-dark/80 focus:outline-none focus:ring-2 focus:ring-brand-dark/20">
-                    <svg class="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-brand-dark" fill="none"
-                        stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                    </svg>
-                </div>
+                    <button type="submit" aria-label="Cari menu"
+                        class="absolute right-0 top-0 flex h-full w-10 items-center justify-center text-brand-dark">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </button>
+                </form>
 
                 @if ($kategoris->isNotEmpty())
                     <div>
@@ -145,16 +175,18 @@
                             Category</h2>
                         <div class="mx-[-18px] mb-[18px] flex gap-4 overflow-x-auto px-[18px] pb-2 no-scrollbar sm:flex-wrap sm:overflow-visible sm:px-[18px] lg:mx-0 lg:px-0"
                             data-category-row data-anim="stagger">
-                            <button onclick="filterCategory('all', this)" data-kat="all" data-anim-item
-                                class="category-btn shrink-0 px-3 py-1.5 rounded-[9px] text-[14px] tracking-[0.7px] bg-brand-dark text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition-all whitespace-nowrap">
+                            <a href="{{ $categoryUrl('all') }}" onclick="filterCategory('all', this, event)"
+                                data-kat="all" data-anim-item
+                                class="category-btn shrink-0 px-3 py-1.5 rounded-[9px] text-[14px] tracking-[0.7px] {{ $activeKategori === 'all' ? 'bg-brand-dark text-white' : 'bg-white text-brand-dark' }} shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition-all whitespace-nowrap">
                                 Semua
-                            </button>
+                            </a>
                             @foreach ($kategoris as $kategori)
-                                <button onclick="filterCategory('{{ $kategori->id_kategori }}', this)"
+                                <a href="{{ $categoryUrl((string) $kategori->id_kategori) }}"
+                                    onclick="filterCategory('{{ $kategori->id_kategori }}', this, event)"
                                     data-kat="{{ $kategori->id_kategori }}" data-anim-item
-                                    class="category-btn shrink-0 px-3 py-1.5 rounded-[9px] text-[14px] tracking-[0.7px] bg-white text-brand-dark shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition-all whitespace-nowrap">
+                                    class="category-btn shrink-0 px-3 py-1.5 rounded-[9px] text-[14px] tracking-[0.7px] {{ $activeKategori === (string) $kategori->id_kategori ? 'bg-brand-dark text-white' : 'bg-white text-brand-dark' }} shadow-[2px_4px_2px_rgba(0,0,0,0.25)] transition-all whitespace-nowrap">
                                     {{ $kategori->nama_kategori }}
-                                </button>
+                                </a>
                             @endforeach
                         </div>
                     </div>
@@ -163,98 +195,106 @@
                 <div id="menu-grid"
                     class="grid grid-cols-1 gap-[10px] min-[340px]:grid-cols-2 min-[480px]:gap-4 md:grid-cols-3 lg:grid-cols-4"
                     data-anim="stagger">
-                    @forelse ($kategoris as $kategori)
-                        @foreach ($kategori->menus as $menu)
-                            @php
-                                $imgType = $menu->jenis_menu === 'Makanan' ? 'food' : 'drink';
-                                $imgSrc = $menu->gambar_menu
-                                    ? (str_starts_with($menu->gambar_menu, 'http')
-                                        ? $menu->gambar_menu
-                                        : asset("images/{$imgType}/{$menu->gambar_menu}"))
-                                    : null;
-                                $badge = null;
-                                if ($menu->jenis_menu === 'Makanan') {
-                                    if ($menu->kategori_makanan === 'Pedas') {
-                                        $badge = 'Pedas';
-                                    } elseif ($menu->kategori_makanan === 'Tidak Pedas') {
-                                        $badge = 'Tidak Pedas';
-                                    }
-                                } elseif ($menu->jenis_menu === 'Minuman') {
-                                    if ($menu->tipe_minuman === 'Panas') {
-                                        $badge = 'Panas';
-                                    } elseif ($menu->tipe_minuman === 'Dingin') {
-                                        $badge = 'Dingin';
-                                    } elseif ($menu->tipe_minuman === 'Keduanya') {
-                                        $badge = 'Panas/Dingin';
-                                    }
+                    @foreach ($menus as $menu)
+                        @php
+                            $imgType = $menu->jenis_menu === 'Makanan' ? 'food' : 'drink';
+                            $imgSrc = $menu->gambar_menu
+                                ? (str_starts_with($menu->gambar_menu, 'http')
+                                    ? $menu->gambar_menu
+                                    : asset("images/{$imgType}/{$menu->gambar_menu}"))
+                                : null;
+                            $badge = null;
+                            if ($menu->jenis_menu === 'Makanan') {
+                                if ($menu->kategori_makanan === 'Pedas') {
+                                    $badge = 'Pedas';
+                                } elseif ($menu->kategori_makanan === 'Tidak Pedas') {
+                                    $badge = 'Tidak Pedas';
                                 }
-                            @endphp
-                            <article
-                                class="menu-card group relative flex min-w-0 flex-col overflow-hidden rounded-[9px] bg-brand-red shadow-[2px_4px_2px_rgba(0,0,0,0.25)]"
-                                data-anim-item data-kategori="{{ $kategori->id_kategori }}"
-                                data-nama="{{ strtolower($menu->nama_menu) }}"
-                                data-desc="{{ strtolower($menu->deskripsi) }}">
+                            } elseif ($menu->jenis_menu === 'Minuman') {
+                                if ($menu->tipe_minuman === 'Panas') {
+                                    $badge = 'Panas';
+                                } elseif ($menu->tipe_minuman === 'Dingin') {
+                                    $badge = 'Dingin';
+                                } elseif ($menu->tipe_minuman === 'Keduanya') {
+                                    $badge = 'Panas/Dingin';
+                                }
+                            }
+                            $menuKategoriIds = $menu->kategoris->pluck('id_kategori')->map(fn ($id) => (string) $id)->all();
+                            $isVisible = in_array($menu->id_menu, $visibleMenuIds, true);
+                            $searchText = \Illuminate\Support\Str::lower(implode(' ', [
+                                $menu->nama_menu,
+                                $menu->deskripsi,
+                                $menu->komposisi,
+                            ]));
+                        @endphp
+                        <article
+                            class="menu-card group relative flex min-w-0 flex-col overflow-hidden rounded-[9px] bg-brand-red shadow-[2px_4px_2px_rgba(0,0,0,0.25)] {{ $isVisible ? '' : 'hidden' }}"
+                            data-anim-item data-kategori="{{ implode(',', $menuKategoriIds) }}"
+                            data-nama="{{ \Illuminate\Support\Str::lower($menu->nama_menu) }}"
+                            data-search="{{ $searchText }}">
 
-                                {{-- Image area --}}
-                                <button type="button" onclick="openMenuSheet({{ $menu->id_menu }});"
-                                    class="relative block aspect-177/154 w-full cursor-pointer overflow-hidden bg-brand-light text-left">
-                                    @if ($imgSrc)
-                                        <img src="{{ $imgSrc }}" alt="{{ $menu->nama_menu }}" loading="lazy"
-                                            class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105">
-                                    @else
-                                        <div class="absolute inset-0 flex items-center justify-center">
-                                            <span class="text-brand-gray text-[12px]">No Image</span>
-                                        </div>
-                                    @endif
-                                    <span class="card-photo-bottom-fade absolute inset-0"></span>
-
-                                    @if ($badge)
-                                        <div class="absolute left-[10px] top-[10px] z-10">
-                                            <span
-                                                class="inline-flex items-center justify-center rounded-[9px] bg-brand-dark/55 px-2 py-[3px] text-[10px] font-bold leading-4 tracking-[0.5px] text-white backdrop-blur-sm">
-                                                {{ $badge }}
-                                            </span>
-                                        </div>
-                                    @endif
-                                </button>
-
-                                {{-- Content area --}}
-                                <div
-                                    class="card-info-fade relative mt-[-34px] flex flex-1 flex-col gap-[5px] px-[10px] pb-[10px] pt-[6px]">
-                                    <div>
-                                        <h3
-                                            class="line-clamp-2 min-h-[48px] text-[12px] font-bold leading-5 tracking-[0.6px] text-white sm:text-[14px] sm:leading-6">
-                                            {{ $menu->nama_menu }}
-                                        </h3>
+                            {{-- Image area --}}
+                            <button type="button" onclick="openMenuSheet({{ $menu->id_menu }});"
+                                class="relative block aspect-177/154 w-full cursor-pointer overflow-hidden bg-brand-light text-left">
+                                @if ($imgSrc)
+                                    <img src="{{ $imgSrc }}" alt="{{ $menu->nama_menu }}" loading="lazy"
+                                        class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105">
+                                @else
+                                    <div class="absolute inset-0 flex items-center justify-center">
+                                        <span class="text-brand-gray text-[12px]">No Image</span>
                                     </div>
+                                @endif
+                                <span class="card-photo-bottom-fade absolute inset-0"></span>
 
-                                    <div class="mt-auto flex flex-col gap-[5px]">
+                                @if ($badge)
+                                    <div class="absolute left-[10px] top-[10px] z-10">
                                         <span
-                                            class="text-right text-[12px] font-bold leading-4 tracking-[0.6px] text-white sm:text-[14px] sm:leading-5">
-                                            Rp {{ number_format($menu->harga, 0, ',', '.') }}
+                                            class="inline-flex items-center justify-center rounded-[9px] bg-brand-dark/55 px-2 py-[3px] text-[10px] font-bold leading-4 tracking-[0.5px] text-white backdrop-blur-sm">
+                                            {{ $badge }}
                                         </span>
-                                        <button type="button" onclick="openMenuSheet({{ $menu->id_menu }});"
-                                            class="w-full rounded-[9px] bg-white px-3 py-[6px] text-[12px] font-bold leading-4 tracking-[0.6px] text-brand-dark transition hover:bg-white/90 active:scale-[0.98] sm:text-[14px] sm:leading-5">
-                                            Tambah
-                                        </button>
                                     </div>
-                                </div>
-                            </article>
-                        @endforeach
-                    @empty
-                        <div class="col-span-full py-16 text-center">
+                                @endif
+                            </button>
+
+                            {{-- Content area --}}
                             <div
-                                class="w-16 h-16 bg-brand-red/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <svg class="w-8 h-8 text-brand-gray" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
-                                    </path>
-                                </svg>
+                                class="card-info-fade relative mt-[-34px] flex flex-1 flex-col gap-[5px] px-[10px] pb-[10px] pt-[6px]">
+                                <div>
+                                    <h3
+                                        class="line-clamp-2 min-h-[48px] text-[12px] font-bold leading-5 tracking-[0.6px] text-white sm:text-[14px] sm:leading-6">
+                                        {{ $menu->nama_menu }}
+                                    </h3>
+                                </div>
+
+                                <div class="mt-auto flex flex-col gap-[5px]">
+                                    <span
+                                        class="text-right text-[12px] font-bold leading-4 tracking-[0.6px] text-white sm:text-[14px] sm:leading-5">
+                                        Rp {{ number_format($menu->harga, 0, ',', '.') }}
+                                    </span>
+                                    <button type="button" onclick="openMenuSheet({{ $menu->id_menu }});"
+                                        class="w-full rounded-[9px] bg-white px-3 py-[6px] text-[12px] font-bold leading-4 tracking-[0.6px] text-brand-dark transition hover:bg-white/90 active:scale-[0.98] sm:text-[14px] sm:leading-5">
+                                        Tambah
+                                    </button>
+                                </div>
                             </div>
-                            <p class="text-brand-gray text-sm font-bold">Belum ada menu tersedia saat ini.</p>
+                        </article>
+                    @endforeach
+
+                    <div id="empty-filter-state"
+                        class="col-span-full py-16 text-center {{ count($visibleMenuIds) === 0 ? '' : 'hidden' }}">
+                        <div
+                            class="w-16 h-16 bg-brand-red/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8 text-brand-gray" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+                                </path>
+                            </svg>
                         </div>
-                    @endforelse
+                        <p id="empty-filter-message" class="text-brand-gray text-sm font-bold">
+                            {{ $menus->isEmpty() ? 'Belum ada menu tersedia saat ini.' : 'Menu yang dicari belum tersedia.' }}
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -353,49 +393,14 @@
          ╚══════════════════════════════════════════════════════════════════╝ --}}
     @php
         $keranjang = session('keranjang.'.session('id_meja'), []);
-        $cartCount = array_sum(array_column($keranjang, 'jumlah'));
+        $cartCount = count($keranjang);
         $hasOrder = session('no_pesanan_baru');
     @endphp
 
     <x-konsumen-bottom-nav active="menu" :mejaNo="$meja->no_meja" :cartCount="$cartCount" />
 
-    {{-- ╔══════════════════════════════════════════════════════════════════╗
-         ║  SLIDE-UP DETAIL SHEET (AJAX, BODY-ONLY OVERLAY)                ║
-         ║                                                                  ║
-         ║  Sits BELOW the beranda header bar so the top "Selamat Datang!" ║
-         ║  / mascot / Meja XXX strip stays visible. The panel slides up   ║
-         ║  from the bottom of the screen into this body area. Close via   ║
-         ║  scrim click, in-panel "Kembali" button, or ESC.                ║
-         ╚══════════════════════════════════════════════════════════════════╝ --}}
-    <div id="menu-sheet" class="fixed inset-x-0 bottom-0 z-60 hidden" style="top: var(--kvt-header-h);"
-        aria-hidden="true">
-        <div id="menu-sheet-scrim" class="absolute inset-0 bg-black/55 backdrop-blur-[2px]"
-            onclick="closeMenuSheet()"></div>
-
-        <div id="menu-sheet-panel"
-            class="absolute inset-x-0 bottom-0 top-0 bg-[#F6F6F6] max-w-md mx-auto overflow-y-auto overscroll-contain shadow-[0_-12px_40px_rgba(0,0,0,0.35)]"
-            style="-webkit-overflow-scrolling: touch; touch-action: pan-y;">
-
-            {{-- Drag indicator on top (also clickable to close) --}}
-            <button type="button" onclick="closeMenuSheet()"
-                class="sticky top-0 z-10 w-full flex items-center justify-center pt-2 pb-1 bg-transparent">
-                <span class="block w-12 h-1.5 rounded-full bg-brand-gray-light/80"></span>
-            </button>
-
-            {{-- Default loading state (replaced by injected partial on success) --}}
-            <div id="menu-sheet-loader"
-                class="absolute inset-0 flex flex-col items-center justify-center gap-3 text-brand-dark">
-                <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"
-                        stroke-linecap="round" stroke-dasharray="40 60" />
-                </svg>
-                <p class="text-[12px] tracking-wide font-bold text-brand-gray">Memuat detail menu...</p>
-            </div>
-
-            {{-- Slot where the fetched partial gets injected --}}
-            <div id="menu-sheet-body" class="relative"></div>
-        </div>
-    </div>
+    {{-- Slide-up detail sheet (mobile) / centered modal (desktop). Shared component. --}}
+    <x-menu-detail-sheet />
 
     {{-- ╔══════════════════════════════════════════════════════════════════╗
          ║  SCRIPT                                                         ║
@@ -439,13 +444,22 @@
         })();
 
         // ============ Category & Search filter ============
-        let activeKategori = 'all';
+        const initialScope = @json($currentScope);
+        let activeKategori = @json($activeKategori);
+        const filterForm = document.getElementById('menu-filter-form');
+        const activeCategoryInput = document.getElementById('active-category-input');
+        const emptyFilterState = document.getElementById('empty-filter-state');
+        const emptyFilterMessage = document.getElementById('empty-filter-message');
 
-        function filterCategory(id, btn) {
-            activeKategori = id;
+        function filterCategory(id, btn, event) {
+            if (event) event.preventDefault();
+            activeKategori = String(id || 'all');
+            if (activeCategoryInput) {
+                activeCategoryInput.value = activeKategori === 'all' ? '' : activeKategori;
+            }
 
             document.querySelectorAll('[data-category-row] .category-btn').forEach(b => {
-                const isActive = b.dataset.kat === String(id);
+                const isActive = b.dataset.kat === activeKategori;
                 if (isActive) {
                     b.classList.remove('bg-white', 'text-brand-dark');
                     b.classList.add('bg-brand-dark', 'text-white');
@@ -457,7 +471,7 @@
 
             // Update all sticky category buttons
             document.querySelectorAll('.sticky-cat-btn').forEach(b => {
-                const isActive = b.dataset.kat === String(id);
+                const isActive = b.dataset.kat === activeKategori;
                 b.classList.toggle('bg-brand-dark', isActive);
                 b.classList.toggle('text-white', isActive);
                 b.classList.toggle('bg-white', !isActive);
@@ -465,14 +479,12 @@
             });
 
             runFiltering();
+            updateFilterUrl();
         }
 
         // Sticky category pills mirror
         document.querySelectorAll('.sticky-cat-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const kat = btn.dataset.kat;
-                filterCategory(kat);
-            });
+            btn.addEventListener('click', event => filterCategory(btn.dataset.kat, btn, event));
         });
 
         const searchInput = document.getElementById('search-input');
@@ -480,10 +492,18 @@
         if (searchInput) searchInput.addEventListener('input', () => {
             syncSearch(searchInput.value);
             runFiltering();
+            updateFilterUrl();
         });
         if (stickyInput) stickyInput.addEventListener('input', () => {
             syncSearch(stickyInput.value);
             runFiltering();
+            updateFilterUrl();
+        });
+        if (stickyInput) stickyInput.addEventListener('keydown', event => {
+            if (event.key === 'Enter' && filterForm) {
+                event.preventDefault();
+                filterForm.requestSubmit();
+            }
         });
 
         function syncSearch(val) {
@@ -493,15 +513,38 @@
 
         function runFiltering() {
             const query = (searchInput ? searchInput.value : '').toLowerCase().trim();
+            let visibleCount = 0;
+            const cards = document.querySelectorAll('.menu-card');
             document.querySelectorAll('.menu-card').forEach(card => {
-                const cardKat = card.getAttribute('data-kategori');
-                const cardNama = card.getAttribute('data-nama');
-                const cardDesc = card.getAttribute('data-desc') || '';
-                const matchesKategori = (activeKategori === 'all' || cardKat === activeKategori);
-                const matchesSearch = (query === '' || cardNama.includes(query) || cardDesc.includes(query));
-                card.classList.toggle('hidden', !(matchesKategori && matchesSearch));
+                const cardKategori = (card.getAttribute('data-kategori') || '').split(',').filter(Boolean);
+                const cardSearch = card.getAttribute('data-search') || card.getAttribute('data-nama') || '';
+                const matchesKategori = (activeKategori === 'all' || cardKategori.includes(activeKategori));
+                const matchesSearch = (query === '' || cardSearch.includes(query));
+                const visible = matchesKategori && matchesSearch;
+                card.classList.toggle('hidden', !visible);
+                if (visible) visibleCount++;
             });
+            if (emptyFilterState) {
+                emptyFilterState.classList.toggle('hidden', visibleCount > 0);
+            }
+            if (emptyFilterMessage && cards.length > 0) {
+                emptyFilterMessage.textContent = 'Menu yang dicari belum tersedia.';
+            }
         }
+
+        function updateFilterUrl() {
+            const params = new URLSearchParams();
+            const query = (searchInput ? searchInput.value : '').trim();
+            if (initialScope) params.set('u', initialScope);
+            if (activeKategori !== 'all') params.set('kategori', activeKategori);
+            if (query !== '') params.set('search', query);
+
+            const queryString = params.toString();
+            const nextUrl = `${window.location.pathname}${queryString ? `?${queryString}` : ''}`;
+            window.history.replaceState(null, '', nextUrl);
+        }
+
+        runFiltering();
 
         // ============ Sticky header on scroll ============
         const stickyEl = document.getElementById('sticky-search');

@@ -50,16 +50,21 @@
                 <div class="hidden h-[160px] w-full max-w-[220px] sm:h-[180px]" data-lottie="{{ $lottiePath }}" data-lottie-loop="false"></div>
             @endif
 
-            @if ($gif && file_exists(public_path('images/gif/' . $gif)))
+            {{-- Render langsung lewat asset() — JANGAN pakai file_exists(public_path()).
+                 Di Vercel public/images/** di-exclude dari bundle function (lihat
+                 excludeFiles di vercel.json) sehingga file_exists() selalu false dan
+                 dulu memunculkan placeholder "illustration missing", padahal asetnya
+                 tetap disajikan statis lewat CDN. --}}
+            @if ($gif)
+                {{-- Gif animasi bila di-request; onerror jatuh ke ilustrasi statis
+                     kalau gif tidak tersedia. --}}
                 <img src="{{ asset('images/gif/' . $gif) }}" alt="" aria-hidden="true" data-lottie-fallback
-                     class="h-[160px] w-auto object-contain sm:h-[180px]">
-            @elseif (file_exists(public_path('images/illustration/' . $illustration)))
-                <img src="{{ asset('images/illustration/' . $illustration) }}" alt="" data-lottie-fallback
-                     class="h-[180px] w-auto object-contain sm:h-[230px]">
+                     class="h-[160px] w-auto object-contain sm:h-[180px]"
+                     onerror="this.onerror=null; this.src='{{ asset('images/illustration/' . $illustration) }}';">
             @else
-                <div class="flex h-[180px] w-full max-w-[232px] items-center justify-center rounded bg-gray-100 text-[10px] uppercase tracking-wide text-brand-gray sm:h-[230px]" data-lottie-fallback>
-                    illustration missing
-                </div>
+                <img src="{{ asset('images/illustration/' . $illustration) }}" alt="" data-lottie-fallback
+                     class="h-[180px] w-auto object-contain sm:h-[230px]"
+                     onerror="this.style.display='none'">
             @endif
 
             <h2 id="{{ $id }}-heading"
