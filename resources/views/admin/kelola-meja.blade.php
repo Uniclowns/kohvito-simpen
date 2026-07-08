@@ -220,7 +220,7 @@
                 <div class="mt-3 rounded-md bg-brand-light p-3 text-xs text-brand-dark">
                     <span class="font-medium">URL QR Code akan:</span>
                     <div class="mt-1 break-all font-mono">
-                        {{ rtrim(config('app.qr_meja_base_url'), '/') }}/<span class="font-bold text-brand-red">[nomor]</span>
+                        https://kohvito-simpen.vercel.app/<span class="font-bold text-brand-red">[nomor]</span>
                     </div>
                 </div>
 
