@@ -1,23 +1,38 @@
 @auth
-<aside data-app-sidebar class="kvt-sidebar group fixed left-0 top-0 z-50 flex h-screen w-[72px] -translate-x-full flex-shrink-0 flex-col overflow-hidden bg-brand-dark py-6 transition-all duration-300 hover:w-64 lg:sticky lg:translate-x-0">
+@php
+    $userRoleId = auth()->user()->id_role;
+    $isSuperadmin = $userRoleId === 3;
+    $isAdmin = $userRoleId === 1;
+    $firstMejaNo = $isSuperadmin ? optional(\App\Models\Meja::orderBy('no_meja')->first())->no_meja : null;
+@endphp
+
+<aside data-app-sidebar @if ($isSuperadmin) id="superadmin-navigation" @endif class="kvt-sidebar fixed left-0 top-0 z-50 flex h-screen -translate-x-full flex-shrink-0 flex-col overflow-hidden transition-all duration-300 lg:sticky lg:translate-x-0 {{ $isSuperadmin ? 'superadmin-sidebar w-[286px] bg-[#2B0708] px-4 py-5 shadow-[18px_0_60px_rgba(43,7,8,0.12)]' : 'group w-[72px] bg-brand-dark py-6 hover:w-64' }}">
 
     {{-- Logo --}}
-    <div class="mb-8 flex items-center justify-center w-full h-16">
-        <img src="{{ asset('images/logo/KOHVITO LOGO WHITE.png') }}" 
-             alt="{{ config('app.name') }}" 
-             class="w-8 h-auto object-contain transition-all duration-300 group-hover:scale-[4.5]">
-    </div>
+    @if ($isSuperadmin)
+        <div class="mb-7 flex h-16 items-center justify-between border-b border-white/10 px-2 pb-5">
+            <div>
+                <img src="{{ asset('images/logo/KOHVITO LOGO WHITE.png') }}"
+                     alt="{{ config('app.name') }}"
+                     class="h-auto w-28 object-contain">
+                <p class="mt-1 text-[10px] font-bold uppercase tracking-[0.22em] text-white/45">System console</p>
+            </div>
+            <div class="flex h-9 w-9 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white/70" title="Akses Superadmin">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 3l7 3v5c0 4.7-2.9 8-7 10-4.1-2-7-5.3-7-10V6l7-3zm-2 9l1.5 1.5L15 10"/>
+                </svg>
+            </div>
+        </div>
+    @else
+        <div class="mb-8 flex h-16 w-full items-center justify-center">
+            <img src="{{ asset('images/logo/KOHVITO LOGO WHITE.png') }}"
+                 alt="{{ config('app.name') }}"
+                 class="h-auto w-8 object-contain transition-all duration-300 group-hover:scale-[4.5]">
+        </div>
+    @endif
 
     {{-- Nav --}}
     <nav class="flex-1 flex flex-col gap-3 w-full px-3">
-
-        @php
-            $userRoleId = auth()->user()->id_role;
-            $isSuperadmin = $userRoleId === 3; // Super Admin (god mode)
-            $isAdmin      = $userRoleId === 1; // Admin biasa
-            // Target tombol "Lihat Konsumen" untuk Super Admin (meja pertama).
-            $firstMejaNo  = $isSuperadmin ? optional(\App\Models\Meja::orderBy('no_meja')->first())->no_meja : null;
-        @endphp
 
         @if ($isSuperadmin)
             {{-- ══ Super Admin Navigation (god-mode hub) ══ --}}
@@ -104,7 +119,8 @@
                 <span class="ml-4 font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">Panel Kasir</span>
             </a>
 
-            <a href="{{ $firstMejaNo ? url('/' . $firstMejaNo) : '#' }}" target="_blank"
+            <a href="{{ $firstMejaNo ? url('/' . $firstMejaNo) : '#' }}"
+               @if ($firstMejaNo) target="_blank" rel="noreferrer" @else aria-disabled="true" tabindex="-1" @endif
                class="relative flex items-center h-12 px-3 rounded-xl transition-colors overflow-hidden text-white hover:bg-white/10 {{ $firstMejaNo ? '' : 'opacity-40 pointer-events-none' }}">
                 <svg class="w-5 min-w-[1.25rem] h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="opacity:.8">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -190,14 +206,14 @@
     </nav>
 
     {{-- Logout --}}
-    <div class="mt-auto pt-4 border-t border-white/10 w-full flex justify-center px-3 group-hover:px-4 transition-all duration-300">
+    <div class="mt-auto flex w-full justify-center border-t border-white/10 pt-4 transition-all duration-300 {{ $isSuperadmin ? 'px-0' : 'px-3 group-hover:px-4' }}">
         <form method="POST" action="{{ route('logout') }}" class="w-full">
             @csrf
             <button type="submit" class="w-full h-10 flex items-center px-3 text-white/50 hover:text-white hover:bg-white/10 rounded-xl transition-colors overflow-hidden">
                 <img src="{{ asset('images/icons/logout.svg') }}" alt=""
                      class="w-5 min-w-[1.25rem] h-5 flex-shrink-0"
                      style="filter:brightness(0) invert(1);opacity:.8">
-                <span class="ml-4 font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">Keluar</span>
+                <span class="ml-4 whitespace-nowrap font-medium {{ $isSuperadmin ? '' : 'opacity-0 transition-opacity duration-300 group-hover:opacity-100' }}">Keluar</span>
             </button>
         </form>
     </div>

@@ -5,7 +5,15 @@
  * data-konsumen-confirm-modal. Legacy helper names remain as aliases so older
  * Blade call sites continue to work during the clean-code migration.
  */
-const modalSelector = '.fixed:not(.hidden)';
+const modalSelector = '.fixed:not(.hidden):not([data-app-sidebar]):not([data-sidebar-overlay])';
+const managedModalSelector = '[data-superadmin-modal]';
+const focusableSelector = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+const modalFocusOrigins = new Map();
+
+function focusableElements(modal) {
+    return Array.from(modal.querySelectorAll(focusableSelector))
+        .filter((element) => element.getAttribute('aria-hidden') !== 'true' && element.offsetParent !== null);
+}
 
 /**
  * Returns the modal element for a given id.
@@ -41,6 +49,11 @@ function openAppModal(id) {
         modal.classList.add('flex');
     }
     document.body.style.overflow = 'hidden';
+
+    if (modal.matches(managedModalSelector)) {
+        modalFocusOrigins.set(id, document.activeElement);
+        requestAnimationFrame(() => (focusableElements(modal)[0] ?? modal).focus());
+    }
 }
 
 /**
@@ -56,6 +69,12 @@ function closeAppModal(id) {
     modal.classList.add('hidden');
     modal.classList.remove('flex');
     syncBodyScrollLock();
+
+    const focusOrigin = modalFocusOrigins.get(id);
+    modalFocusOrigins.delete(id);
+    if (focusOrigin instanceof HTMLElement) {
+        requestAnimationFrame(() => focusOrigin.focus());
+    }
 }
 
 /**
@@ -91,9 +110,24 @@ window.toggleModal = toggleAppModal;
  * because all Blade modal components are rendered near the end of each view.
  */
 document.addEventListener('keydown', (event) => {
-    if (event.key !== 'Escape') return;
-
     const visibleModals = Array.from(document.querySelectorAll(modalSelector));
     const topModal = visibleModals.at(-1);
+
+    if (event.key === 'Tab' && topModal?.matches(managedModalSelector)) {
+        const elements = focusableElements(topModal);
+        const first = elements[0] ?? topModal;
+        const last = elements.at(-1) ?? topModal;
+
+        if (event.shiftKey && document.activeElement === first) {
+            event.preventDefault();
+            last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault();
+            first.focus();
+        }
+        return;
+    }
+
+    if (event.key !== 'Escape') return;
     if (topModal?.id) closeAppModal(topModal.id);
 });
