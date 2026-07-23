@@ -171,7 +171,7 @@
                                         <a href="{{ route('konsumen.menu.detail', ['noMeja' => $mejaNo, 'id' => $menuId]) }}"
                                             class="flex h-8 min-w-0 flex-1 items-center justify-center rounded-[9px] bg-brand-red px-1 sm:px-3 py-1.5 text-[13px] sm:text-[14px] leading-5 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)]">
                                             Edit
-                                        </button>
+                                        </a>
 
                                         <div class="flex h-8 min-w-0 flex-1 items-center rounded-[9px] bg-[rgba(70,0,1,0.25)]">
                                             <form method="POST" action="{{ route('konsumen.keranjang.update', ['noMeja' => $mejaNo]) }}"
