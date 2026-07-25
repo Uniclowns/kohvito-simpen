@@ -9,8 +9,11 @@
     $tipeMinumanDefault = $isEdit ? $menu->tipe_minuman : 'Keduanya';
     $needsMethodSpoof = in_array(strtoupper($submitMethod), ['PUT', 'PATCH']);
     $idKategoriDefault = $isEdit ? $menu->kategoris->pluck('id_kategori')->toArray() : [];
-    $sugarLevelDefault = old('sugar_level_enabled', false);
-    $specificOptionsDefault = old('specific_options_enabled', false);
+    // old() is keyed globally by field name, so without this guard a failed submission for
+    // one menu's modal would leak its toggle state into every other menu's modal on the page.
+    $isThisModalOld = old('_open_modal') === $id;
+    $sugarLevelDefault = $isThisModalOld ? old('sugar_level_enabled', false) : false;
+    $specificOptionsDefault = $isThisModalOld ? old('specific_options_enabled', false) : false;
 @endphp
 
 <div id="{{ $id }}" data-form-modal
@@ -46,6 +49,7 @@
                 @method($submitMethod)
             @endif
 
+            <input type="hidden" name="_open_modal" value="{{ $id }}">
             <input type="hidden" name="jenis_menu" id="{{ $id }}-jenis-input" value="{{ $jenisDefault }}">
             <input type="hidden" name="tipe_minuman" id="{{ $id }}-tipe-minuman-input"
                 value="{{ $tipeMinumanDefault }}">
