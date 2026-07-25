@@ -356,42 +356,74 @@
             </div>
 
             <section id="{{ $id }}-specific-section" class="{{ $specificOptionsDefault ? '' : 'hidden' }} mt-7 border-t border-brand-gray-light pt-6">
-                <h3 class="text-[24px] leading-8 font-bold tracking-[1.2px] text-brand-dark">Pilihan Spesifik Menu</h3>
-
-                <div class="mt-4 flex flex-wrap items-end gap-6" data-specific-builder data-form-id="{{ $id }}">
+                <div class="flex flex-wrap items-end gap-6" data-specific-builder data-form-id="{{ $id }}">
                     <div class="flex flex-col gap-[5px]">
-                        <p class="capitalize font-bold leading-5 text-brand-dark text-[14px] tracking-[0.7px]">Jenis Pilihan</p>
+                        <div class="flex items-center gap-1.5">
+                            <p class="capitalize font-bold leading-5 text-brand-dark text-[14px] tracking-[0.7px]">Jenis Pilihan</p>
+                            <span class="cursor-help text-brand-gray"
+                                title="Pilihan Tambahan: opsi tanpa biaya. Pilihan Tambahan + Harga: opsi dengan biaya tambahan.">
+                                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </span>
+                        </div>
                         <div class="flex flex-col overflow-hidden rounded-[9px] border border-brand-red text-[14px] leading-5 tracking-[0.7px] shadow-[2px_4px_4px_rgba(0,0,0,0.25)] sm:h-8 sm:flex-row">
-                            <button type="button" class="px-2 py-1.5 bg-brand-dark text-white" data-specific-type="basic" data-form-id="{{ $id }}">Pilihan Tambahan</button>
+                            <button type="button" class="px-2 py-1.5 text-brand-red" data-specific-type="basic" data-form-id="{{ $id }}">Pilihan Tambahan</button>
                             <button type="button" class="border-l border-brand-red px-2 py-1.5 text-brand-red" data-specific-type="priced" data-form-id="{{ $id }}">Pilihan Tambahan + Harga</button>
                         </div>
                     </div>
 
-                    <div class="flex w-full flex-col gap-[5px] sm:w-[145px]">
-                        <p class="capitalize font-bold leading-5 text-brand-dark text-[14px] tracking-[0.7px]">Jumlah Pilihan</p>
-                        <div class="flex h-8 items-center rounded-[9px] bg-[rgba(70,0,1,0.25)]" data-specific-count data-form-id="{{ $id }}">
-                            <button type="button" class="h-8 w-8 text-[14px] font-bold text-brand-dark" data-specific-count-step="-1" data-form-id="{{ $id }}">&minus;</button>
-                            <span class="flex-1 text-center text-[14px] leading-5 tracking-[0.7px]" data-specific-count-value>2</span>
-                            <button type="button" class="h-8 w-8 text-[14px] font-bold text-brand-dark" data-specific-count-step="1" data-form-id="{{ $id }}">&#43;</button>
+                    {{-- Per Figma, Jumlah Pilihan & Opsional only appear once a Jenis Pilihan is picked. --}}
+                    <div id="{{ $id }}-specific-config" class="hidden flex flex-wrap items-end gap-6">
+                        <div class="flex w-full flex-col gap-[5px] sm:w-[145px]">
+                            <div class="flex items-center gap-1.5">
+                                <p class="capitalize font-bold leading-5 text-brand-dark text-[14px] tracking-[0.7px]">Jumlah Pilihan</p>
+                                <span class="cursor-help text-brand-gray"
+                                    title="Banyaknya opsi pada jenis pilihan ini (1-6).">
+                                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd"
+                                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </span>
+                            </div>
+                            <div class="flex h-8 items-center rounded-[9px] bg-[rgba(70,0,1,0.25)]" data-specific-count data-form-id="{{ $id }}">
+                                <button type="button" class="h-8 w-8 text-[14px] font-bold text-brand-dark" data-specific-count-step="-1" data-form-id="{{ $id }}">&minus;</button>
+                                <span class="flex-1 text-center text-[14px] leading-5 tracking-[0.7px]" data-specific-count-value>2</span>
+                                <button type="button" class="h-8 w-8 text-[14px] font-bold text-brand-dark" data-specific-count-step="1" data-form-id="{{ $id }}">&#43;</button>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="flex w-full flex-col gap-[5px] sm:w-[145px]">
-                        <p class="capitalize font-bold leading-5 text-brand-dark text-[14px] tracking-[0.7px]">Opsional</p>
-                        <button type="button"
-                            class="relative h-5 w-[44px] rounded-full bg-state-green transition-colors"
-                            data-specific-optional
-                            data-form-id="{{ $id }}"
-                            aria-pressed="true">
-                            <span class="absolute top-[2px] h-4 w-4 translate-x-[25px] rounded-full bg-white shadow-[2px_1px_3px_rgba(0,0,0,0.25)] transition-transform" data-switch-knob></span>
-                        </button>
+                        <div class="flex w-full flex-col gap-[5px] sm:w-[145px]">
+                            <div class="flex items-center gap-1.5">
+                                <p class="capitalize font-bold leading-5 text-brand-dark text-[14px] tracking-[0.7px]">Opsional</p>
+                                <span class="cursor-help text-brand-gray"
+                                    title="Aktif: pelanggan boleh melewati pilihan ini. Nonaktif: wajib dipilih.">
+                                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd"
+                                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </span>
+                            </div>
+                            <button type="button"
+                                class="relative h-5 w-[44px] rounded-full bg-state-green transition-colors"
+                                data-specific-optional
+                                data-form-id="{{ $id }}"
+                                aria-pressed="true">
+                                <span class="absolute top-[2px] h-4 w-4 translate-x-[25px] rounded-full bg-white shadow-[2px_1px_3px_rgba(0,0,0,0.25)] transition-transform" data-switch-knob></span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
                 <div id="{{ $id }}-specific-groups" class="mt-4 flex flex-col gap-4" data-specific-groups data-next-index="0"></div>
 
                 <button type="button"
-                    class="mt-4 flex h-8 w-full items-center justify-center gap-2 rounded-[9px] bg-brand-red px-3 py-1.5 text-[14px] leading-5 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)]"
+                    id="{{ $id }}-specific-add"
+                    class="hidden mt-4 flex h-8 w-full items-center justify-center gap-2 rounded-[9px] bg-brand-red px-3 py-1.5 text-[14px] leading-5 tracking-[0.7px] text-white shadow-[2px_4px_2px_rgba(0,0,0,0.25)]"
                     data-specific-add-group
                     data-form-id="{{ $id }}">
                     <span class="font-bold">&#43;</span>
@@ -466,6 +498,14 @@
                     button.classList.toggle('text-white', active);
                     button.classList.toggle('text-brand-red', !active);
                 });
+
+                // Per Figma the segmented control starts unselected; Jumlah Pilihan, Opsional and
+                // "Tambah Jenis Pilihan" stay hidden until a jenis is picked. This also keeps the
+                // add-group handler honest — it needs a [data-active="1"] type to build a group.
+                const config = document.getElementById(`${formId}-specific-config`);
+                if (config) config.classList.remove('hidden');
+                const addButton = document.getElementById(`${formId}-specific-add`);
+                if (addButton) addButton.classList.remove('hidden');
             }
 
             function fieldError(text) {
@@ -778,9 +818,9 @@
                 });
             });
 
-            document.querySelectorAll('[data-specific-builder]').forEach((builder) => {
-                setSpecificType(builder.dataset.formId, 'basic');
-            });
+            // No mount-time setSpecificType() here on purpose: per Figma the Jenis Pilihan
+            // segmented control starts unselected, and Jumlah Pilihan / Opsional / "Tambah Jenis
+            // Pilihan" stay hidden until the user picks one.
         });
     </script>
 @endonce
