@@ -896,4 +896,13 @@ body.is-scrolled .hero-headline {
     .text-5xl  { font-size: 52px; line-height: 1; }
     .text-6xl  { font-size: 64px; line-height: 1; }
     .text-7xl  { font-size: 76px; line-height: 1; }
+
+    /* `leading-3` is a FIXED 12px line box, authored against the ORIGINAL 10px
+       micro-copy. The scale-up above bumps that same text to 14px without
+       touching the leading, so 14px glyphs render inside a 12px line box and
+       wrapped lines physically overlap (e.g. the "Tambah Pilihan Spesifik"
+       helper text in menu-form-modal). Make it proportional so it follows
+       whatever font-size wins; max() keeps the old 12px floor for the few
+       sizes the block leaves unscaled (text-[9px]), so nothing ever shrinks. */
+    .leading-3 { line-height: max(0.75rem, 1.2em); }
 }
